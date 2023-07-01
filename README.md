@@ -9,7 +9,7 @@ This app is telegram bot for collecting terms of eny languags. You can save term
 ### Alembic
 
 ``` shell
-python -m alembic -c ./database/alembic.ini stamp head
+python -m alembic -c ./database/alembic.ini upgrade head
 ```
 
 ### Config file
