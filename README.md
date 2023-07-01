@@ -9,7 +9,7 @@ This app is telegram bot for collecting terms of eny languags. You can save term
 ### Alembic
 
 ``` shell
-python -m alembic head
+python -m alembic -c ./database/alembic.ini stamp head
 ```
 
 ### Config file
@@ -18,6 +18,7 @@ You should to create `config.py` file based on `config.default.py` and set varia
 Variables:
 
 + API_TOKEN - api token of telegram bot
++ DATABASE_URL - url of database
 
 ## Develop
 
