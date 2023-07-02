@@ -100,18 +100,7 @@ class Folder(Base):
     )
 
     parent_folder_id: Mapped[Optional[int]] = mapped_column(ForeignKey("folder.id"))
-    parent_folder: Mapped[Optional["Folder"]] = relationship(back_populates="folders")
-
-    folders: Mapped[List["Folder"]] = relationship(
-        remote_side='folder.id',
-        backref=backref('parent_folder'),
-    )
-    parent_folder_id: Mapped[Optional[int]] = mapped_column(ForeignKey("folder.id"))
     folders: Mapped[List["Folder"]] = relationship("Folder", cascade="all, delete-orphan")
-    # folders: Mapped[List["Folder"]] = relationship(
-    #     back_populates="parent_folder",
-    #     cascade="all, delete-orphan",  # ??
-    # )
 
     def __repr__(self) -> str:
         return f"Folder(id={self.id!r}, name={self.name!r})"
