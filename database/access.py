@@ -1,14 +1,9 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 
-engine = create_engine("sqlite://", echo=True)
+from config import DATABASE_URL
 
 
-def session_commit(*args):
-    with Session(engine) as session:
-        try:
-            session.add_all(args)
-        except Exception:
-            session.rollback()
-        finally:
-            session.commit()
+engine = create_engine(DATABASE_URL, echo=False)
+Session = sessionmaker(engine)
+
