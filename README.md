@@ -1,7 +1,5 @@
 # Telegram Language Bot
 
-## About
-
 This app is telegram bot for collecting terms of eny languags. You can save terms in sets and folders and train it after.
 
 ![menues-diagram](bot-routing-map.drawio.svg)
