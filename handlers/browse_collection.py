@@ -1,30 +1,22 @@
 import math
 from typing import (
     List,
-    Optional,
     Tuple,
 )
 from aiogram import (
     Router,
-    filters,
     types,
 )
 from aiogram.fsm.context import FSMContext
-from aiogram.filters.callback_data import CallbackData
+from handlers.callbacks import (
+    SelectedFolderCallback,
+    SelectedCollectionCallback,
+)
 
 import utils
 
 
 router = Router()
-
-
-class SelectedFolderCallback(CallbackData, prefix='selected_folder'):
-    folder_id: Optional[int]
-    page: Optional[int]
-
-
-class SelectedCollectionCallback(CallbackData, prefix='selected_collection'):
-    collection_name: str
 
 
 def __get_keyboard_folders(
@@ -79,6 +71,7 @@ def __get_keyboard_folders(
                     '📄' + collection.name,
                     SelectedCollectionCallback(
                         collection_name=collection.name,
+                        collection_id=collection.id,
                     ).pack(),
                 ),
             )
@@ -137,78 +130,67 @@ def __get_keyboard_folders(
 
 
 async def __choose_set(
-        message: types.Message,
-        telegram_user_id: int,
-        folder_id: int = None,
-        page: int = 0,
-) -> None:
-
-    rows, last_page = __get_keyboard_folders(telegram_user_id, folder_id, page)
-    await message.answer(
-        text=f'Choose set [{page + 1}/{last_page}]',
-        reply_markup=types.InlineKeyboardMarkup(
-            inline_keyboard=rows,
-        ),
-    )
-
-
-@router.message(filters.Command('add_term'))
-async def choose_set(
     message: types.Message,
-    state: FSMContext,
+    telegram_user_id: int,
+    folder_id: int = None,
+    page: int = 0,
+    is_edit_message: bool = False,
 ) -> None:
-    await __choose_set(
-        message=message,
-        telegram_user_id=message.chat.id,
-        page=0,
-    )
+    rows, last_page = __get_keyboard_folders(telegram_user_id, folder_id, page)
+    if is_edit_message:
+        await message.edit_text(
+            text=f'Choose set [{page + 1}/{last_page}]',
+            reply_markup=types.InlineKeyboardMarkup(
+                inline_keyboard=rows,
+            ),
+        )
+    else:
+        await message.answer(
+            text=f'Choose set [{page + 1}/{last_page}]',
+            reply_markup=types.InlineKeyboardMarkup(
+                inline_keyboard=rows,
+            ),
+        )
 
 
 @router.callback_query(SelectedFolderCallback.filter())
-async def folder_chosen(
+async def collection_chosen(
     callback: types.CallbackQuery,
     callback_data: SelectedFolderCallback,
     state: FSMContext,
 ) -> None:
+
+    await state.update_data(
+        folder_id=callback_data.folder_id,
+        page=callback_data.page,
+    )
+    await folder_chosen(callback, state)
+
+
+async def folder_chosen(
+    callback: types.CallbackQuery,
+    state: FSMContext,
+) -> None:
+    data = await state.get_data()
     await __choose_set(
         message=callback.message,
         telegram_user_id=callback.from_user.id,
-        folder_id=callback_data.folder_id,
-        page=callback_data.page or 0,
+        folder_id=data.get('folder_id'),
+        page=data.get('page') or 0,
+        is_edit_message=True,
     )
 
 
-
-
-# @router.message(
-#     AddTerm.adding_term_name,
-# )
-# async def food_chosen(message: types.Message, state: FSMContext):
-#     await state.update_data(chosen_food=message.text)
-#     user_data = await state.get_data()
-#     await message.answer(
-#         text=f'Write description for <b><u>{user_data["chosen_food"]}</u></b>:',
-#         parse_mode='html',
-#     )
-#     await state.set_state(AddTerm.adding_term_description)
-
-
-# @router.message(AddTerm.adding_term_description)
-# async def food_size_chosen(message: types.Message, state: FSMContext):
-#     user_data = await state.get_data()
-#     await message.answer(
-#         text=f'Term added\n'
-#         f'Term: <b><u>{user_data["chosen_food"]}</u></b>\n'
-#         f'Description: {message.text}',
-#         parse_mode='html',
-#     )
-#     await state.clear()
-
-
-# @router.message(AddTerm.adding_term_description)
-# async def food_size_chosen_incorrectly(message: types.Message):
-#     await message.answer(
-#         text='Я не знаю такого размера порции.\n\n'
-#              'Пожалуйста, выберите один из вариантов из списка ниже:',
-#         reply_markup=make_row_keyboard(available_food_sizes),
-#     )
+@router.callback_query(SelectedCollectionCallback.filter())
+async def collection_chosen(
+    callback: types.CallbackQuery,
+    callback_data: SelectedCollectionCallback,
+    state: FSMContext,
+) -> None:
+    await state.update_data(
+        collection_name=callback_data.collection_name,
+        collection_id=callback_data.collection_id,
+    )
+    data = await state.get_data()
+    foo = data.get('result_foo')
+    await foo(callback, state)
