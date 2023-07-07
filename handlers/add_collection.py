@@ -45,7 +45,7 @@ async def collection_choosen(
         folder_id=callback_data.folder_id,
         folder_name=callback_data.folder_name,
     )
-    await callback.message.edit_text(text='Write set name:')
+    await callback.message.edit_text(text='Write set name')
     await state.set_state(CreateCollectionStates.choose_name)
 
 
