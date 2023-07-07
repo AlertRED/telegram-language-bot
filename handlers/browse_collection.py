@@ -133,7 +133,7 @@ def __get_keyboard_folders_and_collections(
             ),
         ],
     )
-    return rows, last_page
+    return rows, last_page or 1
 
 
 async def start_browse(
