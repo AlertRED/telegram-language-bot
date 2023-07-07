@@ -59,7 +59,7 @@ async def create_collection(message: types.Message, state: FSMContext):
         folder_id=user_data['folder_id'],
     )
     await message.answer(
-        text=f'Set  <b><u>{user_data["collection_name"]}</u></b> '
+        text=f'Set <b><u>{user_data["collection_name"]}</u></b> '
              f'added into <b><u>{user_data["folder_name"]}</u></b>',
         parse_mode='html',
     )

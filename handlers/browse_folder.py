@@ -113,7 +113,9 @@ def __get_keyboard_folders_and_collections(
                 text='Choose current',
                 callback_data=FolderSelectCallback(
                     folder_id=current_folder.id if current_folder else None,
-                    folder_name=current_folder.name if current_folder else None,
+                    folder_name=(
+                        current_folder.name if current_folder else None
+                    ),
                 ).pack(),
             ),
         ],
