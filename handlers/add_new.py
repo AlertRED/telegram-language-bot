@@ -4,13 +4,18 @@ from aiogram import (
     types,
 )
 from aiogram.fsm.context import FSMContext
-
-from handlers.callbacks import (
-    AddTermCallback,
-)
+from aiogram.filters.callback_data import CallbackData
 
 
 router = Router()
+
+
+class AddingTermCallback(CallbackData, prefix='adding_term'):
+    pass
+
+
+class AddingCollectionCallback(CallbackData, prefix='adding_collection'):
+    pass
 
 
 @router.message(
@@ -23,32 +28,21 @@ async def add_new(
         [
             types.InlineKeyboardButton(
                 text='Add term',
-                callback_data=AddTermCallback().pack(),
+                callback_data=AddingTermCallback().pack(),
             ),
         ],
-        # [types.InlineKeyboardButton(text='Add set')],
+        [
+            types.InlineKeyboardButton(
+                text='Add set',
+                callback_data=AddingCollectionCallback().pack(),
+            ),
+        ],
         # [types.InlineKeyboardButton(text='Add folder')],
         # [types.InlineKeyboardButton(text='Go back')],
     ]
     await message.answer(
-        text='What do you wonna add:',
+        text='What do you wonna add',
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=rows,
         ),
     )
-
-
-
-
-
-# @router.message(states.AddNewTermState.add_description)
-# async def add_new_collection(message: types.Message, state: FSMContext):
-#     user_data = await state.get_data()
-#     utils.create_collection(message.chat.id, user_data["term_name"])
-#     await message.answer(
-#         text=f'Term added\n'
-#         f'Term: <b><u>{user_data["term_name"]}</u></b>\n'
-#         f'Description: {message.text}',
-#         parse_mode='html',
-#     )
-#     await state.clear()

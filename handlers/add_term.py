@@ -4,37 +4,53 @@ from aiogram import (
     types,
 )
 from aiogram.fsm.context import FSMContext
-
-from handlers.callbacks import (
-    AddTermCallback,
+from aiogram.fsm.state import (
+    StatesGroup,
+    State,
 )
-from handlers import states
-from handlers.browse_collection import folder_chosen
+from handlers.browse_collection import (
+    CollectionSelectedCallback,
+    start_browse,
+)
+from handlers.add_new import AddingTermCallback
 
 
 router = Router()
 
 
-@router.callback_query(AddTermCallback.filter())
+class CreateTermStates(StatesGroup):
+    choose_place = State()
+    choose_term = State()
+    choose_description = State()
+
+
+@router.callback_query(AddingTermCallback.filter())
 async def choose_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
 ) -> None:
-    await state.set_data(
-        {'folder_id': None, 'page': 0, 'result_foo': collection_choosen},
-    )
-    await folder_chosen(callback, state)
+    await start_browse(callback, folder_id=None, page=0)
+    await state.set_state(CreateTermStates.choose_place)
 
 
+@router.callback_query(
+    CollectionSelectedCallback.filter(),
+    CreateTermStates.choose_place,
+)
 async def collection_choosen(
     callback: types.CallbackQuery,
+    callback_data: CollectionSelectedCallback,
     state: FSMContext,
 ) -> None:
+    await state.update_data(
+        collection_id=callback_data.collection_id,
+        collection_name=callback_data.collection_name,
+    )
     await callback.message.edit_text(text='Write term:')
-    await state.set_state(states.AddNewTermState.add_term)
+    await state.set_state(CreateTermStates.choose_term)
 
 
-@router.message(states.AddNewTermState.add_term)
+@router.message(CreateTermStates.choose_term)
 async def term_name_choosen(message: types.Message, state: FSMContext):
     await state.update_data(term_name=message.text)
     user_data = await state.get_data()
@@ -42,10 +58,10 @@ async def term_name_choosen(message: types.Message, state: FSMContext):
         text=f'Write description for <b><u>{user_data["term_name"]}</u></b>:',
         parse_mode='html',
     )
-    await state.set_state(states.AddNewTermState.add_description)
+    await state.set_state(CreateTermStates.choose_description)
 
 
-@router.message(states.AddNewTermState.add_description)
+@router.message(CreateTermStates.choose_description)
 async def term_description_choosen(message: types.Message, state: FSMContext):
     await state.update_data(term_description=message.text)
     user_data = await state.get_data()

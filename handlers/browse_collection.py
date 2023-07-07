@@ -1,17 +1,14 @@
 import math
 from typing import (
     List,
+    Optional,
     Tuple,
 )
 from aiogram import (
     Router,
     types,
 )
-from aiogram.fsm.context import FSMContext
-from handlers.callbacks import (
-    SelectedFolderCallback,
-    SelectedCollectionCallback,
-)
+from aiogram.filters.callback_data import CallbackData
 
 import utils
 
@@ -19,7 +16,17 @@ import utils
 router = Router()
 
 
-def __get_keyboard_folders(
+class CollectionSelectedCallback(CallbackData, prefix='select_collection'):
+    collection_id: int
+    collection_name: str
+
+
+class FolderSelectedCallback(CallbackData, prefix='select_folder'):
+    folder_id: Optional[int]
+    page: Optional[int] = 0
+
+
+def __get_keyboard_folders_and_collections(
     telegram_user_id: int,
     folder_id: int = None,
     page: int = 0,
@@ -52,7 +59,7 @@ def __get_keyboard_folders(
         names.append(
             (
                 '🗂' + folder.name,
-                SelectedFolderCallback(
+                FolderSelectedCallback(
                     folder_id=folder.id,
                 ).pack(),
             ),
@@ -69,7 +76,7 @@ def __get_keyboard_folders(
             names.append(
                 (
                     '📄' + collection.name,
-                    SelectedCollectionCallback(
+                    CollectionSelectedCallback(
                         collection_name=collection.name,
                         collection_id=collection.id,
                     ).pack(),
@@ -82,7 +89,7 @@ def __get_keyboard_folders(
             [
                 types.InlineKeyboardButton(
                     text='...',
-                    callback_data=SelectedFolderCallback(
+                    callback_data=FolderSelectedCallback(
                         folder_id=folder.parent_folder_id,
                     ).pack(),
                 ),
@@ -103,14 +110,14 @@ def __get_keyboard_folders(
         [
             types.InlineKeyboardButton(
                 text='<',
-                callback_data=SelectedFolderCallback(
+                callback_data=FolderSelectedCallback(
                     folder_id=folder_id,
                     page=max(0, page - 1),
                 ).pack(),
             ),
             types.InlineKeyboardButton(
                 text='>',
-                callback_data=SelectedFolderCallback(
+                callback_data=FolderSelectedCallback(
                     folder_id=folder_id,
                     page=page if is_last_page else page + 1,
                 ).pack(),
@@ -129,68 +136,73 @@ def __get_keyboard_folders(
     return rows, last_page
 
 
-async def __choose_set(
-    message: types.Message,
-    telegram_user_id: int,
-    folder_id: int = None,
-    page: int = 0,
-    is_edit_message: bool = False,
-) -> None:
-    rows, last_page = __get_keyboard_folders(telegram_user_id, folder_id, page)
-    if is_edit_message:
-        await message.edit_text(
-            text=f'Choose set [{page + 1}/{last_page}]',
-            reply_markup=types.InlineKeyboardMarkup(
-                inline_keyboard=rows,
-            ),
-        )
-    else:
-        await message.answer(
-            text=f'Choose set [{page + 1}/{last_page}]',
-            reply_markup=types.InlineKeyboardMarkup(
-                inline_keyboard=rows,
-            ),
-        )
+# async def __choose_collection(
+#     message: types.Message,
+#     telegram_user_id: int,
+#     folder_id: int = None,
+#     page: int = 0,
+#     is_edit_message: bool = False,
+# ) -> None:
+#     rows, last_page = __get_keyboard_folders_and_collections(telegram_user_id, folder_id, page)
+#     if is_edit_message:
+#         await message.edit_text(
+#             text=f'Choose set [{page + 1}/{last_page}]',
+#             reply_markup=types.InlineKeyboardMarkup(
+#                 inline_keyboard=rows,
+#             ),
+#         )
+#     else:
+#         await message.answer(
+#             text=f'Choose set [{page + 1}/{last_page}]',
+#             reply_markup=types.InlineKeyboardMarkup(
+#                 inline_keyboard=rows,
+#             ),
+#         )
 
-
-@router.callback_query(SelectedFolderCallback.filter())
-async def collection_chosen(
+async def start_browse(
     callback: types.CallbackQuery,
-    callback_data: SelectedFolderCallback,
-    state: FSMContext,
+    folder_id: int,
+    page: int,
 ) -> None:
-
-    await state.update_data(
-        folder_id=callback_data.folder_id,
-        page=callback_data.page,
+    rows, last_page = __get_keyboard_folders_and_collections(
+        callback.from_user.id, folder_id, page,
     )
-    await folder_chosen(callback, state)
+    await callback.message.edit_text(
+        text=f'Choose set [{page + 1}/{last_page}]',
+        reply_markup=types.InlineKeyboardMarkup(
+            inline_keyboard=rows,
+        ),
+    )
 
 
+@router.callback_query(FolderSelectedCallback.filter())
 async def folder_chosen(
     callback: types.CallbackQuery,
-    state: FSMContext,
+    callback_data: FolderSelectedCallback,
 ) -> None:
-    data = await state.get_data()
-    await __choose_set(
-        message=callback.message,
-        telegram_user_id=callback.from_user.id,
-        folder_id=data.get('folder_id'),
-        page=data.get('page') or 0,
-        is_edit_message=True,
-    )
+    await start_browse(callback, callback_data.folder_id, callback_data.page)
+    # else:
+    #     await message.answer(
+    #         text=f'Choose set [{page + 1}/{last_page}]',
+    #         reply_markup=types.InlineKeyboardMarkup(
+    #             inline_keyboard=rows,
+    #         ),
+    #     )
 
 
-@router.callback_query(SelectedCollectionCallback.filter())
-async def collection_chosen(
-    callback: types.CallbackQuery,
-    callback_data: SelectedCollectionCallback,
-    state: FSMContext,
-) -> None:
-    await state.update_data(
-        collection_name=callback_data.collection_name,
-        collection_id=callback_data.collection_id,
-    )
-    data = await state.get_data()
-    foo = data.get('result_foo')
-    await foo(callback, state)
+# @router.callback_query(SelectedCollectionCallback.filter())
+# async def collection_chosen(
+#     callback: types.CallbackQuery,
+#     callback_data: SelectedCollectionCallback,
+#     state: FSMContext,
+# ) -> None:
+#     await state.update_data(
+#         collection_name=callback_data.collection_name,
+#         collection_id=callback_data.collection_id,
+#     )
+#     data = await state.get_data()
+#     foo = data.get('callback_foo')
+#     await foo(callback, state)
+
+
+
