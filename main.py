@@ -5,9 +5,11 @@ from aiogram.fsm.storage.memory import MemoryStorage
 
 from config import API_TOKEN
 from handlers import (
+    browse_folder,
     browse_collection,
     add_new,
     add_term,
+    add_collection,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -24,9 +26,11 @@ async def main():
         # types.BotCommand(command='settings', description='Settings'),
     ])
     dispatcher.include_routers(
+        browse_folder.router,
         browse_collection.router,
         add_new.router,
         add_term.router,
+        add_collection.router,
     )
     await dispatcher.start_polling(bot)
 
