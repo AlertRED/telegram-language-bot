@@ -3,7 +3,6 @@ from aiogram import (
     filters,
     types,
 )
-from aiogram.fsm.context import FSMContext
 from aiogram.filters.callback_data import CallbackData
 
 

@@ -9,7 +9,7 @@ from aiogram.fsm.state import (
     State,
 )
 from handlers.browse_collection import (
-    CollectionSelectedCallback,
+    CollectionSelectCallback,
     start_browse,
 )
 from handlers.add_new import AddingTermCallback
@@ -34,12 +34,12 @@ async def choose_collection(
 
 
 @router.callback_query(
-    CollectionSelectedCallback.filter(),
+    CollectionSelectCallback.filter(),
     CreateTermStates.choose_place,
 )
 async def collection_choosen(
     callback: types.CallbackQuery,
-    callback_data: CollectionSelectedCallback,
+    callback_data: CollectionSelectCallback,
     state: FSMContext,
 ) -> None:
     await state.update_data(

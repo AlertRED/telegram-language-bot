@@ -16,12 +16,12 @@ import utils
 router = Router()
 
 
-class CollectionSelectedCallback(CallbackData, prefix='select_collection'):
+class CollectionSelectCallback(CallbackData, prefix='select_collection'):
     collection_id: int
     collection_name: str
 
 
-class FolderSelectedCallback(CallbackData, prefix='select_folder'):
+class FolderChangedCallback(CallbackData, prefix='change_folder'):
     folder_id: Optional[int]
     page: Optional[int] = 0
 
@@ -59,7 +59,7 @@ def __get_keyboard_folders_and_collections(
         names.append(
             (
                 '🗂' + folder.name,
-                FolderSelectedCallback(
+                FolderChangedCallback(
                     folder_id=folder.id,
                 ).pack(),
             ),
@@ -76,7 +76,7 @@ def __get_keyboard_folders_and_collections(
             names.append(
                 (
                     '📄' + collection.name,
-                    CollectionSelectedCallback(
+                    CollectionSelectCallback(
                         collection_name=collection.name,
                         collection_id=collection.id,
                     ).pack(),
@@ -89,7 +89,7 @@ def __get_keyboard_folders_and_collections(
             [
                 types.InlineKeyboardButton(
                     text='...',
-                    callback_data=FolderSelectedCallback(
+                    callback_data=FolderChangedCallback(
                         folder_id=folder.parent_folder_id,
                     ).pack(),
                 ),
@@ -110,14 +110,14 @@ def __get_keyboard_folders_and_collections(
         [
             types.InlineKeyboardButton(
                 text='<',
-                callback_data=FolderSelectedCallback(
+                callback_data=FolderChangedCallback(
                     folder_id=folder_id,
                     page=max(0, page - 1),
                 ).pack(),
             ),
             types.InlineKeyboardButton(
                 text='>',
-                callback_data=FolderSelectedCallback(
+                callback_data=FolderChangedCallback(
                     folder_id=folder_id,
                     page=page if is_last_page else page + 1,
                 ).pack(),
@@ -136,29 +136,6 @@ def __get_keyboard_folders_and_collections(
     return rows, last_page
 
 
-# async def __choose_collection(
-#     message: types.Message,
-#     telegram_user_id: int,
-#     folder_id: int = None,
-#     page: int = 0,
-#     is_edit_message: bool = False,
-# ) -> None:
-#     rows, last_page = __get_keyboard_folders_and_collections(telegram_user_id, folder_id, page)
-#     if is_edit_message:
-#         await message.edit_text(
-#             text=f'Choose set [{page + 1}/{last_page}]',
-#             reply_markup=types.InlineKeyboardMarkup(
-#                 inline_keyboard=rows,
-#             ),
-#         )
-#     else:
-#         await message.answer(
-#             text=f'Choose set [{page + 1}/{last_page}]',
-#             reply_markup=types.InlineKeyboardMarkup(
-#                 inline_keyboard=rows,
-#             ),
-#         )
-
 async def start_browse(
     callback: types.CallbackQuery,
     folder_id: int,
@@ -175,34 +152,9 @@ async def start_browse(
     )
 
 
-@router.callback_query(FolderSelectedCallback.filter())
+@router.callback_query(FolderChangedCallback.filter())
 async def folder_chosen(
     callback: types.CallbackQuery,
-    callback_data: FolderSelectedCallback,
+    callback_data: FolderChangedCallback,
 ) -> None:
     await start_browse(callback, callback_data.folder_id, callback_data.page)
-    # else:
-    #     await message.answer(
-    #         text=f'Choose set [{page + 1}/{last_page}]',
-    #         reply_markup=types.InlineKeyboardMarkup(
-    #             inline_keyboard=rows,
-    #         ),
-    #     )
-
-
-# @router.callback_query(SelectedCollectionCallback.filter())
-# async def collection_chosen(
-#     callback: types.CallbackQuery,
-#     callback_data: SelectedCollectionCallback,
-#     state: FSMContext,
-# ) -> None:
-#     await state.update_data(
-#         collection_name=callback_data.collection_name,
-#         collection_id=callback_data.collection_id,
-#     )
-#     data = await state.get_data()
-#     foo = data.get('callback_foo')
-#     await foo(callback, state)
-
-
-
