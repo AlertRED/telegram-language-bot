@@ -17,6 +17,10 @@ class AddingCollectionCallback(CallbackData, prefix='adding_collection'):
     pass
 
 
+class AddingFolderCallback(CallbackData, prefix='adding_folder'):
+    pass
+
+
 @router.message(
     filters.Command('add_new'),
 )
@@ -36,7 +40,12 @@ async def add_new(
                 callback_data=AddingCollectionCallback().pack(),
             ),
         ],
-        # [types.InlineKeyboardButton(text='Add folder')],
+        [
+            types.InlineKeyboardButton(
+                text='Add folder',
+                callback_data=AddingFolderCallback().pack(),
+            ),
+        ],
         # [types.InlineKeyboardButton(text='Go back')],
     ]
     await message.answer(

@@ -119,6 +119,7 @@ def create_collection(
         query = select(Collection).exists().where(
             Collection.owner == user,
             Collection.name == collection_name,
+            Collection.folder_id == folder_id,
         )
         is_exist = session.query(query).scalar()
         if not is_exist:
@@ -156,6 +157,33 @@ def create_term(
                     description=term_description,
                     collection=collection,
                     owner=user,
+                ),
+            )
+            session.commit()
+
+
+def create_folder(
+        telegram_user_id: int,
+        folder_name: str,
+        folder_id: int = None,
+) -> None:
+    with Session() as session:
+        query = select(User).where(
+            User.telegram_id == telegram_user_id,
+        )
+        user: User = session.scalars(query).first()
+        query = select(Folder).exists().where(
+            Folder.owner == user,
+            Folder.name == folder_name,
+            Folder.parent_folder_id == folder_id,
+        )
+        is_exist = session.query(query).scalar()
+        if not is_exist:
+            session.add(
+                Folder(
+                    name=folder_name,
+                    owner=user,
+                    parent_folder_id=folder_id,
                 ),
             )
             session.commit()

@@ -10,6 +10,7 @@ from handlers import (
     add_new,
     add_term,
     add_collection,
+    add_folder,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -31,6 +32,7 @@ async def main():
         add_new.router,
         add_term.router,
         add_collection.router,
+        add_folder.router,
     )
     await dispatcher.start_polling(bot)
 
