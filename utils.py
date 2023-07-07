@@ -109,6 +109,7 @@ def get_collections(
 def create_collection(
         telegram_user_id: int,
         collection_name: str,
+        folder_id: int = None,
 ) -> None:
     with Session() as session:
         query = select(User).where(
@@ -121,7 +122,13 @@ def create_collection(
         )
         is_exist = session.query(query).scalar()
         if not is_exist:
-            session.add(Collection(name=collection_name, owner=user))
+            session.add(
+                Collection(
+                    name=collection_name,
+                    owner=user,
+                    folder_id=folder_id,
+                ),
+            )
             session.commit()
 
 
