@@ -16,12 +16,12 @@ import utils
 router = Router()
 
 
-class CollectionSelectCallback(CallbackData, prefix='select_collection'):
+class CollectionSelectCallback(CallbackData, prefix='bc_select_collection'):
     collection_id: int
     collection_name: str
 
 
-class FolderChangedCallback(CallbackData, prefix='change_folder'):
+class FolderChangedCallback(CallbackData, prefix='bc_change_folder'):
     folder_id: Optional[int]
     page: Optional[int] = 0
 
