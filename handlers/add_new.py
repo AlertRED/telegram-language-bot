@@ -21,9 +21,7 @@ class AddingFolderCallback(CallbackData, prefix='adding_folder'):
     pass
 
 
-@router.message(
-    filters.Command('add_new'),
-)
+@router.message(filters.Command('add_item'))
 async def add_new(
     message: types.Message,
 ) -> None:
@@ -46,10 +44,9 @@ async def add_new(
                 callback_data=AddingFolderCallback().pack(),
             ),
         ],
-        # [types.InlineKeyboardButton(text='Go back')],
     ]
     await message.answer(
-        text='What do you wonna add',
+        text='Type item to add',
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=rows,
         ),

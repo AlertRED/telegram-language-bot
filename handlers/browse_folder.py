@@ -121,14 +121,6 @@ def __get_keyboard_folders_and_collections(
         ],
     )
 
-    rows.append(
-        [
-            types.InlineKeyboardButton(
-                text='Go back',
-                callback_data='go_back',
-            ),
-        ],
-    )
     return rows, last_page or 1
 
 
