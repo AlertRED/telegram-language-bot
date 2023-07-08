@@ -1,4 +1,4 @@
-import utils
+import database.dao as dao
 from aiogram import (
     Router,
     types,
@@ -8,11 +8,11 @@ from aiogram.fsm.state import (
     StatesGroup,
     State,
 )
-from handlers.browse_collection import (
+from bot.handlers.browse_collection import (
     CollectionSelectCallback,
     start_browse,
 )
-from handlers.add_new import AddingTermCallback
+from bot.handlers.add_new import AddingTermCallback
 
 
 router = Router()
@@ -65,7 +65,7 @@ async def term_name_choosen(message: types.Message, state: FSMContext):
 async def term_description_choosen(message: types.Message, state: FSMContext):
     await state.update_data(term_description=message.text)
     user_data = await state.get_data()
-    utils.create_term(
+    dao.create_term(
         message.chat.id,
         user_data['collection_id'],
         user_data['term_name'],

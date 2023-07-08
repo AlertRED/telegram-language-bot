@@ -10,7 +10,7 @@ from aiogram import (
 )
 from aiogram.filters.callback_data import CallbackData
 
-import utils
+import database.dao as dao
 
 
 router = Router()
@@ -36,12 +36,12 @@ def __get_keyboard_folders_and_collections(
     names = []
     rows = []
 
-    folders_count = utils.get_folders_count(
+    folders_count = dao.get_folders_count(
         telegram_user_id,
         folder_id=folder_id,
     )
 
-    collections_count = utils.get_collections_count(
+    collections_count = dao.get_collections_count(
         telegram_user_id,
         folder_id=folder_id,
     )
@@ -49,7 +49,7 @@ def __get_keyboard_folders_and_collections(
     last_page = math.ceil((folders_count + collections_count) / MAX_PERPAGE)
     is_last_page = last_page <= page + 1
 
-    folders = utils.get_folders(
+    folders = dao.get_folders(
         telegram_user_id,
         folder_id,
         offset=page * MAX_PERPAGE,
@@ -66,7 +66,7 @@ def __get_keyboard_folders_and_collections(
         )
     if len(folders) < MAX_PERPAGE:
         offset = page * MAX_PERPAGE - folders_count
-        collections = utils.get_collections(
+        collections = dao.get_collections(
             telegram_user_id,
             folder_id,
             offset=offset,
@@ -84,7 +84,7 @@ def __get_keyboard_folders_and_collections(
             )
 
     if folder_id:
-        folder = utils.get_folder(telegram_user_id, folder_id)
+        folder = dao.get_folder(telegram_user_id, folder_id)
         rows = [
             [
                 types.InlineKeyboardButton(
