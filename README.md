@@ -1,6 +1,6 @@
 # Telegram Language Bot
 
-This app is telegram bot for collecting terms of eny languags. You can save terms in sets and folders and train it after.
+This app is telegram bot for collecting terms for any language you want. You can save terms in sets, create sets and folders and train it after.
 
 Structure of menues in bot is showed bellow: 
 
@@ -30,9 +30,16 @@ You should to create `config.py` file based on `config.default.py` and set varia
 Variables:
 
 + API_TOKEN - api token of telegram bot
-+ DATABASE_URL - url of database
++ DATABASE_URL - url of database (for sqlite: sqlite:///\<filename\>)
 
-## Develop
+### Run
+
+``` shell
+source /venv/bin/activate
+python main.py
+```
+
+## Develop notices
 
 ### Alembic
 
