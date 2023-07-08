@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 from sqlalchemy import (
     func,
     select,
@@ -187,3 +187,14 @@ def create_folder(
                 ),
             )
             session.commit()
+
+
+def get_find_definition_terms(
+        collection_id: int,
+) -> Tuple:
+    with Session() as session:
+        query = select(Term).where(
+            Term.collection_id == collection_id,
+        ).order_by(func.random()).limit(5)
+        terms = session.scalars(query).all()
+        return terms[0], terms[1:]

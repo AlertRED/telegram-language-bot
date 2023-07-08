@@ -14,6 +14,8 @@ from bot.handlers import (
     add_term,
     add_collection,
     add_folder,
+    train,
+    find_definition,
 )
 import database.dao as dao
 
@@ -34,7 +36,8 @@ async def start(
         f'I\'ll help you to learn any language.\n\n'
         f'Bot commands:\n'
         f'/start - main menu\n'
-        f'/add_item - add new term, set or folder',
+        f'/add_item - add new term, set or folder\n'
+        f'/train - train words from set',
     )
 
 
@@ -45,6 +48,10 @@ async def run():
             command='add_item',
             description='Add new term, set or folder',
         ),
+        types.BotCommand(
+            command='train',
+            description='Train words from set',
+        ),
     ])
     dispatcher.include_routers(
         browse_folder.router,
@@ -53,5 +60,7 @@ async def run():
         add_term.router,
         add_collection.router,
         add_folder.router,
+        train.router,
+        find_definition.router,
     )
     await dispatcher.start_polling(bot)
