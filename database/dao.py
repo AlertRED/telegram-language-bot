@@ -22,8 +22,8 @@ def register_user(telegram_user_id: int) -> None:
         )
         is_exist = session.query(query).scalar()
         if not is_exist:
-            with session.begin():
-                session.add(User(telegram_id=telegram_user_id))
+            session.add(User(telegram_id=telegram_user_id))
+            session.commit()
 
 
 def get_folder(telegram_user_id: int, folder_id: int = None) -> Folder:
