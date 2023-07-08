@@ -13,6 +13,10 @@ class FindDefinitionCallback(CallbackData, prefix='find_definition'):
     pass
 
 
+class SimpleTrainCallback(CallbackData, prefix='simple_train'):
+    pass
+
+
 @router.message(filters.Command('train'))
 async def train(message: types.Message) -> None:
     rows = [
@@ -20,6 +24,12 @@ async def train(message: types.Message) -> None:
             types.InlineKeyboardButton(
                 text='Find definition',
                 callback_data=FindDefinitionCallback().pack(),
+            ),
+        ],
+        [
+            types.InlineKeyboardButton(
+                text='Simple train',
+                callback_data=SimpleTrainCallback().pack(),
             ),
         ],
     ]

@@ -16,6 +16,7 @@ from bot.handlers import (
     add_folder,
     train,
     find_definition,
+    simple_train,
 )
 import database.dao as dao
 
@@ -62,5 +63,6 @@ async def run():
         add_folder.router,
         train.router,
         find_definition.router,
+        simple_train.router,
     )
     await dispatcher.start_polling(bot)

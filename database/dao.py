@@ -70,10 +70,10 @@ def get_collections_count(telegram_user_id: int, folder_id: int = None) -> int:
 
 
 def get_folders(
-        telegram_user_id: int,
-        folder_id: int = None,
-        offset: int = 0,
-        limit: int = None,
+    telegram_user_id: int,
+    folder_id: int = None,
+    offset: int = 0,
+    limit: int = None,
 ) -> List[Folder]:
     with Session() as session:
         query = select(User).where(
@@ -88,10 +88,10 @@ def get_folders(
 
 
 def get_collections(
-        telegram_user_id: int,
-        folder_id: int = None,
-        offset: int = 0,
-        limit: int = None,
+    telegram_user_id: int,
+    folder_id: int = None,
+    offset: int = 0,
+    limit: int = None,
 ) -> List[Collection]:
     with Session() as session:
         query = select(User).where(
@@ -107,9 +107,9 @@ def get_collections(
 
 
 def create_collection(
-        telegram_user_id: int,
-        collection_name: str,
-        folder_id: int = None,
+    telegram_user_id: int,
+    collection_name: str,
+    folder_id: int = None,
 ) -> None:
     with Session() as session:
         query = select(User).where(
@@ -134,10 +134,10 @@ def create_collection(
 
 
 def create_term(
-        telegram_user_id: int,
-        collection_id: int,
-        term_name: str,
-        term_description: str,
+    telegram_user_id: int,
+    collection_id: int,
+    term_name: str,
+    term_description: str,
 ) -> None:
     with Session() as session:
 
@@ -163,9 +163,9 @@ def create_term(
 
 
 def create_folder(
-        telegram_user_id: int,
-        folder_name: str,
-        folder_id: int = None,
+    telegram_user_id: int,
+    folder_name: str,
+    folder_id: int = None,
 ) -> None:
     with Session() as session:
         query = select(User).where(
@@ -190,7 +190,7 @@ def create_folder(
 
 
 def get_find_definition_terms(
-        collection_id: int,
+    collection_id: int,
 ) -> Tuple:
     with Session() as session:
         query = select(Term).where(
@@ -198,3 +198,14 @@ def get_find_definition_terms(
         ).order_by(func.random()).limit(5)
         terms = session.scalars(query).all()
         return terms[0], terms[1:]
+
+
+def get_simple_train_terms(
+    collection_id: int,
+) -> List[Term]:
+    with Session() as session:
+        query = select(Term).where(
+            Term.collection_id == collection_id,
+        ).order_by(func.random())
+        terms = session.scalars(query).all()
+        return terms
