@@ -130,7 +130,11 @@ def __get_keyboard_folders_and_collections(
             ],
         )
 
-    return rows, last_page or 1
+    return (
+        rows,
+        last_page or 1,
+        current_folder.name if current_folder else 'Root',
+    )
 
 
 async def start_browse(
@@ -139,14 +143,18 @@ async def start_browse(
     page: int = 0,
     is_root_returnable: bool = True,
 ) -> None:
-    rows, last_page = __get_keyboard_folders_and_collections(
+    rows, last_page, root_name = __get_keyboard_folders_and_collections(
         callback.from_user.id,
         folder_id,
         page,
         is_root_returnable,
     )
     await callback.message.edit_text(
-        text=f'Choose set [{page + 1}/{last_page}]',
+        text=(
+            f'Choose folder\n'
+            f'<u><b>{root_name}</b></u> page [{page + 1}/{last_page}]'
+        ),
+        parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=rows,
         ),
