@@ -24,12 +24,14 @@ class FolderSelectCallback(CallbackData, prefix='bf_select_folder'):
 class FolderChangeCallback(CallbackData, prefix='bf_change_folder'):
     folder_id: Optional[int]
     page: Optional[int] = 0
+    is_root_returnable: bool
 
 
 def __get_keyboard_folders_and_collections(
     telegram_user_id: int,
     folder_id: int = None,
     page: int = 0,
+    is_root_returnable: bool = True,
 ) -> Tuple[List[types.InlineKeyboardButton], int]:
 
     MAX_PERPAGE = 2
@@ -37,7 +39,6 @@ def __get_keyboard_folders_and_collections(
     rows = []
 
     current_folder = dao.get_folder(
-        telegram_user_id=telegram_user_id,
         folder_id=folder_id,
     )
 
@@ -61,18 +62,20 @@ def __get_keyboard_folders_and_collections(
                 '🗂' + folder.name,
                 FolderChangeCallback(
                     folder_id=folder.id,
+                    is_root_returnable=is_root_returnable,
                 ).pack(),
             ),
         )
 
     if folder_id:
-        folder = dao.get_folder(telegram_user_id, folder_id)
+        folder = dao.get_folder(folder_id)
         rows = [
             [
                 types.InlineKeyboardButton(
                     text='...',
                     callback_data=FolderChangeCallback(
                         folder_id=folder.parent_folder_id,
+                        is_root_returnable=is_root_returnable,
                     ).pack(),
                 ),
             ],
@@ -95,6 +98,7 @@ def __get_keyboard_folders_and_collections(
                 callback_data=FolderChangeCallback(
                     folder_id=folder_id,
                     page=max(0, page - 1),
+                    is_root_returnable=is_root_returnable,
                 ).pack(),
             ),
             types.InlineKeyboardButton(
@@ -102,35 +106,44 @@ def __get_keyboard_folders_and_collections(
                 callback_data=FolderChangeCallback(
                     folder_id=folder_id,
                     page=page if is_last_page else page + 1,
+                    is_root_returnable=is_root_returnable,
                 ).pack(),
             ),
         ],
     )
-
-    rows.append(
-        [
-            types.InlineKeyboardButton(
-                text='Choose current',
-                callback_data=FolderSelectCallback(
-                    folder_id=current_folder.id if current_folder else None,
-                    folder_name=(
-                        current_folder.name if current_folder else None
-                    ),
-                ).pack(),
-            ),
-        ],
-    )
+    if is_root_returnable or current_folder:
+        rows.append(
+            [
+                types.InlineKeyboardButton(
+                    text='Choose current',
+                    callback_data=FolderSelectCallback(
+                        folder_id=(
+                            current_folder.id
+                            if current_folder
+                            else None
+                        ),
+                        folder_name=(
+                            current_folder.name if current_folder else None
+                        ),
+                    ).pack(),
+                ),
+            ],
+        )
 
     return rows, last_page or 1
 
 
 async def start_browse(
     callback: types.CallbackQuery,
-    folder_id: int,
-    page: int,
+    folder_id: int = None,
+    page: int = 0,
+    is_root_returnable: bool = True,
 ) -> None:
     rows, last_page = __get_keyboard_folders_and_collections(
-        callback.from_user.id, folder_id, page,
+        callback.from_user.id,
+        folder_id,
+        page,
+        is_root_returnable,
     )
     await callback.message.edit_text(
         text=f'Choose set [{page + 1}/{last_page}]',
@@ -145,4 +158,9 @@ async def folder_change(
     callback: types.CallbackQuery,
     callback_data: FolderChangeCallback,
 ) -> None:
-    await start_browse(callback, callback_data.folder_id, callback_data.page)
+    await start_browse(
+        callback,
+        callback_data.folder_id,
+        callback_data.page,
+        callback_data.is_root_returnable,
+    )
