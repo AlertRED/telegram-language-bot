@@ -1,6 +1,6 @@
 # Telegram Language Bot
 
-This app is telegram bot for collecting terms for any language you want. You can save terms in sets, create sets and folders and train it after.
+This is telegram bot for collecting terms for any languages you want. You can save terms in sets, create sets and folders and train it after.
 
 Structure of menues in bot is showed bellow: 
 
@@ -17,7 +17,7 @@ pip install -r requirements.txt
 
 ### Alembic
 
-To upgrade databse
+Upgrade databse
 
 ``` shell
 python -m alembic -c ./database/alembic.ini upgrade head
@@ -25,9 +25,7 @@ python -m alembic -c ./database/alembic.ini upgrade head
 
 ### Config file
 
-You should to create `config.py` file based on `config.default.py` and set variables in it.
-
-Variables:
+You should create `config.py` file based on `config.default.py` and set next variables in it:
 
 + API_TOKEN - api token of telegram bot
 + DATABASE_URL - url of database (for sqlite: sqlite:///\<filename\>)
@@ -39,11 +37,11 @@ source /venv/bin/activate
 python main.py
 ```
 
-## Develop notices
+## Development notices
 
 ### Alembic
 
-Making migration
+Make migration
 
 ``` shell
 python -m alembic -c ./database/alembic.ini revision --autogenerate -m 'some message'
