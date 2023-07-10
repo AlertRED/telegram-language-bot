@@ -8,18 +8,12 @@ from aiogram import (
 
 from config import API_TOKEN
 from bot.handlers import (
-    browse_folder,
-    browse_collection,
-    add_new,
-    add_term,
-    add_collection,
-    add_folder,
-    train,
-    find_definition,
-    simple_train,
+    add_item,
     change_item,
-    change_folder,
+    train,
 )
+from bot.handlers.utils import browse_collection
+from bot.handlers.utils import browse_folder
 import database.dao as dao
 
 
@@ -39,8 +33,9 @@ async def start(
         f'I\'ll help you to learn any language.\n\n'
         f'Bot commands:\n'
         f'/start - main menu\n'
+        f'/train - train words from set\n'
         f'/add_item - add new term, set or folder\n'
-        f'/train - train words from set',
+        f'/change_item - change term, set or folder\n',
     )
 
 
@@ -63,14 +58,8 @@ async def run():
     dispatcher.include_routers(
         browse_folder.router,
         browse_collection.router,
-        add_new.router,
-        add_term.router,
-        add_collection.router,
-        add_folder.router,
+        add_item.router,
         train.router,
-        find_definition.router,
-        simple_train.router,
         change_item.router,
-        change_folder.router,
     )
     await dispatcher.start_polling(bot)

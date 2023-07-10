@@ -3,22 +3,23 @@ from aiogram import (
     filters,
     types,
 )
-from aiogram.filters.callback_data import CallbackData
+
+from bot.handlers.add_item.callbacks import (
+    AddingCollectionCallback,
+    AddingFolderCallback,
+    AddingTermCallback,
+)
+from .add_collection import router as add_collection_router
+from .add_folder import router as add_folder_router
+from .add_term import router as add_term_router
 
 
 router = Router()
-
-
-class AddingTermCallback(CallbackData, prefix='adding_term'):
-    pass
-
-
-class AddingCollectionCallback(CallbackData, prefix='adding_collection'):
-    pass
-
-
-class AddingFolderCallback(CallbackData, prefix='adding_folder'):
-    pass
+router.include_routers(
+    add_collection_router,
+    add_folder_router,
+    add_term_router,
+)
 
 
 @router.message(filters.Command('add_item'))

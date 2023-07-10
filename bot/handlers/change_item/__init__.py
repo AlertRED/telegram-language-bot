@@ -3,18 +3,18 @@ from aiogram import (
     filters,
     types,
 )
-from aiogram.filters.callback_data import CallbackData
+
+from bot.handlers.change_item.callbacks import (
+    ChangeCollectionCallback,
+    ChangeFolderCallback,
+)
+from .change_folder import router as change_folder_router
 
 
 router = Router()
-
-
-class ChangeFolderCallback(CallbackData, prefix='change_folder'):
-    pass
-
-
-class ChangeCollectionCallback(CallbackData, prefix='change_collection'):
-    pass
+router.include_routers(
+    change_folder_router,
+)
 
 
 @router.message(filters.Command('change_item'))

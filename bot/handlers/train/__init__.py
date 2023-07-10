@@ -3,18 +3,19 @@ from aiogram import (
     filters,
     types,
 )
-from aiogram.filters.callback_data import CallbackData
 
+from bot.handlers.train.callbacks import (
+    FindDefinitionCallback,
+    SimpleTrainCallback,
+)
+from .find_definition import router as find_definition_router
+from .simple_train import router as simple_train_router
 
 router = Router()
-
-
-class FindDefinitionCallback(CallbackData, prefix='find_definition'):
-    pass
-
-
-class SimpleTrainCallback(CallbackData, prefix='simple_train'):
-    pass
+router.include_routers(
+    find_definition_router,
+    simple_train_router,
+)
 
 
 @router.message(filters.Command('train'))

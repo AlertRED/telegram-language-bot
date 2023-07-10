@@ -8,11 +8,10 @@ from aiogram.fsm.state import (
     StatesGroup,
     State,
 )
-from bot.handlers.browse_collection import (
-    CollectionSelectCallback,
-    start_browse,
-)
-from bot.handlers.add_new import AddingTermCallback
+
+from bot.handlers.utils.browse_collection import start_browse
+from bot.handlers.utils.calbacks import CollectionSelectCallback
+from bot.handlers.add_item.callbacks import AddingTermCallback
 
 
 router = Router()

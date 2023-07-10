@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from typing import Callable
 import database.dao as dao
 from aiogram import (
     Router,
@@ -10,13 +10,15 @@ from aiogram.fsm.state import (
     StatesGroup,
     State,
 )
-from aiogram.filters.callback_data import CallbackData
 
-from bot.handlers.browse_folder import (
-    FolderSelectCallback,
-    start_browse,
+from bot.handlers.utils.browse_folder import start_browse
+from bot.handlers.utils.calbacks import FolderSelectCallback
+from bot.handlers.change_item.callbacks import (
+    ChangeFolderCallback,
+    ChangeNameCallback,
+    DeleteFolderCallback,
+    MoveFolderCallback,
 )
-from bot.handlers.change_item import ChangeFolderCallback
 
 
 router = Router()
@@ -30,20 +32,6 @@ class MoveFolderStates(StatesGroup):
 class ChangeFolderStates(StatesGroup):
     choose_place = State()
     change_name = State()
-
-
-class ChangeNameCallback(CallbackData, prefix='change_folder_name'):
-    pass
-
-
-class MoveFolderCallback(CallbackData, prefix='move_folder'):
-    sure: Optional[bool]
-    folder_id: Optional[int]
-    folder_name: Optional[str]
-
-
-class DeleteFolderCallback(CallbackData, prefix='delete_folder'):
-    sure: Optional[bool]
 
 
 @router.callback_query(ChangeFolderCallback.filter())

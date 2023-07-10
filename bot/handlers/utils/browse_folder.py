@@ -1,30 +1,21 @@
 import math
 from typing import (
     List,
-    Optional,
     Tuple,
 )
 from aiogram import (
     Router,
     types,
 )
-from aiogram.filters.callback_data import CallbackData
 
+from bot.handlers.utils.calbacks import (
+    FolderChangeCallback,
+    FolderSelectCallback,
+)
 import database.dao as dao
 
 
 router = Router()
-
-
-class FolderSelectCallback(CallbackData, prefix='bf_select_folder'):
-    folder_id: Optional[int]
-    folder_name: Optional[str]
-
-
-class FolderChangeCallback(CallbackData, prefix='bf_change_folder'):
-    folder_id: Optional[int]
-    page: Optional[int] = 0
-    is_root_returnable: bool
 
 
 def __get_keyboard_folders_and_collections(

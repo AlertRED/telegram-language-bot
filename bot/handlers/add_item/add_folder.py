@@ -8,33 +8,32 @@ from aiogram.fsm.state import (
     StatesGroup,
     State,
 )
-from bot.handlers.browse_folder import (
-    FolderSelectCallback,
-    start_browse,
-)
-from bot.handlers.add_new import AddingCollectionCallback
+
+from bot.handlers.utils.browse_folder import start_browse
+from bot.handlers.utils.calbacks import FolderSelectCallback
+from bot.handlers.add_item import AddingFolderCallback
 
 
 router = Router()
 
 
-class CreateCollectionStates(StatesGroup):
+class CreateFolderStates(StatesGroup):
     choose_place = State()
     choose_name = State()
 
 
-@router.callback_query(AddingCollectionCallback.filter())
+@router.callback_query(AddingFolderCallback.filter())
 async def choose_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
 ) -> None:
     await start_browse(callback, folder_id=None, page=0)
-    await state.set_state(CreateCollectionStates.choose_place)
+    await state.set_state(CreateFolderStates.choose_place)
 
 
 @router.callback_query(
     FolderSelectCallback.filter(),
-    CreateCollectionStates.choose_place,
+    CreateFolderStates.choose_place,
 )
 async def collection_choosen(
     callback: types.CallbackQuery,
@@ -45,22 +44,22 @@ async def collection_choosen(
         folder_id=callback_data.folder_id,
         folder_name=callback_data.folder_name,
     )
-    await callback.message.edit_text(text='Write set name')
-    await state.set_state(CreateCollectionStates.choose_name)
+    await callback.message.edit_text(text='Write folder name')
+    await state.set_state(CreateFolderStates.choose_name)
 
 
-@router.message(CreateCollectionStates.choose_name)
+@router.message(CreateFolderStates.choose_name)
 async def create_collection(message: types.Message, state: FSMContext):
-    await state.update_data(collection_name=message.text)
+    await state.update_data(new_folder_name=message.text)
     user_data = await state.get_data()
-    dao.create_collection(
+    dao.create_folder(
         telegram_user_id=message.chat.id,
-        collection_name=user_data['collection_name'],
+        folder_name=user_data['new_folder_name'],
         folder_id=user_data['folder_id'],
     )
     await message.answer(
-        text=f'Set <b><u>{user_data["collection_name"]}</u></b> '
-             f'added into <b><u>{user_data["folder_name"]}</u></b>',
+        text=f'Folder <b><u>{user_data["new_folder_name"]}</u></b> '
+             f'added into folder <b><u>{user_data["folder_name"]}</u></b>',
         parse_mode='html',
     )
     await state.clear()

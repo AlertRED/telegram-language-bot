@@ -1,4 +1,3 @@
-from typing import Optional
 import database.dao as dao
 from aiogram import (
     Router,
@@ -9,27 +8,17 @@ from aiogram.fsm.state import (
     StatesGroup,
     State,
 )
-from aiogram.filters.callback_data import CallbackData
 
-from bot.handlers.browse_collection import (
-    CollectionSelectCallback,
-    start_browse,
+from bot.handlers.utils.calbacks import CollectionSelectCallback
+from bot.handlers.utils.browse_collection import start_browse
+from bot.handlers.train.callbacks import (
+    FindDefinitionCallback,
+    FinishGameCallback,
+    TryGuessCallback,
 )
-from bot.handlers.train import FindDefinitionCallback
 
 
 router = Router()
-
-
-class FinishGameCallback(CallbackData, prefix='finish_find_definition'):
-    win_count: int
-    lose_count: int
-
-
-class TryGuessCallback(CallbackData, prefix='try_guess'):
-    term_name: Optional[str]
-    term_description: Optional[str]
-    term_description_guess: Optional[str]
 
 
 class FindDefinitionStates(StatesGroup):

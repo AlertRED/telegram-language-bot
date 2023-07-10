@@ -8,29 +8,17 @@ from aiogram.fsm.state import (
     StatesGroup,
     State,
 )
-from aiogram.filters.callback_data import CallbackData
 
-from bot.handlers.browse_collection import (
-    CollectionSelectCallback,
-    start_browse,
+from bot.handlers.utils.browse_collection import start_browse
+from bot.handlers.utils.calbacks import CollectionSelectCallback
+from bot.handlers.train.callbacks import (
+    IKnowTermCallback,
+    RemindTermCallback,
+    SimpleTrainCallback,
 )
-from bot.handlers.train import SimpleTrainCallback
 
 
 router = Router()
-
-
-class FinishGameCallback(CallbackData, prefix='finish_find_definition'):
-    win_count: int
-    lose_count: int
-
-
-class RemindTermCallback(CallbackData, prefix='remind_term'):
-    pass
-
-
-class IKnowTermCallback(CallbackData, prefix='i_know_term'):
-    pass
 
 
 class SimpleTrainStates(StatesGroup):
