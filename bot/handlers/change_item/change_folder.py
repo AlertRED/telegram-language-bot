@@ -99,10 +99,10 @@ async def manage_folder(
     )
 
 
-### Move folder
+# Move folder
 
 @router.callback_query(
-    MoveFolderCallback.filter(F.sure == True),
+    MoveFolderCallback.filter(F.sure is True),
 )
 async def move_folder_true(
     callback: types.CallbackQuery,
@@ -125,11 +125,10 @@ async def move_folder_true(
 
 
 @router.callback_query(
-    MoveFolderCallback.filter(F.sure == False),
+    MoveFolderCallback.filter(F.sure is False),
 )
 async def move_folder_false(
     callback: types.CallbackQuery,
-    callback_data: MoveFolderCallback,
     state: FSMContext,
 ):
     await manage_folder(
@@ -185,10 +184,10 @@ async def move_folder_sure(
     )
 
 
-### Delete folder
+# Delete folder
 
 
-@router.callback_query(DeleteFolderCallback.filter(F.sure == False))
+@router.callback_query(DeleteFolderCallback.filter(F.sure is False))
 async def delete_folder(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -199,7 +198,7 @@ async def delete_folder(
     )
 
 
-@router.callback_query(DeleteFolderCallback.filter(F.sure == True))
+@router.callback_query(DeleteFolderCallback.filter(F.sure is True))
 async def delete_folder_false(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -246,7 +245,7 @@ async def delete_folder_true(
     await state.set_state(ChangeFolderStates.change_name)
 
 
-### Change name
+# Change name
 
 @router.callback_query(ChangeFolderNameCallback.filter())
 async def change_folder_name(
@@ -284,5 +283,3 @@ async def change_folder_name(
             f'changed to <u><b>{message.text}</b></u>\n\n'
         ),
     )
-
-###

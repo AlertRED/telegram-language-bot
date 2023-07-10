@@ -107,10 +107,10 @@ async def manage_collection(
     )
 
 
-### Move collection
+# Move collection
 
 @router.callback_query(
-    MoveCollectionCallback.filter(F.sure == True),
+    MoveCollectionCallback.filter(F.sure is True),
 )
 async def move_collection_true(
     callback: types.CallbackQuery,
@@ -133,11 +133,10 @@ async def move_collection_true(
 
 
 @router.callback_query(
-    MoveCollectionCallback.filter(F.sure == False),
+    MoveCollectionCallback.filter(F.sure is False),
 )
 async def move_collection_false(
     callback: types.CallbackQuery,
-    callback_data: MoveCollectionCallback,
     state: FSMContext,
 ):
     await manage_collection(
@@ -185,7 +184,9 @@ async def move_collection_sure(
                     ),
                     types.InlineKeyboardButton(
                         text='No',
-                        callback_data=MoveCollectionCallback(sure=False).pack(),
+                        callback_data=MoveCollectionCallback(
+                            sure=False,
+                        ).pack(),
                     ),
                 ],
             ],
@@ -193,10 +194,10 @@ async def move_collection_sure(
     )
 
 
-### Delete collection
+# Delete collection
 
 
-@router.callback_query(DeleteCollectionCallback.filter(F.sure == False))
+@router.callback_query(DeleteCollectionCallback.filter(F.sure is False))
 async def delete_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -207,7 +208,7 @@ async def delete_collection(
     )
 
 
-@router.callback_query(DeleteCollectionCallback.filter(F.sure == True))
+@router.callback_query(DeleteCollectionCallback.filter(F.sure is True))
 async def delete_collection_false(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -258,7 +259,7 @@ async def delete_collection_true(
     await state.set_state(ChangeCollectionStates.change_name)
 
 
-### Change collection name
+# Change collection name
 
 @router.callback_query(ChangeCollectionNameCallback.filter())
 async def change_collection_name(
@@ -296,5 +297,3 @@ async def change_collection_name(
             f'changed to <u><b>{message.text}</b></u>\n\n'
         ),
     )
-
-###
