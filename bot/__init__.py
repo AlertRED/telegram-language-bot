@@ -17,6 +17,8 @@ from bot.handlers import (
     train,
     find_definition,
     simple_train,
+    change_item,
+    change_folder,
 )
 import database.dao as dao
 
@@ -53,6 +55,10 @@ async def run():
             command='train',
             description='Train words from set',
         ),
+        types.BotCommand(
+            command='change_item',
+            description='Change settings',
+        ),
     ])
     dispatcher.include_routers(
         browse_folder.router,
@@ -64,5 +70,7 @@ async def run():
         train.router,
         find_definition.router,
         simple_train.router,
+        change_item.router,
+        change_folder.router,
     )
     await dispatcher.start_polling(bot)
