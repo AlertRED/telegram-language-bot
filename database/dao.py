@@ -15,6 +15,9 @@ from database.access import (
 )
 
 
+_None = object()
+
+
 def register_user(telegram_user_id: int) -> None:
     with Session() as session:
         query = select(User).exists().where(
@@ -26,14 +29,9 @@ def register_user(telegram_user_id: int) -> None:
             session.commit()
 
 
-def get_folder(telegram_user_id: int, folder_id: int = None) -> Folder:
+def get_folder(folder_id: int = None) -> Folder:
     with Session() as session:
-        query = select(User).where(
-            User.telegram_id == telegram_user_id,
-        )
-        user: User = session.scalars(query).first()
         query = select(Folder).where(
-            Folder.owner == user,
             Folder.id == folder_id,
         )
         return session.scalars(query).first()
@@ -186,6 +184,32 @@ def create_folder(
                     parent_folder_id=folder_id,
                 ),
             )
+            session.commit()
+
+
+def update_folder(
+    folder_id: int,
+    folder_name: str = _None,
+    parent_folder_id: int = _None,
+) -> None:
+    with Session() as session:
+        folder = get_folder(folder_id)
+        if folder:
+            if folder_name != _None:
+                folder.name = folder_name
+            if parent_folder_id != _None:
+                folder.parent_folder_id = parent_folder_id
+            session.add(folder)
+            session.commit()
+
+
+def delete_folder(
+    folder_id: int,
+) -> None:
+    with Session() as session:
+        folder = get_folder(folder_id)
+        if folder:
+            session.delete(folder)
             session.commit()
 
 

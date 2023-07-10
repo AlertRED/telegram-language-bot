@@ -84,7 +84,7 @@ def __get_keyboard_folders_and_collections(
             )
 
     if folder_id:
-        folder = dao.get_folder(telegram_user_id, folder_id)
+        folder = dao.get_folder(folder_id)
         rows = [
             [
                 types.InlineKeyboardButton(
