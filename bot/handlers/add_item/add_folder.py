@@ -53,7 +53,7 @@ async def create_collection(message: types.Message, state: FSMContext):
     await state.update_data(new_folder_name=message.text)
     user_data = await state.get_data()
     dao.create_folder(
-        telegram_user_id=message.chat.id,
+        telegram_user_id=message.from_user.id,
         folder_name=user_data['new_folder_name'],
         folder_id=user_data['folder_id'],
     )

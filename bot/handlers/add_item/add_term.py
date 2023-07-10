@@ -65,7 +65,7 @@ async def term_description_choosen(message: types.Message, state: FSMContext):
     await state.update_data(term_description=message.text)
     user_data = await state.get_data()
     dao.create_term(
-        message.chat.id,
+        message.from_user.id,
         user_data['collection_id'],
         user_data['term_name'],
         user_data['term_description'],
