@@ -9,11 +9,13 @@ from bot.handlers.change_item.callbacks import (
     ChangeFolderCallback,
 )
 from .change_folder import router as change_folder_router
+from .change_collection import router as change_collection_router
 
 
 router = Router()
 router.include_routers(
     change_folder_router,
+    change_collection_router,
 )
 
 
@@ -28,7 +30,7 @@ async def change_item(message: types.Message) -> None:
         ],
         [
             types.InlineKeyboardButton(
-                text='Change collection',
+                text='Change set',
                 callback_data=ChangeCollectionCallback().pack(),
             ),
         ],

@@ -122,8 +122,8 @@ def __get_keyboard_folders_and_collections(
 
 async def start_browse(
     callback: types.CallbackQuery,
-    folder_id: int,
-    page: int,
+    folder_id: int = None,
+    page: int = 0,
 ) -> None:
     rows, last_page = __get_keyboard_folders_and_collections(
         callback.from_user.id, folder_id, page,

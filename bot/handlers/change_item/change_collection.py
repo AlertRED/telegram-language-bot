@@ -11,58 +11,66 @@ from aiogram.fsm.state import (
     State,
 )
 
-from bot.handlers.utils.browse_folder import start_browse
-from bot.handlers.utils.calbacks import FolderSelectCallback
+from bot.handlers.utils.browse_folder import (
+    start_browse as start_browse_folder,
+)
+from bot.handlers.utils.browse_collection import (
+    start_browse as start_browse_collection,
+)
+from bot.handlers.utils.calbacks import (
+    FolderSelectCallback,
+    CollectionSelectCallback,
+)
 from bot.handlers.change_item.callbacks import (
-    ChangeFolderCallback,
-    ChangeFolderNameCallback,
-    DeleteFolderCallback,
-    MoveFolderCallback,
+    ChangeCollectionCallback,
+    ChangeCollectionNameCallback,
+    DeleteCollectionCallback,
+    MoveCollectionCallback,
 )
 
 
 router = Router()
 
 
-class MoveFolderStates(StatesGroup):
+class MoveCollectionsStates(StatesGroup):
     choose_folder = State()
     agree = State()
 
 
-class ChangeFolderStates(StatesGroup):
+class ChangeCollectionStates(StatesGroup):
     choose_place = State()
     change_name = State()
 
 
-@router.callback_query(ChangeFolderCallback.filter())
+@router.callback_query(ChangeCollectionCallback.filter())
 async def choose_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
 ) -> None:
-    await start_browse(callback, is_root_returnable=False)
-    await state.set_state(ChangeFolderStates.choose_place)
+    await start_browse_collection(callback)
+    await state.set_state(ChangeCollectionStates.choose_place)
 
 
 @router.callback_query(
-    FolderSelectCallback.filter(),
-    ChangeFolderStates.choose_place,
+    CollectionSelectCallback.filter(),
+    ChangeCollectionStates.choose_place,
 )
 async def collection_choosen(
     callback: types.CallbackQuery,
-    callback_data: FolderSelectCallback,
+    callback_data: CollectionSelectCallback,
     state: FSMContext,
 ) -> None:
     await state.update_data(
-        folder_id=callback_data.folder_id,
-        folder_name=callback_data.folder_name,
+        collection_id=callback_data.collection_id,
+        collection_name=callback_data.collection_name,
     )
-    await manage_folder(
+    await manage_collection(
         callback.message.edit_text,
         state,
     )
 
 
-async def manage_folder(
+async def manage_collection(
     send_message_foo: Callable,
     state: FSMContext,
     additional_text: str = '',
@@ -71,7 +79,7 @@ async def manage_folder(
     await send_message_foo(
         text=(
             f'{additional_text}'
-            f'Manage folder <u><b>{state_data["folder_name"]}</b></u>'
+            f'Manage set <u><b>{state_data["collection_name"]}</b></u>'
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(
@@ -79,19 +87,19 @@ async def manage_folder(
                 [
                     types.InlineKeyboardButton(
                         text='Change name',
-                        callback_data=ChangeFolderNameCallback().pack(),
+                        callback_data=ChangeCollectionNameCallback().pack(),
                     ),
                 ],
                 [
                     types.InlineKeyboardButton(
-                        text='Move folder',
-                        callback_data=MoveFolderCallback().pack(),
+                        text='Move set',
+                        callback_data=MoveCollectionCallback().pack(),
                     ),
                 ],
                 [
                     types.InlineKeyboardButton(
-                        text='Delete folder',
-                        callback_data=DeleteFolderCallback().pack(),
+                        text='Delete set',
+                        callback_data=DeleteCollectionCallback().pack(),
                     ),
                 ],
             ],
@@ -99,59 +107,59 @@ async def manage_folder(
     )
 
 
-### Move folder
+### Move collection
 
 @router.callback_query(
-    MoveFolderCallback.filter(F.sure == True),
+    MoveCollectionCallback.filter(F.sure == True),
 )
-async def move_folder_true(
+async def move_collection_true(
     callback: types.CallbackQuery,
-    callback_data: MoveFolderCallback,
+    callback_data: MoveCollectionCallback,
     state: FSMContext,
 ):
     state_data = await state.get_data()
-    dao.update_folder(
-        folder_id=state_data['folder_id'],
-        parent_folder_id=callback_data.folder_id,
+    dao.update_collection(
+        collection_id=state_data['collection_id'],
+        folder_id=callback_data.folder_id,
     )
-    await manage_folder(
+    await manage_collection(
         callback.message.edit_text,
         state,
         additional_text=(
-            f'{state_data["folder_name"]} was moved to '
+            f'{state_data["collection_name"]} was moved to '
             f'{callback_data.folder_name}\n\n'
         ),
     )
 
 
 @router.callback_query(
-    MoveFolderCallback.filter(F.sure == False),
+    MoveCollectionCallback.filter(F.sure == False),
 )
-async def move_folder_false(
+async def move_collection_false(
     callback: types.CallbackQuery,
-    callback_data: MoveFolderCallback,
+    callback_data: MoveCollectionCallback,
     state: FSMContext,
 ):
-    await manage_folder(
+    await manage_collection(
         callback.message.edit_text,
         state,
     )
 
 
-@router.callback_query(MoveFolderCallback.filter())
-async def move_folder_browse(
+@router.callback_query(MoveCollectionCallback.filter())
+async def move_collection_browse(
     callback: types.CallbackQuery,
     state: FSMContext,
 ):
-    await start_browse(callback)
-    await state.set_state(MoveFolderStates.choose_folder)
+    await start_browse_folder(callback)
+    await state.set_state(MoveCollectionsStates.choose_folder)
 
 
 @router.callback_query(
     FolderSelectCallback.filter(),
-    MoveFolderStates.choose_folder,
+    MoveCollectionsStates.choose_folder,
 )
-async def move_folder_sure(
+async def move_collection_sure(
     callback: types.CallbackQuery,
     callback_data: FolderSelectCallback,
     state: FSMContext,
@@ -160,7 +168,7 @@ async def move_folder_sure(
     await callback.message.edit_text(
         text=(
             f'Are you sure wanna move '
-            f'<u><b>{state_data["folder_name"]}</b></u>'
+            f'<u><b>{state_data["collection_name"]}</b></u>'
             f' into <u><b>{callback_data.folder_name}</b></u>?'
         ),
         parse_mode='html',
@@ -169,7 +177,7 @@ async def move_folder_sure(
                 [
                     types.InlineKeyboardButton(
                         text='Yes',
-                        callback_data=MoveFolderCallback(
+                        callback_data=MoveCollectionCallback(
                             sure=True,
                             folder_id=callback_data.folder_id,
                             folder_name=callback_data.folder_name,
@@ -177,7 +185,7 @@ async def move_folder_sure(
                     ),
                     types.InlineKeyboardButton(
                         text='No',
-                        callback_data=MoveFolderCallback(sure=False).pack(),
+                        callback_data=MoveCollectionCallback(sure=False).pack(),
                     ),
                 ],
             ],
@@ -185,38 +193,38 @@ async def move_folder_sure(
     )
 
 
-### Delete folder
+### Delete collection
 
 
-@router.callback_query(DeleteFolderCallback.filter(F.sure == False))
-async def delete_folder(
+@router.callback_query(DeleteCollectionCallback.filter(F.sure == False))
+async def delete_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
 ):
-    await manage_folder(
+    await manage_collection(
         callback.message.edit_text,
         state,
     )
 
 
-@router.callback_query(DeleteFolderCallback.filter(F.sure == True))
-async def delete_folder_false(
+@router.callback_query(DeleteCollectionCallback.filter(F.sure == True))
+async def delete_collection_false(
     callback: types.CallbackQuery,
     state: FSMContext,
 ):
     state_data = await state.get_data()
-    dao.delete_folder(state_data['folder_id'])
+    dao.delete_collection(state_data['collection_id'])
     await callback.message.answer(
         text=(
-            f'Folder <u><b>{state_data["folder_name"]}</b></u>'
+            f'Collection <u><b>{state_data["collection_name"]}</b></u>'
             f' deleted succesfully!\n\n'
         ),
         parse_mode='html',
     )
 
 
-@router.callback_query(DeleteFolderCallback.filter())
-async def delete_folder_true(
+@router.callback_query(DeleteCollectionCallback.filter())
+async def delete_collection_true(
     callback: types.CallbackQuery,
     state: FSMContext,
 ):
@@ -224,8 +232,8 @@ async def delete_folder_true(
     await callback.message.edit_text(
         text=(
             f'Are you sure you wanna delete '
-            f'<u><b>{state_data["folder_name"]}</b></u>?\n'
-            f'All sets inside will be deleted too!'
+            f'<u><b>{state_data["collection_name"]}</b></u>?\n'
+            f'All terms inside will be deleted too!'
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(
@@ -233,54 +241,58 @@ async def delete_folder_true(
                 [
                     types.InlineKeyboardButton(
                         text='Yes',
-                        callback_data=DeleteFolderCallback(sure=True).pack(),
+                        callback_data=DeleteCollectionCallback(
+                            sure=True,
+                        ).pack(),
                     ),
                     types.InlineKeyboardButton(
                         text='No',
-                        callback_data=DeleteFolderCallback(sure=False).pack(),
+                        callback_data=DeleteCollectionCallback(
+                            sure=False,
+                        ).pack(),
                     ),
                 ],
             ],
         ),
     )
-    await state.set_state(ChangeFolderStates.change_name)
+    await state.set_state(ChangeCollectionStates.change_name)
 
 
-### Change name
+### Change collection name
 
-@router.callback_query(ChangeFolderNameCallback.filter())
-async def change_folder_name(
+@router.callback_query(ChangeCollectionNameCallback.filter())
+async def change_collection_name(
     callback: types.CallbackQuery,
     state: FSMContext,
 ):
     state_data = await state.get_data()
     await callback.message.edit_text(
-        text=f'Write new name (old name {state_data["folder_name"]}):',
+        text=f'Write new name (old name {state_data["collection_name"]}):',
         parse_mode='html',
     )
-    await state.set_state(ChangeFolderStates.change_name)
+    await state.set_state(ChangeCollectionStates.change_name)
 
 
 @router.message(
-    ChangeFolderStates.change_name,
+    ChangeCollectionStates.change_name,
 )
-async def change_folder_name(
+async def change_collection_name(
     message: types.Message,
     state: FSMContext,
 ):
     state_data = await state.get_data()
-    dao.update_folder(
-        folder_id=state_data['folder_id'],
-        folder_name=message.text,
+    dao.update_collection(
+        collection_id=state_data['collection_id'],
+        collection_name=message.text,
     )
     await state.update_data(
-        folder_name=message.text,
+        collection_name=message.text,
     )
-    await manage_folder(
+    await manage_collection(
         message.answer,
         state,
         additional_text=(
-            f'Folder name <u><b>{state_data["folder_name"]}</b></u> '
+            f'Collection name <u><b>{state_data["collection_name"]}</b></u> '
             f'changed to <u><b>{message.text}</b></u>\n\n'
         ),
     )

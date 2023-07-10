@@ -37,6 +37,14 @@ def get_folder(folder_id: int = None) -> Folder:
         return session.scalars(query).first()
 
 
+def get_collection(collection_id: int = None) -> Collection:
+    with Session() as session:
+        query = select(Collection).where(
+            Collection.id == collection_id,
+        )
+        return session.scalars(query).first()
+
+
 def get_folders_count(telegram_user_id: int, folder_id: int = None) -> int:
     with Session() as session:
         query = select(User).where(
@@ -128,6 +136,32 @@ def create_collection(
                     folder_id=folder_id,
                 ),
             )
+            session.commit()
+
+
+def update_collection(
+    collection_id: int,
+    collection_name: str = _None,
+    folder_id: int = _None,
+) -> None:
+    with Session() as session:
+        collection = get_collection(collection_id)
+        if collection:
+            if collection_name != _None:
+                collection.name = collection_name
+            if folder_id != _None:
+                collection.folder_id = folder_id
+            session.add(collection)
+            session.commit()
+
+
+def delete_collection(
+    collection_id: int,
+) -> None:
+    with Session() as session:
+        collection = get_collection(collection_id)
+        if collection:
+            session.delete(collection)
             session.commit()
 
 
