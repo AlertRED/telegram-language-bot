@@ -47,13 +47,9 @@ def get_collection(collection_id: int = None) -> Collection:
 
 def get_folders_count(telegram_user_id: int, folder_id: int = None) -> int:
     with Session() as session:
-        query = select(User).where(
-            User.telegram_id == telegram_user_id,
-        )
-        user: User = session.scalars(query).first()
         query = select(func.count()).select_from(
             select(Folder).where(
-                Folder.owner == user,
+                Folder.owner_id == telegram_user_id,
                 Folder.parent_folder_id == folder_id,
             ).subquery(),
         )
@@ -62,13 +58,9 @@ def get_folders_count(telegram_user_id: int, folder_id: int = None) -> int:
 
 def get_collections_count(telegram_user_id: int, folder_id: int = None) -> int:
     with Session() as session:
-        query = select(User).where(
-            User.telegram_id == telegram_user_id,
-        )
-        user: User = session.scalars(query).first()
         query = select(func.count()).select_from(
             select(Collection).where(
-                Collection.owner == user,
+                Collection.owner_id == telegram_user_id,
                 Collection.folder_id == folder_id,
             ).subquery(),
         )
@@ -82,12 +74,8 @@ def get_folders(
     limit: int = None,
 ) -> List[Folder]:
     with Session() as session:
-        query = select(User).where(
-            User.telegram_id == telegram_user_id,
-        )
-        user: User = session.scalars(query).first()
         query = select(Folder).where(
-            Folder.owner == user,
+            Folder.owner_id == telegram_user_id,
             Folder.parent_folder_id == folder_id,
         ).offset(offset=offset).limit(limit=limit)
         return session.scalars(query).all()
@@ -100,43 +88,50 @@ def get_collections(
     limit: int = None,
 ) -> List[Collection]:
     with Session() as session:
-        query = select(User).where(
-            User.telegram_id == telegram_user_id,
-        )
-        user: User = session.scalars(query).first()
         query = select(Collection).where(
-            Collection.owner == user,
+            Collection.owner_id == telegram_user_id,
             Collection.folder_id == folder_id,
         ).offset(offset=offset).limit(limit=limit)
         collections = session.scalars(query).all()
         return collections
 
 
+def get_terms(
+    telegram_user_id: int,
+    collection_id: int = None,
+    offset: int = 0,
+    limit: int = None,
+) -> List[Term]:
+    with Session() as session:
+        query = select(Term).where(
+            Term.owner_id == telegram_user_id,
+            Term.collection_id == collection_id,
+        ).offset(offset=offset).limit(limit=limit)
+        return session.scalars(query).all()
+
+
 def create_collection(
     telegram_user_id: int,
     collection_name: str,
     folder_id: int = None,
-) -> None:
+) -> Collection:
     with Session() as session:
-        query = select(User).where(
-            User.telegram_id == telegram_user_id,
-        )
-        user: User = session.scalars(query).first()
         query = select(Collection).exists().where(
-            Collection.owner == user,
+            Collection.owner_id == telegram_user_id,
             Collection.name == collection_name,
             Collection.folder_id == folder_id,
         )
         is_exist = session.query(query).scalar()
         if not is_exist:
-            session.add(
-                Collection(
-                    name=collection_name,
-                    owner=user,
-                    folder_id=folder_id,
-                ),
+            collection = Collection(
+                name=collection_name,
+                owner_id=telegram_user_id,
+                folder_id=folder_id,
             )
+            session.add(collection)
             session.commit()
+            session.refresh(collection)
+            return collection
 
 
 def update_collection(
@@ -170,55 +165,47 @@ def create_term(
     collection_id: int,
     term_name: str,
     term_description: str,
-) -> None:
+) -> Term:
     with Session() as session:
-
-        query = select(User).where(
-            User.telegram_id == telegram_user_id,
-        )
-        user: User = session.scalars(query).first()
-
         query = select(Collection).where(
             Collection.id == collection_id,
         )
         collection = session.scalars(query).first()
         if collection:
-            session.add(
-                Term(
-                    name=term_name,
-                    description=term_description,
-                    collection=collection,
-                    owner=user,
-                ),
+            term = Term(
+                name=term_name,
+                description=term_description,
+                collection=collection,
+                owner_id=telegram_user_id,
             )
+            session.add(term)
             session.commit()
+            session.refresh(term)
+            return term
 
 
 def create_folder(
     telegram_user_id: int,
     folder_name: str,
     folder_id: int = None,
-) -> None:
+) -> Folder:
     with Session() as session:
-        query = select(User).where(
-            User.telegram_id == telegram_user_id,
-        )
-        user: User = session.scalars(query).first()
         query = select(Folder).exists().where(
-            Folder.owner == user,
+            Folder.owner_id == telegram_user_id,
             Folder.name == folder_name,
             Folder.parent_folder_id == folder_id,
         )
         is_exist = session.query(query).scalar()
         if not is_exist:
-            session.add(
-                Folder(
-                    name=folder_name,
-                    owner=user,
-                    parent_folder_id=folder_id,
-                ),
+            folder = Folder(
+                name=folder_name,
+                owner_id=telegram_user_id,
+                parent_folder_id=folder_id,
             )
+            session.add(folder)
             session.commit()
+            session.refresh(folder)
+            return folder
 
 
 def update_folder(
