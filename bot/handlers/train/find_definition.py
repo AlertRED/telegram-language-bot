@@ -105,8 +105,10 @@ async def guess(
     win_count: int = 0,
     lose_count: int = 0,
 ) -> None:
+    LIMIT_OF_OPTIONS: int = 4
     terms = dao.get_find_definition_terms(
         collection_id=collection_id,
+        limit=LIMIT_OF_OPTIONS,
     )
     first_term_id: int = terms[0].id
     text = (
@@ -127,7 +129,7 @@ async def guess(
                     right_term_id=(
                         None
                         if term.id == first_term_id
-                        else term.id
+                        else first_term_id
                     ),
                 ).pack(),
             ),
@@ -168,7 +170,7 @@ async def finish_game(
         text=(
             f'Wins: {callback_data.win_count}'
             f' | Loses: {callback_data.lose_count}'
-            f'\n Accuracy: {accuracy:.1%}'
+            f'\nAccuracy: {accuracy:.1%}'
         ),
     )
     await state.clear()
