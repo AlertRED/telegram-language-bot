@@ -22,8 +22,7 @@ class TryGuessCallback(CallbackData, prefix='try_guess'):
 
 
 class FinishGameCallback(CallbackData, prefix='finish_find_definition'):
-    win_count: int
-    lose_count: int
+    pass
 
 
 class RemindTermCallback(CallbackData, prefix='remind_term'):

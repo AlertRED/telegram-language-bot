@@ -26,6 +26,7 @@ router = Router()
 class FindDefinitionStates(StatesGroup):
     choose_collection = State()
     try_guess = State()
+    finished_train = State()
 
 
 @router.callback_query(FindDefinitionCallback.filter())
@@ -41,7 +42,11 @@ async def choose_collection(
     CollectionSelectCallback.filter(),
     FindDefinitionStates.choose_collection,
 )
-async def collection_choosen(
+@router.message(
+    CollectionSelectCallback.filter(),
+    FindDefinitionStates.finished_train,
+)
+async def start_train(
     callback: types.CallbackQuery,
     callback_data: CollectionSelectCallback,
     state: FSMContext,
@@ -49,11 +54,13 @@ async def collection_choosen(
     await state.update_data(
         collection_id=callback_data.collection_id,
         collection_name=callback_data.collection_name,
+        wins_count=0,
+        lose_count=0,
+        used_term_ids=[],
     )
     await guess(
-        None,
-        callback_data.collection_id,
-        callback.message,
+        message=callback.message,
+        state=state,
     )
     await state.set_state(FindDefinitionStates.try_guess)
 
@@ -68,51 +75,57 @@ async def guess_again(
     state: FSMContext,
 ) -> None:
     state_data = await state.get_data()
-    if (callback_data.previous_result is not None):
-        if (callback_data.previous_result):
-            results = 'You won!'
-            await state.update_data(
-                win_count=state_data.get('win_count', 0) + 1,
-            )
-        else:
-            await state.update_data(
-                lose_count=state_data.get('lose_count', 0) + 1,
-            )
-            term = dao.get_term(callback_data.right_term_id)
-            results = (
-                f'Wrong :(\n'
-                f'<u><b>{term.name}</b></u>'
-                f' - {term.description}'
-            )
-    else:
-        results = ''
 
-    state_data = await state.get_data()
+    used_term_ids = state_data.get('used_term_ids')
+    used_term_ids.append(callback_data.right_term_id)
+    await state.update_data(used_term_ids=used_term_ids)
+    if (callback_data.previous_result):
+        results = 'You won!'
+        await state.update_data(
+            wins_count=state_data.get('wins_count') + 1,
+        )
+    else:
+        await state.update_data(
+            lose_count=state_data.get('lose_count') + 1,
+        )
+        term = dao.get_term(callback_data.right_term_id)
+        results = (
+            f'Wrong :(\n'
+            f'<u><b>{term.name}</b></u>'
+            f' - {term.description}'
+        )
+
+    await state.update_data(prev_results=results)
     await guess(
-        results,
-        state_data['collection_id'],
         callback.message,
-        state_data.get('win_count', 0),
-        state_data.get('lose_count', 0),
+        state=state,
     )
     await state.set_state(FindDefinitionStates.try_guess)
 
 
 async def guess(
-    prev_results: str,
-    collection_id: int,
     message: types.Message,
-    win_count: int = 0,
-    lose_count: int = 0,
+    state: FSMContext,
 ) -> None:
     LIMIT_OF_OPTIONS: int = 4
-    terms = dao.get_find_definition_terms(
-        collection_id=collection_id,
-        limit=LIMIT_OF_OPTIONS,
-    )
+    state_data = await state.get_data()
+    try:
+        terms = dao.get_find_definition_terms(
+            collection_id=state_data.get('collection_id'),
+            excluded_ids=state_data.get('used_term_ids', []),
+            limit=LIMIT_OF_OPTIONS,
+        )
+    except dao.NotEnoughTermsException:
+        await _finish_game(message, state)
+        return
+
     first_term_id: int = terms[0].id
+    prev_results = state_data.get('prev_results', '')
+    if prev_results:
+        prev_results = f'{prev_results}\n\n'
     text = (
-        f'{prev_results or ""}\n\n<u><b>{terms[0].name}</b></u> is ...\n'
+        f'{prev_results}'
+        f'<u><b>{terms[0].name}</b></u> is:\n'
     )
     rows = []
     options = []
@@ -126,11 +139,7 @@ async def guess(
                 callback_data=TryGuessCallback(
                     term_name=term.name,
                     previous_result=term.id == first_term_id,
-                    right_term_id=(
-                        None
-                        if term.id == first_term_id
-                        else first_term_id
-                    ),
+                    right_term_id=first_term_id,
                 ).pack(),
             ),
         )
@@ -139,10 +148,7 @@ async def guess(
         [
             types.InlineKeyboardButton(
                 text='End game',
-                callback_data=FinishGameCallback(
-                    win_count=win_count,
-                    lose_count=lose_count,
-                ).pack(),
+                callback_data=FinishGameCallback().pack(),
             ),
         ],
     )
@@ -156,21 +162,42 @@ async def guess(
     )
 
 
-@router.callback_query(
-    FinishGameCallback.filter(),
-)
+@router.callback_query(FinishGameCallback.filter())
 async def finish_game(
     callback: types.CallbackQuery,
-    callback_data: FinishGameCallback,
     state: FSMContext,
 ) -> None:
-    total_games = (callback_data.win_count + callback_data.lose_count) or 1
-    accuracy = callback_data.win_count / total_games
-    await callback.message.edit_text(
+    await _finish_game(callback.message, state)
+
+
+async def _finish_game(
+    message: types.Message,
+    state: FSMContext,
+):
+    state_data = await state.get_data()
+    wins_count = state_data.get('wins_count')
+    lose_count = state_data.get('lose_count')
+
+    accuracy = wins_count / ((wins_count + lose_count) or 1)
+
+    await message.edit_text(
         text=(
-            f'Wins: {callback_data.win_count}'
-            f' | Loses: {callback_data.lose_count}'
+            f'Wins: {wins_count} | Loses: {lose_count}'
             f'\nAccuracy: {accuracy:.1%}'
+        ),
+        reply_markup=types.InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    types.InlineKeyboardButton(
+                        text='Try again',
+                        callback_data=CollectionSelectCallback(
+                            collection_id=state_data.get('collection_id'),
+                            collection_name=state_data.get('collection_name'),
+                        ).pack(),
+                    ),
+                ],
+            ],
         ),
     )
     await state.clear()
+    await state.set_state(FindDefinitionStates.finished_train)

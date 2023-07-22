@@ -45,16 +45,16 @@ async def collection_choosen(
         collection_id=callback_data.collection_id,
         collection_name=callback_data.collection_name,
     )
-    await callback.message.edit_text(text='Write term:')
+    await callback.message.edit_text(text='Write term')
     await state.set_state(CreateTermStates.choose_term)
 
 
 @router.message(CreateTermStates.choose_term)
 async def term_name_choosen(message: types.Message, state: FSMContext):
-    await state.update_data(term_name=message.text)
+    await state.update_data(term_name=message.text.capitalize())
     user_data = await state.get_data()
     await message.answer(
-        text=f'Write description for <b><u>{user_data["term_name"]}</u></b>:',
+        text=f'Write description for <b><u>{user_data["term_name"]}</u></b>',
         parse_mode='html',
     )
     await state.set_state(CreateTermStates.choose_description)
@@ -62,7 +62,7 @@ async def term_name_choosen(message: types.Message, state: FSMContext):
 
 @router.message(CreateTermStates.choose_description)
 async def term_description_choosen(message: types.Message, state: FSMContext):
-    await state.update_data(term_description=message.text)
+    await state.update_data(term_description=message.text.capitalize())
     user_data = await state.get_data()
     dao.create_term(
         message.from_user.id,

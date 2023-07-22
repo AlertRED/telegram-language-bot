@@ -18,6 +18,10 @@ from database.access import (
 _None = object()
 
 
+class NotEnoughTermsException(Exception):
+    pass
+
+
 def register_user(telegram_user_id: int) -> None:
     with Session() as session:
         query = select(User).exists().where(
@@ -51,6 +55,16 @@ def get_folders_count(telegram_user_id: int, folder_id: int = None) -> int:
             select(Folder).where(
                 Folder.owner_id == telegram_user_id,
                 Folder.parent_folder_id == folder_id,
+            ).subquery(),
+        )
+        return session.execute(query).scalar_one()
+
+
+def get_terms_count(collection_id: int = None) -> int:
+    with Session() as session:
+        query = select(func.count()).select_from(
+            select(Term).where(
+                Term.collection_id == collection_id,
             ).subquery(),
         )
         return session.execute(query).scalar_one()
@@ -245,13 +259,22 @@ def delete_folder(
 def get_find_definition_terms(
     collection_id: int,
     limit: int,
+    excluded_ids: list = None,
 ) -> List[Term]:
     with Session() as session:
         query = select(Term).where(
             Term.collection_id == collection_id,
-        ).order_by(func.random()).limit(limit)
+            Term.id.not_in(excluded_ids),
+        ).order_by(func.random())
+        term = session.scalars(query).first()
+        if not term:
+            raise NotEnoughTermsException
+        query = select(Term).where(
+            Term.collection_id == collection_id,
+            Term.id != term.id,
+        ).order_by(func.random()).limit(limit - 1)
         terms = session.scalars(query).all()
-        return terms
+        return [term] + terms
 
 
 def get_simple_train_terms(
