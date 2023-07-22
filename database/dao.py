@@ -1,5 +1,7 @@
-from typing import List, Tuple
+from typing import List
 from sqlalchemy import (
+    asc,
+    desc,
     func,
     select,
 )
@@ -83,15 +85,19 @@ def get_collections_count(telegram_user_id: int, folder_id: int = None) -> int:
 
 def get_folders(
     telegram_user_id: int,
-    folder_id: int = None,
+    parent_folder_id: int = _None,
     offset: int = 0,
     limit: int = None,
 ) -> List[Folder]:
     with Session() as session:
         query = select(Folder).where(
             Folder.owner_id == telegram_user_id,
-            Folder.parent_folder_id == folder_id,
-        ).offset(offset=offset).limit(limit=limit)
+        )
+        if parent_folder_id != _None:
+            query = query.where(Folder.parent_folder_id == parent_folder_id)
+        query = query.offset(offset=offset).limit(limit=limit).order_by(
+            asc(Folder.created_datetime),
+        )
         return session.scalars(query).all()
 
 

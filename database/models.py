@@ -46,7 +46,7 @@ class User(Base, TimeStamp):
         return f"User(id={self.id!r}, telegram_id={self.telegram_id!r})"
 
 
-class Term(Base):
+class Term(Base, TimeStamp):
     __tablename__ = "term"
     id: Mapped[int] = mapped_column(primary_key=True)
 
@@ -64,7 +64,7 @@ class Term(Base):
             f"description={self.description!r})"
 
 
-class Collection(Base):
+class Collection(Base, TimeStamp):
     __tablename__ = "collection"
     id: Mapped[int] = mapped_column(primary_key=True)
 
@@ -85,7 +85,7 @@ class Collection(Base):
         return f"Collection(id={self.id!r}, email_address={self.name!r})"
 
 
-class Folder(Base):
+class Folder(Base, TimeStamp):
     __tablename__ = "folder"
     id: Mapped[int] = mapped_column(primary_key=True)
 
