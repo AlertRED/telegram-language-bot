@@ -17,8 +17,8 @@ class FinishGameCallback(CallbackData, prefix='finish_find_definition'):
 
 class TryGuessCallback(CallbackData, prefix='try_guess'):
     term_name: Optional[str]
-    term_description: Optional[str]
-    term_description_guess: Optional[str]
+    previous_result: Optional[bool] = None
+    right_term_id: Optional[int] = None
 
 
 class FinishGameCallback(CallbackData, prefix='finish_find_definition'):

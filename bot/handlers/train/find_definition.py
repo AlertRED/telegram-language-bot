@@ -1,4 +1,5 @@
-import database.dao as dao
+from random import shuffle
+
 from aiogram import (
     Router,
     types,
@@ -16,6 +17,7 @@ from bot.handlers.train.callbacks import (
     FinishGameCallback,
     TryGuessCallback,
 )
+import database.dao as dao
 
 
 router = Router()
@@ -66,15 +68,8 @@ async def guess_again(
     state: FSMContext,
 ) -> None:
     state_data = await state.get_data()
-    if (
-        callback_data.term_name
-        and callback_data.term_description
-        and callback_data.term_description_guess
-    ):
-        if (
-            callback_data.term_description
-            == callback_data.term_description_guess
-        ):
+    if (callback_data.previous_result is not None):
+        if (callback_data.previous_result):
             results = 'You won!'
             await state.update_data(
                 win_count=state_data.get('win_count', 0) + 1,
@@ -83,10 +78,11 @@ async def guess_again(
             await state.update_data(
                 lose_count=state_data.get('lose_count', 0) + 1,
             )
+            term = dao.get_term(callback_data.right_term_id)
             results = (
                 f'Wrong :(\n'
-                f'<u><b>{callback_data.term_name}</b></u>'
-                f' - {callback_data.term_description}'
+                f'<u><b>{term.name}</b></u>'
+                f' - {term.description}'
             )
     else:
         results = ''
@@ -109,35 +105,34 @@ async def guess(
     win_count: int = 0,
     lose_count: int = 0,
 ) -> None:
-    term, other_terms = dao.get_find_definition_terms(
+    terms = dao.get_find_definition_terms(
         collection_id=collection_id,
     )
-    rows = [
-        [
+    first_term_id: int = terms[0].id
+    text = (
+        f'{prev_results or ""}\n\n<u><b>{terms[0].name}</b></u> is ...\n'
+    )
+    rows = []
+    options = []
+
+    shuffle(terms)
+    for i, term in enumerate(terms):
+        text += f'\n{i + 1}. {term.description}'
+        options.append(
             types.InlineKeyboardButton(
-                text=f'{term.description}',
+                text=f'{i + 1}',
                 callback_data=TryGuessCallback(
                     term_name=term.name,
-                    term_description=term.description,
-                    term_description_guess=term.description,
+                    previous_result=term.id == first_term_id,
+                    right_term_id=(
+                        None
+                        if term.id == first_term_id
+                        else term.id
+                    ),
                 ).pack(),
             ),
-        ],
-    ]
-    for term_ in other_terms:
-        rows.append(
-            [
-                types.InlineKeyboardButton(
-                    text=f'{term_.description}',
-                    callback_data=TryGuessCallback(
-                        term_name=term.name,
-                        term_description=term.description,
-                        term_description_guess=term_.description,
-                    ).pack(),
-                ),
-            ],
         )
-
+    rows.append(options)
     rows.append(
         [
             types.InlineKeyboardButton(
@@ -151,7 +146,7 @@ async def guess(
     )
 
     await message.edit_text(
-        text=f'{prev_results or ""}\n\n<u><b>{term.name}</b></u> is ...',
+        text=text,
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=rows,
@@ -167,10 +162,13 @@ async def finish_game(
     callback_data: FinishGameCallback,
     state: FSMContext,
 ) -> None:
+    total_games = (callback_data.win_count + callback_data.lose_count) or 1
+    accuracy = callback_data.win_count / total_games
     await callback.message.edit_text(
         text=(
-            f'wins: {callback_data.win_count}'
-            f' / lose: {callback_data.lose_count}'
+            f'Wins: {callback_data.win_count}'
+            f' | Loses: {callback_data.lose_count}'
+            f'\n Accuracy: {accuracy:.1%}'
         ),
     )
     await state.clear()

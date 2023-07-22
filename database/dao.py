@@ -29,7 +29,7 @@ def register_user(telegram_user_id: int) -> None:
             session.commit()
 
 
-def get_folder(folder_id: int = None) -> Folder:
+def get_folder(folder_id: int) -> Folder:
     with Session() as session:
         query = select(Folder).where(
             Folder.id == folder_id,
@@ -37,7 +37,7 @@ def get_folder(folder_id: int = None) -> Folder:
         return session.scalars(query).first()
 
 
-def get_collection(collection_id: int = None) -> Collection:
+def get_collection(collection_id: int) -> Collection:
     with Session() as session:
         query = select(Collection).where(
             Collection.id == collection_id,
@@ -108,6 +108,14 @@ def get_terms(
             Term.collection_id == collection_id,
         ).offset(offset=offset).limit(limit=limit)
         return session.scalars(query).all()
+
+
+def get_term(term_id: int) -> Term:
+    with Session() as session:
+        query = select(Term).where(
+            Term.id == term_id,
+        )
+        return session.scalars(query).first()
 
 
 def create_collection(
@@ -236,13 +244,13 @@ def delete_folder(
 
 def get_find_definition_terms(
     collection_id: int,
-) -> Tuple:
+) -> List[Term]:
     with Session() as session:
         query = select(Term).where(
             Term.collection_id == collection_id,
         ).order_by(func.random()).limit(5)
         terms = session.scalars(query).all()
-        return terms[0], terms[1:]
+        return terms
 
 
 def get_simple_train_terms(
