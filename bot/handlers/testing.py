@@ -185,28 +185,29 @@ async def show_structure(
     user_id: int,
 ) -> None:
     output = ''
-    folders = dao.get_folders(user_id)
-    for folder in folders:
-        output += f'+-{folder.name}\n'
-        collections = dao.get_collections(
-            user_id,
-            folder.id,
-        )
-        for collection in collections:
-            output += f'  |-{collection.name}\n'
-            terms = dao.get_terms(
-                user_id,
-                collection.id,
-            )
-            for term in terms:
-                output += f'    |-{term.name}\n'
+    folders = [
+        (0, folder)
+        for folder in dao.get_folders(user_id, parent_folder_id=None)
+    ]
+    while folders:
+        deep_index, folder = folders.pop()
+        folders += [
+            (deep_index + 1, folder)
+            for folder in dao.get_folders(user_id, parent_folder_id=folder.id)
+        ]
+
+        space = deep_index * 2
+        output += f'{" " * space}+-{folder.name}\n'
+        for collection in dao.get_collections(user_id, folder.id):
+            output += f'{" " * (space + 2)}::{collection.name}\n'
+            for term in dao.get_terms(user_id, collection.id):
+                output += f'{" " * (space + 2)}| {term.name}\n'
+
     await answer_foo(
         text=f'<code>{output}</code>',
         parse_mode='html',
     )
 
-
-###
 
 
 @router.callback_query(ChooseUserLoadDataCallback.filter())
