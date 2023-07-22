@@ -42,7 +42,7 @@ async def choose_collection(
     CollectionSelectCallback.filter(),
     FindDefinitionStates.choose_collection,
 )
-@router.message(
+@router.callback_query(
     CollectionSelectCallback.filter(),
     FindDefinitionStates.finished_train,
 )
@@ -80,7 +80,7 @@ async def guess_again(
     used_term_ids.append(callback_data.right_term_id)
     await state.update_data(used_term_ids=used_term_ids)
     if (callback_data.previous_result):
-        results = 'You won!'
+        results = 'You won!🎉'
         await state.update_data(
             wins_count=state_data.get('wins_count') + 1,
         )
@@ -100,7 +100,6 @@ async def guess_again(
         callback.message,
         state=state,
     )
-    await state.set_state(FindDefinitionStates.try_guess)
 
 
 async def guess(
@@ -160,6 +159,7 @@ async def guess(
             inline_keyboard=rows,
         ),
     )
+    await state.set_state(FindDefinitionStates.try_guess)
 
 
 @router.callback_query(FinishGameCallback.filter())
@@ -167,12 +167,13 @@ async def finish_game(
     callback: types.CallbackQuery,
     state: FSMContext,
 ) -> None:
-    await _finish_game(callback.message, state)
+    await _finish_game(callback.message, state, is_ended_by_user=False)
 
 
 async def _finish_game(
     message: types.Message,
     state: FSMContext,
+    is_ended_by_user: bool = True,
 ):
     state_data = await state.get_data()
     wins_count = state_data.get('wins_count')
@@ -180,11 +181,17 @@ async def _finish_game(
 
     accuracy = wins_count / ((wins_count + lose_count) or 1)
 
+    prev_results = state_data.get('prev_results')
+    if prev_results:
+        prev_results = f'{prev_results}\n\n'
+
     await message.edit_text(
         text=(
+            f'{prev_results if is_ended_by_user else ""}'
             f'Wins: {wins_count} | Loses: {lose_count}'
             f'\nAccuracy: {accuracy:.1%}'
         ),
+        parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[
                 [
