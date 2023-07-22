@@ -10,6 +10,7 @@ from config import API_TOKEN
 from bot.handlers import (
     add_item,
     change_item,
+    testing,
     train,
 )
 from bot.handlers.utils import browse_collection
@@ -52,7 +53,11 @@ async def run():
         ),
         types.BotCommand(
             command='change_item',
-            description='Change settings',
+            description='Change term, set or folder',
+        ),
+        types.BotCommand(
+            command='testing',
+            description='Testing',
         ),
     ])
     dispatcher.include_routers(
@@ -61,5 +66,6 @@ async def run():
         add_item.router,
         train.router,
         change_item.router,
+        testing.router,
     )
     await dispatcher.start_polling(bot)
