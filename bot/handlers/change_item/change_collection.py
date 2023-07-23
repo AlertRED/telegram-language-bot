@@ -110,7 +110,7 @@ async def manage_collection(
 # Move collection
 
 @router.callback_query(
-    MoveCollectionCallback.filter(F.sure is True),
+    MoveCollectionCallback.filter(F.sure == True),
 )
 async def move_collection_true(
     callback: types.CallbackQuery,
@@ -133,7 +133,7 @@ async def move_collection_true(
 
 
 @router.callback_query(
-    MoveCollectionCallback.filter(F.sure is False),
+    MoveCollectionCallback.filter(F.sure == False),
 )
 async def move_collection_false(
     callback: types.CallbackQuery,
@@ -168,7 +168,7 @@ async def move_collection_sure(
         text=(
             f'Are you sure wanna move '
             f'<u><b>{state_data["collection_name"]}</b></u>'
-            f' into <u><b>{callback_data.folder_name}</b></u>?'
+            f' into <u><b>{callback_data.folder_name or "Root"}</b></u>?'
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(
@@ -197,7 +197,7 @@ async def move_collection_sure(
 # Delete collection
 
 
-@router.callback_query(DeleteCollectionCallback.filter(F.sure is False))
+@router.callback_query(DeleteCollectionCallback.filter(F.sure == False))
 async def delete_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -208,7 +208,7 @@ async def delete_collection(
     )
 
 
-@router.callback_query(DeleteCollectionCallback.filter(F.sure is True))
+@router.callback_query(DeleteCollectionCallback.filter(F.sure == True))
 async def delete_collection_false(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -233,7 +233,7 @@ async def delete_collection_true(
     await callback.message.edit_text(
         text=(
             f'Are you sure you wanna delete '
-            f'<u><b>{state_data["collection_name"]}</b></u>?\n'
+            f'<u><b>{state_data.get("collection_name")}</b></u>?\n'
             f'All terms inside will be deleted too!'
         ),
         parse_mode='html',

@@ -102,7 +102,7 @@ async def manage_folder(
 # Move folder
 
 @router.callback_query(
-    MoveFolderCallback.filter(F.sure is True),
+    MoveFolderCallback.filter(F.sure == True),
 )
 async def move_folder_true(
     callback: types.CallbackQuery,
@@ -125,7 +125,7 @@ async def move_folder_true(
 
 
 @router.callback_query(
-    MoveFolderCallback.filter(F.sure is False),
+    MoveFolderCallback.filter(F.sure == False),
 )
 async def move_folder_false(
     callback: types.CallbackQuery,
@@ -160,7 +160,7 @@ async def move_folder_sure(
         text=(
             f'Are you sure wanna move '
             f'<u><b>{state_data["folder_name"]}</b></u>'
-            f' into <u><b>{callback_data.folder_name}</b></u>?'
+            f' into <u><b>{callback_data.folder_name or "Root"}</b></u>?'
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(
@@ -187,7 +187,7 @@ async def move_folder_sure(
 # Delete folder
 
 
-@router.callback_query(DeleteFolderCallback.filter(F.sure is False))
+@router.callback_query(DeleteFolderCallback.filter(F.sure == False))
 async def delete_folder(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -198,7 +198,7 @@ async def delete_folder(
     )
 
 
-@router.callback_query(DeleteFolderCallback.filter(F.sure is True))
+@router.callback_query(DeleteFolderCallback.filter(F.sure == True))
 async def delete_folder_false(
     callback: types.CallbackQuery,
     state: FSMContext,

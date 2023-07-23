@@ -146,7 +146,9 @@ async def show_other_user_structure(
         await show_structure(message.answer, int(message.text))
         await state.clear()
     else:
-        await write_other_user(message.answer, state, 'User id must be digit!\n\n')
+        await write_other_user(
+            message.answer, state, 'User id must be digit!\n\n',
+        )
 
 
 @router.callback_query(ShowStructureCallback.filter())
@@ -207,7 +209,6 @@ async def show_structure(
         text=f'<code>{output}</code>',
         parse_mode='html',
     )
-
 
 
 @router.callback_query(ChooseUserLoadDataCallback.filter())
