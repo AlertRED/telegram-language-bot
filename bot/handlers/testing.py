@@ -188,19 +188,22 @@ async def show_structure(
 ) -> None:
     output = ''
     folders = [
-        (0, folder)
+        (1, folder)
         for folder in dao.get_folders(user_id, parent_folder_id=None)
-    ]
+    ] + [(0, None)]
     while folders:
         deep_index, folder = folders.pop()
+        folder_id = folder.id if folder else None
+        folder_name = folder.name if folder else 'Root'
+
         folders += [
             (deep_index + 1, folder)
-            for folder in dao.get_folders(user_id, parent_folder_id=folder.id)
+            for folder in dao.get_folders(user_id, parent_folder_id=folder_id)
         ]
 
         space = deep_index * 2
-        output += f'{" " * space}+-{folder.name}\n'
-        for collection in dao.get_collections(user_id, folder.id):
+        output += f'{" " * space}+-{folder_name}\n'
+        for collection in dao.get_collections(user_id, folder_id):
             output += f'{" " * (space + 2)}::{collection.name}\n'
             for term in dao.get_terms(user_id, collection.id):
                 output += f'{" " * (space + 2)}| {term.name}\n'
