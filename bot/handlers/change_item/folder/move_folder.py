@@ -10,7 +10,7 @@ import database.dao as dao
 from bot.handlers.utils.browse_folder import start_browse
 from bot.handlers.utils.calbacks import FolderSelectCallback
 from .manage import manage_folder
-from .states import MoveFolderStates
+from .states import ChangeFolderStates
 from .callbacks import MoveFolderCallback
 
 
@@ -59,12 +59,12 @@ async def move_folder_browse(
     state: FSMContext,
 ):
     await start_browse(callback)
-    await state.set_state(MoveFolderStates.choose_folder)
+    await state.set_state(ChangeFolderStates.choose_folder_for_moving)
 
 
 @router.callback_query(
     FolderSelectCallback.filter(),
-    MoveFolderStates.choose_folder,
+    ChangeFolderStates.choose_folder_for_moving,
 )
 async def move_folder_sure(
     callback: types.CallbackQuery,
@@ -98,3 +98,4 @@ async def move_folder_sure(
             ],
         ),
     )
+    await state.set_state(ChangeFolderStates.agree_moving)

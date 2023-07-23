@@ -27,12 +27,12 @@ async def choose_collection(
     state: FSMContext,
 ) -> None:
     await start_browse_collection(callback)
-    await state.set_state(ChangeCollectionStates.choose_place)
+    await state.set_state(ChangeCollectionStates.manage_choose_place)
 
 
 @router.callback_query(
     CollectionSelectCallback.filter(),
-    ChangeCollectionStates.choose_place,
+    ChangeCollectionStates.manage_choose_place,
 )
 async def collection_choosen(
     callback: types.CallbackQuery,
@@ -88,3 +88,4 @@ async def manage_collection(
             ],
         ),
     )
+    await state.set_state(ChangeCollectionStates.manage_choose_option)

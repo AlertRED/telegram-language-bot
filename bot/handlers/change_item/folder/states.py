@@ -4,11 +4,11 @@ from aiogram.fsm.state import (
 )
 
 
-class MoveFolderStates(StatesGroup):
-    choose_folder = State()
-    agree = State()
-
-
 class ChangeFolderStates(StatesGroup):
-    choose_place = State()
-    change_name = State()
+    manage_choose_place = State()
+    manage_choose_option = State()
+    option_change_name = State()
+    option_moving = State()
+    choose_folder_for_moving = State()
+    agree_moving = State()
+    agree_delete = State()

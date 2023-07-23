@@ -74,4 +74,4 @@ async def delete_collection_true(
             ],
         ),
     )
-    await state.set_state(ChangeCollectionStates.change_name)
+    await state.set_state(ChangeCollectionStates.agree_delete)

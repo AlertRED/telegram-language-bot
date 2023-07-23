@@ -24,7 +24,7 @@ async def change_folder_name(
         text=f'Write new name (old name {state_data["folder_name"]}):',
         parse_mode='html',
     )
-    await state.set_state(ChangeFolderStates.change_name)
+    await state.set_state(ChangeFolderStates.option_change_name)
 
 
 @router.message(

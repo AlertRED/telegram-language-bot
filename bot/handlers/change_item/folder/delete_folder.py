@@ -70,4 +70,4 @@ async def delete_folder_true(
             ],
         ),
     )
-    await state.set_state(ChangeFolderStates.change_name)
+    await state.set_state(ChangeFolderStates.agree_delete)

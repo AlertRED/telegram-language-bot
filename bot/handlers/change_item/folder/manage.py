@@ -25,7 +25,7 @@ async def choose_collection(
     state: FSMContext,
 ) -> None:
     await start_browse(callback, is_root_returnable=False)
-    await state.set_state(ChangeFolderStates.choose_place)
+    await state.set_state(ChangeFolderStates.manage_choose_place)
 
 
 @router.callback_query(
@@ -82,3 +82,4 @@ async def manage_folder(
             ],
         ),
     )
+    await state.set_state(ChangeFolderStates.manage_choose_option)

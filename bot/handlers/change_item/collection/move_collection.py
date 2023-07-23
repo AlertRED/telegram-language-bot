@@ -12,7 +12,7 @@ from bot.handlers.utils.browse_folder import (
 )
 from bot.handlers.utils.calbacks import FolderSelectCallback
 from .manage import manage_collection
-from .states import MoveCollectionsStates
+from .states import ChangeCollectionStates
 from .callbacks import MoveCollectionCallback
 
 
@@ -61,12 +61,12 @@ async def move_collection_browse(
     state: FSMContext,
 ):
     await start_browse_folder(callback)
-    await state.set_state(MoveCollectionsStates.choose_folder)
+    await state.set_state(ChangeCollectionStates.choose_folder_for_moving)
 
 
 @router.callback_query(
     FolderSelectCallback.filter(),
-    MoveCollectionsStates.choose_folder,
+    ChangeCollectionStates.choose_folder_for_moving,
 )
 async def move_collection_sure(
     callback: types.CallbackQuery,
@@ -102,3 +102,5 @@ async def move_collection_sure(
             ],
         ),
     )
+    await state.set_state(ChangeCollectionStates.agree_moving)
+

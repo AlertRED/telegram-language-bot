@@ -24,11 +24,11 @@ async def change_collection_name(
         text=f'Write new name (old name {state_data["collection_name"]}):',
         parse_mode='html',
     )
-    await state.set_state(ChangeCollectionStates.change_name)
+    await state.set_state(ChangeCollectionStates.option_change_name)
 
 
 @router.message(
-    ChangeCollectionStates.change_name,
+    ChangeCollectionStates.option_change_name,
 )
 async def change_collection_name(
     message: types.Message,
