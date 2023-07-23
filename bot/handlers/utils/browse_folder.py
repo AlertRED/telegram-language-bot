@@ -25,7 +25,7 @@ def __get_keyboard_folders_and_collections(
     is_root_returnable: bool = True,
 ) -> Tuple[List[types.InlineKeyboardButton], int]:
 
-    MAX_PERPAGE = 2
+    MAX_PER_PAGE = 8
     names = []
     rows = []
 
@@ -38,14 +38,14 @@ def __get_keyboard_folders_and_collections(
         folder_id=folder_id,
     )
 
-    last_page = math.ceil(folders_count / MAX_PERPAGE)
+    last_page = math.ceil(folders_count / MAX_PER_PAGE)
     is_last_page = last_page <= page + 1
 
     folders = dao.get_folders(
         telegram_user_id,
         folder_id,
-        offset=page * MAX_PERPAGE,
-        limit=MAX_PERPAGE,
+        offset=page * MAX_PER_PAGE,
+        limit=MAX_PER_PAGE,
     )
     for folder in folders:
         names.append(

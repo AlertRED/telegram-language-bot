@@ -69,7 +69,7 @@ async def term_name_choosen(message: types.Message, state: FSMContext):
     )
     if text_suggestions:
         text_suggestions = (
-            f'Or choose one from suggesitions'
+            f'Or choose one from suggestions'
             f'\n{text_suggestions}'
         )
     else:

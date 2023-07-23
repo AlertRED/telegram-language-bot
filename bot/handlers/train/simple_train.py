@@ -88,7 +88,7 @@ async def know_term(
     await callback.message.edit_text(
         text=(
             f'<u><b>{terms[term_index].name}</b></u>'
-            f'- {terms[term_index].description}'
+            f' - {terms[term_index].description}'
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(
