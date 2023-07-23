@@ -96,7 +96,7 @@ def get_folders(
         if parent_folder_id != _None:
             query = query.where(Folder.parent_folder_id == parent_folder_id)
         query = query.offset(offset=offset).limit(limit=limit).order_by(
-            asc(Folder.created_datetime),
+            desc(Folder.updated_datetime),
         )
         return session.scalars(query).all()
 

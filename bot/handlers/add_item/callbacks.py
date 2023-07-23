@@ -5,6 +5,13 @@ class AddingTermCallback(CallbackData, prefix='adding_term'):
     pass
 
 
+class SuggestionDefinitionChosenCallback(
+    CallbackData,
+    prefix='suggestion_definition_chosen_term',
+):
+    suggestion_number: int
+
+
 class AddingCollectionCallback(CallbackData, prefix='adding_collection'):
     pass
 
