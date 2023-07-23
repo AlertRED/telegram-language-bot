@@ -13,8 +13,11 @@ from bot.handlers import (
     testing,
     train,
 )
-from bot.handlers.utils import browse_collection
-from bot.handlers.utils import browse_folder
+from bot.handlers.utils import (
+    browse_collection,
+    browse_folder,
+    browse_term,
+)
 import database.dao as dao
 
 
@@ -63,6 +66,7 @@ async def run():
     dispatcher.include_routers(
         browse_folder.router,
         browse_collection.router,
+        browse_term.router,
         add_item.router,
         train.router,
         change_item.router,

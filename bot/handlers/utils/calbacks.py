@@ -21,3 +21,12 @@ class FolderChangeCallback(CallbackData, prefix='bf_change_folder'):
     folder_id: Optional[int]
     page: Optional[int] = 0
     is_root_returnable: bool
+
+
+class TermSelectedCallback(CallbackData, prefix='bt_term_selected'):
+    term_id: int
+
+
+class ChangeCollectionCallback(CallbackData, prefix='bt_collection_changed'):
+    collection_id: int
+    page: int

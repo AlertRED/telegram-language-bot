@@ -4,12 +4,10 @@ from aiogram import (
     types,
 )
 
-from bot.handlers.change_item.callbacks import (
-    ChangeCollectionCallback,
-    ChangeFolderCallback,
-)
-from .change_folder import router as change_folder_router
-from .change_collection import router as change_collection_router
+from .folder.callbacks import ChangeFolderCallback
+from .collection.callbacks import ChangeCollectionCallback
+from .folder import router as change_folder_router
+from .collection import router as change_collection_router
 
 
 router = Router()
@@ -30,13 +28,7 @@ async def change_item(message: types.Message) -> None:
         ],
         [
             types.InlineKeyboardButton(
-                text='Change set',
-                callback_data=ChangeCollectionCallback().pack(),
-            ),
-        ],
-        [
-            types.InlineKeyboardButton(
-                text='Change term',
+                text='Change set / term',
                 callback_data=ChangeCollectionCallback().pack(),
             ),
         ],

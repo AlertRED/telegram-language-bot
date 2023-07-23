@@ -178,6 +178,25 @@ def update_collection(
             session.commit()
 
 
+def update_term(
+    term_id: int,
+    term_name: str = _None,
+    term_description: str = _None,
+    collection_id: int = _None,
+) -> None:
+    with Session() as session:
+        term = get_term(term_id)
+        if term:
+            if term_name != _None:
+                term.name = term_name
+            if term_description != _None:
+                term.description = term_description
+            if collection_id != _None:
+                term.collection_id = collection_id
+            session.add(term)
+            session.commit()
+
+
 def delete_collection(
     collection_id: int,
 ) -> None:
