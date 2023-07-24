@@ -10,7 +10,9 @@ from bot.utils.calbacks import TermSelectedCallback
 from ..states import ChangeTermStates
 from ..callbacks import (
     ChangeTermCallback,
-    # ChangeTermNameCallback,
+    ChangeTermNameCallback,
+    ChangeTermDefinitionCallback,
+    MoveTermCallback,
 )
 
 
@@ -48,16 +50,28 @@ async def choose_collection(
             f'<u><b>{term.name}</b></u> - {term.description}'
         ),
         parse_mode='html',
-        # reply_markup=types.InlineKeyboardMarkup(
-        #     inline_keyboard=[
-        #         [
-        #             types.InlineKeyboardButton(
-        #                 text='Change name',
-        #                 callback_data=ChangeTermNameCallback().pack(),
-        #             ),
-        #         ],
-        #     ],
-        # ),
+        reply_markup=types.InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    types.InlineKeyboardButton(
+                        text='Change name',
+                        callback_data=ChangeTermNameCallback().pack(),
+                    ),
+                ],
+                [
+                    types.InlineKeyboardButton(
+                        text='Change definition',
+                        callback_data=ChangeTermDefinitionCallback().pack(),
+                    ),
+                ],
+                [
+                    types.InlineKeyboardButton(
+                        text='Move term',
+                        callback_data=MoveTermCallback().pack(),
+                    ),
+                ],
+            ],
+        ),
     )
     await state.set_state(ChangeTermStates.manage_choose_option)
 
