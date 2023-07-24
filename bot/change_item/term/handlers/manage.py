@@ -7,8 +7,8 @@ from aiogram.fsm.context import FSMContext
 import database.dao as dao
 from bot.utils.browse_term import start_browse as start_browse_term
 from bot.utils.calbacks import TermSelectedCallback
-from .states import ChangeTermStates
-from .callbacks import (
+from ..states import ChangeTermStates
+from ..callbacks import (
     ChangeTermCallback,
     # ChangeTermNameCallback,
 )

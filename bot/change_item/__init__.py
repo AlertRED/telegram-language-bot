@@ -6,9 +6,9 @@ from aiogram import (
 
 from .folder.callbacks import ChangeFolderCallback
 from .collection.callbacks import ChangeCollectionCallback
-from .term.routers import router as change_term_router
-from .folder.routers import router as change_folder_router
-from .collection.routers import router as change_collection_router
+from .term.handlers import router as change_term_router
+from .folder.handlers import router as change_folder_router
+from .collection.handlers import router as change_collection_router
 
 
 router = Router()

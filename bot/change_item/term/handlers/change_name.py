@@ -10,8 +10,8 @@ from bot.change_item.collection.handlers.manage import (
     manage_collection,
 )
 from bot.utils.calbacks import TermSelectedCallback
-from .states import ChangeTermStates
-from .callbacks import ChangeTermNameCallback
+from ..states import ChangeTermStates
+from ..callbacks import ChangeTermNameCallback
 
 
 router = Router()
