@@ -5,15 +5,15 @@ from aiogram import (
     filters,
     types,
 )
+from bot.add_item import routers
+from bot.testing import testing
 
 from config import API_TOKEN
-from bot.handlers import (
-    add_item,
+from bot import (
     change_item,
-    testing,
     train,
 )
-from bot.handlers.utils import (
+from bot.utils import (
     browse_collection,
     browse_folder,
     browse_term,
@@ -55,7 +55,7 @@ async def run():
             description='Train words from set',
         ),
         types.BotCommand(
-            command='change_item',
+            command='manage_item',
             description='Change term, set or folder',
         ),
         types.BotCommand(
@@ -67,7 +67,7 @@ async def run():
         browse_folder.router,
         browse_collection.router,
         browse_term.router,
-        add_item.router,
+        routers.router,
         train.router,
         change_item.router,
         testing.router,
