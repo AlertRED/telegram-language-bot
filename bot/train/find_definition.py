@@ -136,7 +136,6 @@ async def guess(
             types.InlineKeyboardButton(
                 text=f'{i + 1}',
                 callback_data=TryGuessCallback(
-                    term_name=term.name,
                     previous_result=term.id == first_term_id,
                     right_term_id=first_term_id,
                 ).pack(),

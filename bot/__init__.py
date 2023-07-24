@@ -39,7 +39,7 @@ async def start(
         f'/start - main menu\n'
         f'/train - train words from set\n'
         f'/add_item - add new term, set or folder\n'
-        f'/change_item - change term, set or folder\n',
+        f'/manage_item - change term, set or folder\n',
     )
 
 
