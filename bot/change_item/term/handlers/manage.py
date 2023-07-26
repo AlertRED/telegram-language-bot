@@ -5,13 +5,15 @@ from aiogram import (
 from aiogram.fsm.context import FSMContext
 
 import database.dao as dao
-from bot.utils.browse_term import start_browse as start_browse_term
+from bot.change_item.collection.handlers.manage import manage_collection
+from bot.utils.browse_term import CollectionIsEmptyException, start_browse as start_browse_term
 from bot.utils.calbacks import TermSelectedCallback
 from ..states import ChangeTermStates
 from ..callbacks import (
     ChangeTermCallback,
     ChangeTermNameCallback,
     ChangeTermDefinitionCallback,
+    DeleteTermCallback,
     MoveTermCallback,
 )
 
@@ -25,8 +27,21 @@ async def choose_collection(
     callback_data: ChangeTermCallback,
     state: FSMContext,
 ) -> None:
-    await start_browse_term(callback, callback_data.collection_id)
-    await state.set_state(ChangeTermStates.manage_choose_term)
+    try:
+        await start_browse_term(
+            callback,
+            callback_data.collection_id,
+        )
+        await state.set_state(ChangeTermStates.manage_choose_term)
+    except CollectionIsEmptyException:
+        await manage_collection(
+            callback.message.edit_text,
+            state=state,
+            additional_text=(
+                f'<u><b>{callback_data.collection_name}</b></u> '
+                f'doesn\'t have terms yet.'
+            ),
+        )
 
 
 @router.callback_query(
@@ -66,6 +81,12 @@ async def choose_collection(
                 ],
                 [
                     types.InlineKeyboardButton(
+                        text='Delete term',
+                        callback_data=DeleteTermCallback().pack(),
+                    ),
+                ],
+                [
+                    types.InlineKeyboardButton(
                         text='Move term',
                         callback_data=MoveTermCallback().pack(),
                     ),
@@ -74,4 +95,3 @@ async def choose_collection(
         ),
     )
     await state.set_state(ChangeTermStates.manage_choose_option)
-

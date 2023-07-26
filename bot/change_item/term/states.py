@@ -11,3 +11,4 @@ class ChangeTermStates(StatesGroup):
     change_definition = State()
     choose_collection_for_moving = State()
     agree_moving = State()
+    agree_delete = State()

@@ -15,9 +15,14 @@ class ChangeTermDefinitionCallback(
 
 class ChangeTermCallback(CallbackData, prefix='change_term'):
     collection_id: int
+    collection_name: str
 
 
 class MoveTermCallback(CallbackData, prefix='move_term'):
     sure: Optional[bool]
     collection_id: Optional[int]
     collection_name: Optional[str]
+
+
+class DeleteTermCallback(CallbackData, prefix='delete_term'):
+    sure: Optional[bool]
