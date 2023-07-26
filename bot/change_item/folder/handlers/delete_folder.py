@@ -33,10 +33,10 @@ async def delete_folder_false(
 ):
     state_data = await state.get_data()
     dao.delete_folder(state_data['folder_id'])
-    await callback.message.answer(
+    await callback.message.edit_text(
         text=(
             f'Folder <u><b>{state_data["folder_name"]}</b></u>'
-            f' deleted succesfully!\n\n'
+            f' deleted succesfully!'
         ),
         parse_mode='html',
     )

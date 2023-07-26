@@ -83,6 +83,7 @@ async def manage_collection(
                         text='Change term',
                         callback_data=ChangeTermCallback(
                             collection_id=state_data.get('collection_id'),
+                            collection_name=state_data.get('collection_name'),
                         ).pack(),
                     ),
                 ],

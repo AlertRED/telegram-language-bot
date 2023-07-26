@@ -10,11 +10,11 @@ from aiogram.fsm.state import (
     State,
 )
 
+from bot import bot
 from bot.utils.calbacks import CollectionSelectCallback
 from bot.utils.browse_collection import start_browse
 from bot.train.callbacks import (
     FindDefinitionCallback,
-    FinishGameCallback,
     TryGuessCallback,
 )
 import database.dao as dao
@@ -57,10 +57,12 @@ async def start_train(
         wins_count=0,
         lose_count=0,
         used_term_ids=[],
+        chat_id=callback.message.chat.id,
     )
+    await callback.message.delete()
     await guess(
-        message=callback.message,
         state=state,
+        chat_id=callback.message.chat.id,
     )
     await state.set_state(FindDefinitionStates.try_guess)
 
@@ -97,14 +99,14 @@ async def guess_again(
 
     await state.update_data(prev_results=results)
     await guess(
-        callback.message,
+        chat_id=callback.message.chat.id,
         state=state,
     )
 
 
 async def guess(
-    message: types.Message,
     state: FSMContext,
+    chat_id: int,
 ) -> None:
     LIMIT_OF_OPTIONS: int = 4
     state_data = await state.get_data()
@@ -115,78 +117,61 @@ async def guess(
             limit=LIMIT_OF_OPTIONS,
         )
     except dao.NotEnoughTermsException:
-        await _finish_game(message, state)
+        await finish_game(state)
         return
 
-    first_term_id: int = terms[0].id
-    prev_results = state_data.get('prev_results', '')
-    if prev_results:
-        prev_results = f'{prev_results}\n\n'
-    text = (
-        f'{prev_results}'
-        f'<u><b>{terms[0].name}</b></u> is:\n'
-    )
-    rows = []
-    options = []
-
+    correct_term = terms[0]
+    text = (f'{correct_term.name}')
+    used_term_ids = state_data.get('used_term_ids')
+    used_term_ids.append(correct_term.id)
     shuffle(terms)
-    for i, term in enumerate(terms):
-        text += f'\n{i + 1}. {term.description}'
-        options.append(
-            types.InlineKeyboardButton(
-                text=f'{i + 1}',
-                callback_data=TryGuessCallback(
-                    previous_result=term.id == first_term_id,
-                    right_term_id=first_term_id,
-                ).pack(),
-            ),
-        )
-    rows.append(options)
-    rows.append(
-        [
-            types.InlineKeyboardButton(
-                text='End game',
-                callback_data=FinishGameCallback().pack(),
-            ),
-        ],
-    )
 
-    await message.edit_text(
-        text=text,
-        parse_mode='html',
-        reply_markup=types.InlineKeyboardMarkup(
-            inline_keyboard=rows,
+    correct_option_id = terms.index(correct_term)
+    await state.update_data(correct_option_id=correct_option_id)
+    await bot.send_poll(
+        chat_id=chat_id,
+        question=text,
+        is_anonymous=False,
+        type='quiz',
+        correct_option_id=correct_option_id,
+        options=(
+            [term.description for term in terms]
         ),
+        open_period=60,
     )
-    await state.set_state(FindDefinitionStates.try_guess)
 
 
-@router.callback_query(FinishGameCallback.filter())
+@router.poll_answer()
+async def guess_again(
+    poll: types.PollAnswer,
+    state: FSMContext,
+):
+    state_data = await state.get_data()
+    if state_data.get('correct_option_id') == poll.option_ids[0]:
+        await state.update_data(
+            wins_count=state_data.get('wins_count') + 1,
+        )
+    else:
+        await state.update_data(
+            lose_count=state_data.get('lose_count') + 1,
+        )
+
+    await guess(state=state, chat_id=state_data.get('chat_id'))
+
+
 async def finish_game(
-    callback: types.CallbackQuery,
     state: FSMContext,
-) -> None:
-    await _finish_game(callback.message, state, is_ended_by_user=False)
-
-
-async def _finish_game(
-    message: types.Message,
-    state: FSMContext,
-    is_ended_by_user: bool = True,
 ):
     state_data = await state.get_data()
     wins_count = state_data.get('wins_count')
     lose_count = state_data.get('lose_count')
+    chat_id = state_data.get('chat_id')
 
     accuracy = wins_count / ((wins_count + lose_count) or 1)
 
-    prev_results = state_data.get('prev_results')
-    if prev_results:
-        prev_results = f'{prev_results}\n\n'
-
-    await message.edit_text(
+    await bot.send_message(
+        chat_id=chat_id,
         text=(
-            f'{prev_results if is_ended_by_user else ""}'
             f'Wins: {wins_count} | Loses: {lose_count}'
             f'\nAccuracy: {accuracy:.1%}'
         ),

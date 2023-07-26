@@ -33,10 +33,10 @@ async def delete_collection_false(
 ):
     state_data = await state.get_data()
     dao.delete_collection(state_data['collection_id'])
-    await callback.message.answer(
+    await callback.message.edit_text(
         text=(
             f'Collection <u><b>{state_data["collection_name"]}</b></u>'
-            f' deleted succesfully!\n\n'
+            f' deleted succesfully!'
         ),
         parse_mode='html',
     )

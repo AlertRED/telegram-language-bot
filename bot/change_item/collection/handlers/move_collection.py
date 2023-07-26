@@ -103,4 +103,3 @@ async def move_collection_sure(
         ),
     )
     await state.set_state(ChangeCollectionStates.agree_moving)
-

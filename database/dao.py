@@ -207,6 +207,16 @@ def delete_collection(
             session.commit()
 
 
+def delete_term(
+    term_id: int,
+) -> None:
+    with Session() as session:
+        term = get_term(term_id)
+        if term:
+            session.delete(term)
+            session.commit()
+
+
 def create_term(
     telegram_user_id: int,
     collection_id: int,
