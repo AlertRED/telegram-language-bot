@@ -4,7 +4,7 @@ This is telegram bot for collecting terms for any languages you want. You can sa
 
 Structure of menues in bot is showed bellow:
 
-![menues-diagram](asswts/bot-routing-map.drawio.svg)
+![menues-diagram](assets/bot-routing-map.drawio.svg)
 
 ## Deploy
 
