@@ -4,6 +4,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.contrib import rediscli
 from redis import Redis
 
+import config
 from database.access import Session
 from database.models import User, Collection, Folder, Term
 
@@ -26,16 +27,23 @@ def create_app() -> Flask:
         index_view=AdminIndexView(name='Home', url='/'),
         template_mode='bootstrap4',
     )
+    redis = Redis(
+        host=config.REDIS_HOST,
+        port=config.REDIS_PORT,
+        db=config.REDIS_DB,
+        password=config.REDIS_PASSWORD,
+    )
     session = Session()
     admin.add_view(BaseView(User, session, name='User'))
     admin.add_view(BaseView(Collection, session, name='Collection'))
     admin.add_view(BaseView(Folder, session, name='Folder'))
     admin.add_view(BaseView(Term, session, name='Term'))
-    admin.add_view(rediscli.RedisCli(Redis()))
+    admin.add_view(rediscli.RedisCli(redis))
 
     return admin.app
 
 
+app = create_app()
+
 if __name__ == '__main__':
-    app = create_app()
     app.run()
