@@ -3,3 +3,5 @@ venv
 config.py
 *.sqlite
 .vscode
+.env
+.env-docker-compose
