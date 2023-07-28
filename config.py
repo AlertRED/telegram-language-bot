@@ -1,5 +1,7 @@
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 API_TOKEN = os.getenv('API_TOKEN', '')
 MY_TELEGRAM_ID = os.getenv('MY_TELEGRAM_ID', 0)
