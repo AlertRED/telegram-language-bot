@@ -1,0 +1,77 @@
+version: "3"
+services:  
+  cache:
+    image: redis:7.0.12-alpine
+    container_name: cache
+    restart: always
+    env_file:
+      - .env-docker-compose
+    networks:
+      - deploy_network
+
+  db:
+    image: postgres:15.3-alpine
+    container_name: db
+    restart: always
+    env_file:
+      - .env-docker-compose
+    networks:
+      - deploy_network
+
+  app:
+    container_name: base-app
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    depends_on:
+      - cache
+      - db
+    env_file:
+      - .env-docker-compose
+    environment:
+      - REDIS_HOST=cache
+      - POSTGRES_HOST=db
+    networks:
+      - deploy_network
+    volumes:
+      - .:/code
+
+  migrations:
+    container_name: migrations
+    extends:
+      service: app
+    command: python -m alembic -c ./database/alembic.ini upgrade head
+    depends_on:
+      - app
+  
+  rq:
+    container_name: rq
+    extends:
+      service: app
+    command: rq worker --with-scheduler
+    depends_on:
+      - cache
+
+  bot:
+    container_name: bot
+    extends:
+      service: app
+    command: python run.py
+    depends_on:
+      - migrations
+      - rq
+
+  web:
+    container_name: web
+    extends:
+      service: app
+    command: gunicorn admin:app -b 0.0.0.0:5000
+    depends_on:
+      - migrations
+    expose:
+      - 5000
+    ports:
+      - 5000:5000
+
+networks:
+    deploy_network:

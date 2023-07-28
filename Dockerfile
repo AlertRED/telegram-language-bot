@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile:1
 FROM python:3.11-alpine
+RUN apk update && apk add postgresql-dev gcc python3-dev musl-dev
 WORKDIR /code
-ENV FLASK_APP=admin.py
-ENV FLASK_RUN_HOST=0.0.0.0
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
-EXPOSE 5000
-COPY . .
-CMD ["flask", "run"]
+COPY bot ./bot
+COPY database ./bot
+COPY admin.py run.py ./
+COPY config.default.py config.py
