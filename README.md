@@ -16,12 +16,10 @@ Structure of menues in bot is showed bellow:
 
 ### .env file
 
-You should create `config.py` file based on `config.default.py` and set next variables in it:
+You should create `.env` file based on `.env.example` and set next variables in it:
 
 + API_TOKEN - api token of telegram bot
-+ DATABASE_URL - url of database (for sqlite: sqlite:///\<filename\>)
-+ MY_TELEGRAM_ID -
-
++ MY_TELEGRAM_ID - telegram id of owner
 + REDIS_HOST - redis host
 + REDIS_PORT - redis port
 + REDIS_DB - redis db name
