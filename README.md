@@ -2,11 +2,15 @@
 
 This is telegram bot for collecting terms for any languages you want. You can save terms in sets, create sets and folders and train it after.
 
-Structure of menues in bot is showed bellow: 
+Structure of menues in bot is showed bellow:
 
-![menues-diagram](bot-routing-map.drawio.svg)
+![menues-diagram](asswts/bot-routing-map.drawio.svg)
 
 ## Deploy
+
+### Dependencies
+
++ Redis (used v7.0.12)
 
 ### Python environment & requirements
 
@@ -29,12 +33,16 @@ You should create `config.py` file based on `config.default.py` and set next var
 
 + API_TOKEN - api token of telegram bot
 + DATABASE_URL - url of database (for sqlite: sqlite:///\<filename\>)
++ REDIS_HOST - redis host
++ REDIS_PORT - redis port
++ REDIS_DB - redis db name
++ REDIS_PASSWORD - redis password
 
 ### Run
 
 ``` shell
 source /venv/bin/activate
-python main.py
+rq worker --with-scheduler && python run.py
 ```
 
 ## Development notices
