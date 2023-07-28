@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
+from flask_admin.contrib import rediscli
+from redis import Redis
 
 from database.access import Session
 from database.models import User, Collection, Folder, Term
@@ -29,6 +31,8 @@ def create_app() -> Flask:
     admin.add_view(BaseView(Collection, session, name='Collection'))
     admin.add_view(BaseView(Folder, session, name='Folder'))
     admin.add_view(BaseView(Term, session, name='Term'))
+    admin.add_view(rediscli.RedisCli(Redis()))
+
     return admin.app
 
 
