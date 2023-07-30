@@ -7,6 +7,7 @@ from aiogram import (
     Router,
     types,
 )
+from aiogram.utils.i18n import gettext as _
 
 from bot.handlers.utils.calbacks import (
     FolderChangeCallback,
@@ -106,7 +107,7 @@ def __get_keyboard_folders_and_collections(
         rows.append(
             [
                 types.InlineKeyboardButton(
-                    text='Choose current',
+                    text=_('Choose current'),
                     callback_data=FolderSelectCallback(
                         folder_id=(
                             current_folder.id
@@ -141,9 +142,13 @@ async def start_browse(
         is_root_returnable,
     )
     await callback.message.edit_text(
-        text=(
-            f'Choose folder\n'
-            f'<u><b>{root_name}</b></u> page [{page + 1}/{last_page}]'
+        text=_(
+            'Choose folder\n'
+            '<u><b>{root_name}</b></u> page [{current_page}/{last_page}]'
+        ).format(
+            root_name=root_name,
+            current_page=page + 1,
+            last_page=last_page,
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(

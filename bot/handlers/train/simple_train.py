@@ -8,6 +8,7 @@ from aiogram.fsm.state import (
     StatesGroup,
     State,
 )
+from aiogram.utils.i18n import gettext as _
 
 from bot.handlers.utils.browse_collection import start_browse
 from bot.handlers.utils.calbacks import CollectionSelectCallback
@@ -71,7 +72,7 @@ async def know_term(
         )
     else:
         await callback.message.edit_text(
-            text=(
+            text=_(
                 'Finished!'
             ),
         )
@@ -86,16 +87,18 @@ async def know_term(
     term_index = state_data['term_index']
     terms = state_data['terms']
     await callback.message.edit_text(
-        text=(
-            f'<u><b>{terms[term_index].name}</b></u>'
-            f' - {terms[term_index].description}'
+        text=_(
+            '<u><b>{name}</b></u> - {description}'
+        ).format(
+            name=terms[term_index].name,
+            description=terms[term_index].description,
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[
                 [
                     types.InlineKeyboardButton(
-                        text='Ok',
+                        text=_('Ok'),
                         callback_data=IKnowTermCallback().pack(),
                     ),
                 ],
@@ -118,11 +121,11 @@ async def show_term(
             inline_keyboard=[
                 [
                     types.InlineKeyboardButton(
-                        text='Remind me',
+                        text=_('Remind me'),
                         callback_data=RemindTermCallback().pack(),
                     ),
                     types.InlineKeyboardButton(
-                        text='I know',
+                        text=_('I know'),
                         callback_data=IKnowTermCallback().pack(),
                     ),
                 ],

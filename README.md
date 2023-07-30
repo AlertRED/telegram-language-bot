@@ -86,3 +86,50 @@ docker buildx build . -t telegram-language-bot -f ./docker/Dockerfile
 ``` shell
 docker-compose up
 ```
+
+### i18n
+
+#### Initial
+
+1. Initial messages.pot
+
+    ``` shell
+    pybabel extract --input-dirs=./bot -o bot/locales/messages.pot
+    ```
+
+2. Create locales
+
+    ``` shell
+    pybabel init -i bot/locales/messages.pot -d bot/locales -D messages -l ru
+    pybabel init -i bot/locales/messages.pot -d bot/locales -D messages -l en
+    ```
+
+3. Write translation in files which was created
+
+4. Compile
+
+    ``` shell
+    pybabel compile -d bot/locales -D messages
+    ```
+
+#### Update
+
+1. Initial messages.pot
+
+    ``` shell
+    pybabel extract --input-dirs=./bot -o bot/locales/messages.pot
+    ```
+
+2. Update locales
+
+    ``` shell
+    pybabel update -d bot/locales -D messages -i bot/locales/messages.pot
+    ```
+
+3. Write translation in files which was updated
+
+4. Compile
+
+    ``` shell
+    pybabel compile -d bot/locales -D messages
+    ```

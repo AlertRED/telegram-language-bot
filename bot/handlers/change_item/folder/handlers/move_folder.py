@@ -5,6 +5,7 @@ from aiogram import (
     F,
 )
 from aiogram.fsm.context import FSMContext
+from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
 from bot.handlers.utils.browse_folder import start_browse
@@ -33,9 +34,12 @@ async def move_folder_true(
     await manage_folder(
         callback.message.edit_text,
         state,
-        additional_text=(
-            f'{state_data["folder_name"]} was moved to '
-            f'{callback_data.folder_name}\n\n'
+        additional_text=_(
+            '{folder_name} was moved to '
+            '{selected_folder_name}\n\n'
+        ).format(
+            folder_name=state_data["folder_name"],
+            selected_folder_name=callback_data.folder_name,
         ),
     )
 
@@ -73,17 +77,20 @@ async def move_folder_sure(
 ):
     state_data = await state.get_data()
     await callback.message.edit_text(
-        text=(
-            f'Are you sure wanna move '
-            f'<u><b>{state_data["folder_name"]}</b></u>'
-            f' into <u><b>{callback_data.folder_name or "Root"}</b></u>?'
+        text=_(
+            'Are you sure wanna move '
+            '<u><b>{folder_name}</b></u>'
+            ' into <u><b>{selected_folder_name}</b></u>?'
+        ).format(
+            folder_name=state_data["folder_name"],
+            selected_folder_name=callback_data.folder_name or "Root",
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[
                 [
                     types.InlineKeyboardButton(
-                        text='Yes',
+                        text=_('Yes'),
                         callback_data=MoveFolderCallback(
                             sure=True,
                             folder_id=callback_data.folder_id,
@@ -91,7 +98,7 @@ async def move_folder_sure(
                         ).pack(),
                     ),
                     types.InlineKeyboardButton(
-                        text='No',
+                        text=_('No'),
                         callback_data=MoveFolderCallback(sure=False).pack(),
                     ),
                 ],

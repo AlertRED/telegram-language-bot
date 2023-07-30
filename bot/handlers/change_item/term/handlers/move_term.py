@@ -5,6 +5,7 @@ from aiogram import (
     F,
 )
 from aiogram.fsm.context import FSMContext
+from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
 from bot.handlers.utils.browse_collection import (
@@ -37,9 +38,12 @@ async def move_collection_true(
     await manage_collection(
         callback.message.edit_text,
         state,
-        additional_text=(
-            f'{state_data["term_name"]} was moved to '
-            f'{callback_data.collection_name}'
+        additional_text=_(
+            '<u><b>{term_name}</b></u> was moved to '
+            '{collection_name}'
+        ).format(
+            term_name=state_data["term_name"],
+            collection_name=callback_data.collection_name,
         ),
     )
 
@@ -77,17 +81,20 @@ async def move_collection_sure(
 ):
     state_data = await state.get_data()
     await callback.message.edit_text(
-        text=(
-            f'Are you sure wanna move '
-            f'<u><b>{state_data["term_name"]}</b></u>'
-            f' into <u><b>{callback_data.collection_name}</b></u>?'
+        text=_(
+            'Are you sure wanna move '
+            '<u><b>{term_name}</b></u>'
+            ' into <u><b>{collection_name}</b></u>?'
+        ).format(
+            term_name=state_data["term_name"],
+            collection_name=callback_data.collection_name,
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[
                 [
                     types.InlineKeyboardButton(
-                        text='Yes',
+                        text=_('Yes'),
                         callback_data=MoveTermCallback(
                             sure=True,
                             collection_id=callback_data.collection_id,
@@ -95,7 +102,7 @@ async def move_collection_sure(
                         ).pack(),
                     ),
                     types.InlineKeyboardButton(
-                        text='No',
+                        text=_('No'),
                         callback_data=MoveTermCallback(
                             sure=False,
                         ).pack(),

@@ -4,6 +4,7 @@ from aiogram import (
     types,
 )
 from aiogram.fsm.context import FSMContext
+from aiogram.utils.i18n import gettext as _
 
 from .manage import manage_collection
 from ..states import ChangeCollectionStates
@@ -21,7 +22,9 @@ async def change_collection_name(
 ):
     state_data = await state.get_data()
     await callback.message.edit_text(
-        text=f'Write new name (old name {state_data["collection_name"]}):',
+        text=_(
+            'Write new name (old name {collection_name}):'
+        ).format(collection_name=state_data["collection_name"]),
         parse_mode='html',
     )
     await state.set_state(ChangeCollectionStates.option_change_name)
@@ -45,8 +48,11 @@ async def change_collection_name(
     await manage_collection(
         message.answer,
         state,
-        additional_text=(
-            f'Collection name <u><b>{state_data["collection_name"]}</b></u> '
-            f'changed to <u><b>{message.text}</b></u>'
+        additional_text=_(
+            'Collection name <u><b>{collection_name}</b></u> '
+            'changed to <u><b>{new_name}</b></u>'
+        ).format(
+            collection_name=state_data["collection_name"],
+            new_name=message.text,
         ),
     )

@@ -3,6 +3,7 @@ from aiogram import (
     Router,
     types,
 )
+from aiogram.utils.i18n import gettext as _
 
 from .calbacks import (
     ChangeCollectionCallback,
@@ -38,9 +39,12 @@ async def start_browse(
 
     text = ''
     for i, term in enumerate(terms):
-        text += (
-            f'\n\n{i+1}. <u><b>{term.name}</b></u> - '
-            f'{term.description}'
+        text += _(
+            '\n\n{i+1}. <u><b>{name}</b></u> - '
+            '{description}'
+        ).format(
+            name=term.name,
+            description=term.description,
         )
 
     await callback.message.edit_text(

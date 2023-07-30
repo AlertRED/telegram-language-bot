@@ -7,6 +7,7 @@ from aiogram import (
     Router,
     types,
 )
+from aiogram.utils.i18n import gettext as _
 
 from bot.handlers.utils.calbacks import (
     CollectionSelectCallback,
@@ -129,7 +130,12 @@ async def start_browse(
         callback.from_user.id, folder_id, page,
     )
     await callback.message.edit_text(
-        text=f'Choose set [{page + 1}/{last_page}]',
+        text=_(
+            'Choose set [{current_page}/{last_page}]'
+        ).format(
+            current_page=page + 1,
+            last_page=last_page,
+        ),
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=rows,
         ),

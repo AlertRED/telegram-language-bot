@@ -5,6 +5,7 @@ from aiogram import (
     F,
 )
 from aiogram.fsm.context import FSMContext
+from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
 from bot.handlers.utils.browse_folder import (
@@ -35,9 +36,12 @@ async def move_collection_true(
     await manage_collection(
         callback.message.edit_text,
         state,
-        additional_text=(
-            f'{state_data["collection_name"]} was moved to '
-            f'{callback_data.folder_name}'
+        additional_text=_(
+            '{collection_name} was moved to '
+            '{folder_name}'
+        ).format(
+            collection_name=state_data["collection_name"],
+            folder_name=callback_data.folder_name,
         ),
     )
 
@@ -75,17 +79,20 @@ async def move_collection_sure(
 ):
     state_data = await state.get_data()
     await callback.message.edit_text(
-        text=(
-            f'Are you sure wanna move '
-            f'<u><b>{state_data["collection_name"]}</b></u>'
-            f' into <u><b>{callback_data.folder_name or "Root"}</b></u>?'
+        text=_(
+            'Are you sure wanna move '
+            '<u><b>{collection_name}</b></u>'
+            ' into <u><b>{folder_name}</b></u>?'
+        ).format(
+            collection_name=state_data["collection_name"],
+            folder_name=callback_data.folder_name or "Root",
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[
                 [
                     types.InlineKeyboardButton(
-                        text='Yes',
+                        text=_('Yes'),
                         callback_data=MoveCollectionCallback(
                             sure=True,
                             folder_id=callback_data.folder_id,
@@ -93,7 +100,7 @@ async def move_collection_sure(
                         ).pack(),
                     ),
                     types.InlineKeyboardButton(
-                        text='No',
+                        text=_('No'),
                         callback_data=MoveCollectionCallback(
                             sure=False,
                         ).pack(),

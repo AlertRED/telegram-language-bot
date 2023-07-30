@@ -5,6 +5,7 @@ from aiogram import (
     F,
 )
 from aiogram.fsm.context import FSMContext
+from aiogram.utils.i18n import gettext as _
 
 from .manage import manage_collection
 from ..states import ChangeCollectionStates
@@ -34,9 +35,11 @@ async def delete_collection_false(
     state_data = await state.get_data()
     dao.delete_collection(state_data['collection_id'])
     await callback.message.edit_text(
-        text=(
-            f'Collection <u><b>{state_data["collection_name"]}</b></u>'
-            f' deleted succesfully!'
+        text=_(
+            'Collection <u><b>{collection_name}</b></u>'
+            ' deleted succesfully!'
+        ).format(
+            collection_name=state_data["collection_name"],
         ),
         parse_mode='html',
     )
@@ -49,23 +52,25 @@ async def delete_collection_true(
 ):
     state_data = await state.get_data()
     await callback.message.edit_text(
-        text=(
-            f'Are you sure you wanna delete '
-            f'<u><b>{state_data.get("collection_name")}</b></u>?\n'
-            f'All terms inside will be deleted too!'
+        text=_(
+            'Are you sure you wanna delete '
+            '<u><b>{collection_name}</b></u>?\n'
+            'All terms inside will be deleted too!'
+        ).format(
+            collection_name=state_data.get("collection_name"),
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[
                 [
                     types.InlineKeyboardButton(
-                        text='Yes',
+                        text=_('Yes'),
                         callback_data=DeleteCollectionCallback(
                             sure=True,
                         ).pack(),
                     ),
                     types.InlineKeyboardButton(
-                        text='No',
+                        text=_('No'),
                         callback_data=DeleteCollectionCallback(
                             sure=False,
                         ).pack(),

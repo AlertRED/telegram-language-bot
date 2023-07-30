@@ -4,6 +4,7 @@ from aiogram import (
     types,
 )
 from aiogram.fsm.context import FSMContext
+from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
 from bot.handlers.change_item.collection.handlers.manage import (
@@ -25,9 +26,11 @@ async def ask_new_definition(
 ) -> None:
     state_data = await state.get_data()
     await callback.message.edit_text(
-        text=(
-            f'Write new definition'
-            f'(old definition is {state_data["term_description"]}):'
+        text=_(
+            'Write new definition'
+            '(old definition is {term_description}):'
+        ).format(
+            term_description=state_data["term_description"],
         ),
         parse_mode='html',
     )
@@ -45,7 +48,7 @@ async def change_term_definition(
         term_description=message.text.capitalize(),
     )
     await manage_collection(
-        additional_text='Term was changed successfully!',
+        additional_text=_('Term was changed successfully!'),
         send_message_foo=message.answer,
         state=state,
     )

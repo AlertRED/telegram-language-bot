@@ -11,6 +11,7 @@ from aiogram.fsm.state import (
     StatesGroup,
     State,
 )
+from aiogram.utils.i18n import gettext as _
 from rq import cancel_job
 
 from bot import bot
@@ -115,7 +116,7 @@ async def guess(
 async def time_was_expired(chat_id: int, user_id: int):
     await bot.send_message(
         chat_id=chat_id,
-        text='time was expired',
+        text=_('Time was expired :('),
     )
 
     state: FSMContext = FSMContext(
@@ -175,16 +176,19 @@ async def finish_game(
 
     await bot.send_message(
         chat_id=chat_id,
-        text=(
-            f'Wins: {wins_count} | Loses: {lose_count}'
-            f'\nAccuracy: {accuracy:.1%}'
+        text=_(
+            'Wins: {wins_count} | Loses: {lose_count}'
+            '\nAccuracy: {accuracy:.1%}'
+        ).format(
+            lose_count=lose_count,
+            accuracy=accuracy,
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[
                 [
                     types.InlineKeyboardButton(
-                        text='Try again',
+                        text=_('Try again'),
                         callback_data=CollectionSelectCallback(
                             collection_id=state_data.get('collection_id'),
                             collection_name=state_data.get('collection_name'),

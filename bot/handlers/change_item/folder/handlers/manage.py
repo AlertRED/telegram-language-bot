@@ -4,6 +4,7 @@ from aiogram import (
     Router,
 )
 from aiogram.fsm.context import FSMContext
+from aiogram.utils.i18n import gettext as _
 
 from bot.handlers.utils.browse_folder import start_browse
 from bot.handlers.utils.calbacks import FolderSelectCallback
@@ -54,28 +55,30 @@ async def manage_folder(
 ) -> None:
     state_data = await state.get_data()
     await send_message_foo(
-        text=(
-            f'{additional_text}'
-            f'Manage folder <u><b>{state_data["folder_name"]}</b></u>'
+        text=_(
+            '{additional_text}'
+            'Manage folder <u><b>{folder_name}</b></u>'
+        ).format(
+            folder_name=state_data["folder_name"],
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[
                 [
                     types.InlineKeyboardButton(
-                        text='Change name',
+                        text=_('Change name'),
                         callback_data=ChangeFolderNameCallback().pack(),
                     ),
                 ],
                 [
                     types.InlineKeyboardButton(
-                        text='Move folder',
+                        text=_('Move folder'),
                         callback_data=MoveFolderCallback().pack(),
                     ),
                 ],
                 [
                     types.InlineKeyboardButton(
-                        text='Delete folder',
+                        text=_('Delete folder'),
                         callback_data=DeleteFolderCallback().pack(),
                     ),
                 ],

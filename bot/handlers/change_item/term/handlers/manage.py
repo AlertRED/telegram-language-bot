@@ -3,6 +3,7 @@ from aiogram import (
     Router,
 )
 from aiogram.fsm.context import FSMContext
+from aiogram.utils.i18n import gettext as _
 
 from bot.handlers.change_item.collection.handlers.manage import (
     manage_collection,
@@ -42,9 +43,11 @@ async def choose_collection(
         await manage_collection(
             callback.message.edit_text,
             state=state,
-            additional_text=(
-                f'<u><b>{callback_data.collection_name}</b></u> '
-                f'doesn\'t have terms yet.'
+            additional_text=_(
+                '<u><b>{collection_name}</b></u> '
+                'doesn\'t have terms yet.'
+            ).format(
+                collection_name=callback_data.collection_name,
             ),
         )
 
@@ -66,33 +69,36 @@ async def choose_collection(
     )
 
     await callback.message.edit_text(
-        text=(
-            f'<u><b>{term.name}</b></u> - {term.description}'
+        text=_(
+            '<u><b>{name}</b></u> - {description}'
+        ).format(
+            name=term.name,
+            description=term.description,
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[
                 [
                     types.InlineKeyboardButton(
-                        text='Change name',
+                        text=_('Change name'),
                         callback_data=ChangeTermNameCallback().pack(),
                     ),
                 ],
                 [
                     types.InlineKeyboardButton(
-                        text='Change definition',
+                        text=_('Change definition'),
                         callback_data=ChangeTermDefinitionCallback().pack(),
                     ),
                 ],
                 [
                     types.InlineKeyboardButton(
-                        text='Delete term',
+                        text=_('Delete term'),
                         callback_data=DeleteTermCallback().pack(),
                     ),
                 ],
                 [
                     types.InlineKeyboardButton(
-                        text='Move term',
+                        text=_('Move term'),
                         callback_data=MoveTermCallback().pack(),
                     ),
                 ],

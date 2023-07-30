@@ -4,6 +4,7 @@ from aiogram import (
     types,
 )
 from aiogram.fsm.context import FSMContext
+from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
 from .manage import manage_folder
@@ -21,7 +22,11 @@ async def change_folder_name(
 ):
     state_data = await state.get_data()
     await callback.message.edit_text(
-        text=f'Write new name (old name {state_data["folder_name"]}):',
+        text=_(
+            'Write new name (old name {folder_name}):'
+        ).format(
+            folder_name=state_data["folder_name"],
+        ),
         parse_mode='html',
     )
     await state.set_state(ChangeFolderStates.option_change_name)
@@ -45,8 +50,11 @@ async def change_folder_name(
     await manage_folder(
         message.answer,
         state,
-        additional_text=(
-            f'Folder name <u><b>{state_data["folder_name"]}</b></u> '
-            f'changed to <u><b>{message.text}</b></u>\n\n'
+        additional_text=_(
+            'Folder name <u><b>{folder_name}</b></u> '
+            'changed to <u><b>{new_name}</b></u>\n\n'
+        ).format(
+            folder_name=state_data["folder_name"],
+            new_name=message.text,
         ),
     )

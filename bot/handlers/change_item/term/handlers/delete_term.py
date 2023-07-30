@@ -5,6 +5,7 @@ from aiogram import (
     F,
 )
 from aiogram.fsm.context import FSMContext
+from aiogram.utils.i18n import gettext as _
 
 from bot.handlers.change_item.collection.handlers.manage import (
     manage_collection,
@@ -35,9 +36,11 @@ async def delete_term_false(
 ):
     state_data = await state.get_data()
     dao.delete_term(state_data['term_id'])
-    additional_text = (
-        f'Term <u><b>{state_data["term_name"]}</b></u>'
-        f' deleted succesfully!'
+    additional_text = _(
+        'Term <u><b>{term_name}</b></u>'
+        ' deleted succesfully!'
+    ).format(
+        term_name=state_data["term_name"],
     )
     await manage_collection(
         callback.message.edit_text,
@@ -53,22 +56,24 @@ async def delete_term_true(
 ):
     state_data = await state.get_data()
     await callback.message.edit_text(
-        text=(
-            f'Are you sure you wanna delete '
-            f'<u><b>{state_data.get("term_name")}</b></u>?\n'
+        text=_(
+            'Are you sure you wanna delete '
+            '<u><b>{term_name}</b></u>?\n'
+        ).format(
+            term_name=state_data.get("term_name"),
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[
                 [
                     types.InlineKeyboardButton(
-                        text='Yes',
+                        text=_('Yes'),
                         callback_data=DeleteTermCallback(
                             sure=True,
                         ).pack(),
                     ),
                     types.InlineKeyboardButton(
-                        text='No',
+                        text=_('No'),
                         callback_data=DeleteTermCallback(
                             sure=False,
                         ).pack(),

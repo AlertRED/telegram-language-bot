@@ -4,6 +4,7 @@ from aiogram import (
     types,
 )
 from aiogram.fsm.context import FSMContext
+from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
 from bot.handlers.change_item.collection.handlers.manage import (
@@ -25,7 +26,11 @@ async def change_term(
 ) -> None:
     state_data = await state.get_data()
     await callback.message.edit_text(
-        text=f'Write new name (old name is {state_data["term_name"]}):',
+        text=_(
+            'Write new name (old name is {term_name}):'
+        ).format(
+            term_name=state_data["term_name"],
+        ),
         parse_mode='html',
     )
     await state.set_state(ChangeTermStates.change_name)
@@ -42,7 +47,7 @@ async def change_term_name(
         term_name=message.text.capitalize(),
     )
     await manage_collection(
-        additional_text='Term was changed successfully!',
+        additional_text=_('Term was changed successfully!'),
         send_message_foo=message.answer,
         state=state,
     )

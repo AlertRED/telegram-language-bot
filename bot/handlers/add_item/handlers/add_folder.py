@@ -8,6 +8,7 @@ from aiogram.fsm.state import (
     StatesGroup,
     State,
 )
+from aiogram.utils.i18n import gettext as _
 
 from bot.handlers.utils.browse_folder import start_browse
 from bot.handlers.utils.calbacks import FolderSelectCallback
@@ -44,7 +45,7 @@ async def collection_choosen(
         folder_id=callback_data.folder_id,
         folder_name=callback_data.folder_name,
     )
-    await callback.message.edit_text(text='Write folder name')
+    await callback.message.edit_text(text=_('Write folder name'))
     await state.set_state(CreateFolderStates.choose_name)
 
 
@@ -58,8 +59,13 @@ async def create_collection(message: types.Message, state: FSMContext):
         folder_id=user_data['folder_id'],
     )
     await message.answer(
-        text=f'Folder <b><u>{user_data["new_folder_name"]}</u></b> '
-             f'added into folder <b><u>{user_data["folder_name"]}</u></b>',
+        text=_(
+            'Folder <b><u>{new_folder_name}</u></b> '
+             'added into folder <b><u>{folder_name}</u></b>'
+        ).format(
+            new_folder_name=user_data["new_folder_name"],
+            folder_name=user_data["folder_name"],
+        ),
         parse_mode='html',
     )
     await state.clear()

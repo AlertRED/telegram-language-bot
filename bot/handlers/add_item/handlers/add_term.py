@@ -9,6 +9,8 @@ from aiogram.fsm.state import (
     StatesGroup,
     State,
 )
+from aiogram.utils.i18n import gettext as _
+
 
 from bot.handlers.utils.browse_collection import start_browse
 from bot.handlers.utils.calbacks import CollectionSelectCallback
@@ -68,18 +70,18 @@ async def term_name_choosen(message: types.Message, state: FSMContext):
         [f'{i + 1}. {suggestion}' for i, suggestion in enumerate(suggestions)],
     )
     if text_suggestions:
-        text_suggestions = (
-            f'Or choose one from suggestions'
-            f'\n{text_suggestions}'
-        )
+        text_suggestions = _(
+            'Or choose one from suggestions'
+            '\n{text_suggestions}'
+        ).format(text_suggestions=text_suggestions)
     else:
-        text_suggestions = 'We coudn\'t find any suggestion...'
+        text_suggestions = _('We coudn\'t find any suggestion...')
 
     await message.answer(
-        text=(
-            f'Write description for <b><u>{user_data["term_name"]}</u></b>'
-            f'\n{text_suggestions}'
-        ),
+        text=_(
+            'Write description for <b><u>{user_data["term_name"]}</u></b>'
+            '\n{text_suggestions}'
+        ).format(text_suggestions=text_suggestions),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[
@@ -125,9 +127,15 @@ async def add_term(foo_answer: Callable, state: FSMContext):
         user_data['term_description'],
     )
     await foo_answer(
-        text=f'Term added into {user_data["collection_name"]}\n'
-        f'Term: <b><u>{user_data["term_name"]}</u></b>\n'
-        f'Description: {user_data["term_description"]}',
+        text=_(
+            'Term added into {collection_name}\n'
+            'Term: <b><u>{term_name}</u></b>\n'
+            'Description: {term_description}'
+        ).format(
+            collection_name=user_data["collection_name"],
+            term_name=user_data["term_name"],
+            term_description=user_data["term_description"]
+        ),
         parse_mode='html',
     )
     await state.clear()

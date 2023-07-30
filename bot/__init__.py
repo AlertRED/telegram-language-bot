@@ -2,6 +2,7 @@ from aiogram import (
     filters,
     types,
 )
+from aiogram.utils.i18n import gettext as _
 
 from bot.instances import (
     dispatcher,
@@ -23,16 +24,20 @@ import database.dao as dao
 
 
 @dispatcher.message(filters.Command('start'))
-async def start(message: types.Message) -> None:
+async def start_menu(message: types.Message) -> None:
     dao.register_user(message.from_user.id)
     await message.answer(
-        text=f'Hi, {message.from_user.first_name}! '
-        f'I\'ll help you to learn any language.\n\n'
-        f'Bot commands:\n'
-        f'/start - main menu\n'
-        f'/train - train words from set\n'
-        f'/add_item - add new term, set or folder\n'
-        f'/manage_item - change term, set or folder\n',
+        text=_(
+            'Hi, {username}!\n'
+            '\nI\'ll help you to learn any language.'
+            '\nBot commands:'
+            '\n/start - main menu'
+            '\n/train - train words from set'
+            '\n/add_item - add new term, set or folder'
+            '\n/manage_item - change term, set or folder'
+        ).format(
+            username=message.from_user.first_name,
+        )
     )
 
 

@@ -3,6 +3,7 @@ from aiogram import (
     filters,
     types,
 )
+from aiogram.utils.i18n import gettext as _
 
 from bot.handlers.train.callbacks import (
     FindDefinitionCallback,
@@ -23,19 +24,19 @@ async def train(message: types.Message) -> None:
     rows = [
         [
             types.InlineKeyboardButton(
-                text='Find definition',
+                text=_('Find definition'),
                 callback_data=FindDefinitionCallback().pack(),
             ),
         ],
         [
             types.InlineKeyboardButton(
-                text='Simple train',
+                text=_('Simple train'),
                 callback_data=SimpleTrainCallback().pack(),
             ),
         ],
     ]
     await message.answer(
-        text='Choose train type',
+        text=_('Choose train type'),
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=rows,
         ),

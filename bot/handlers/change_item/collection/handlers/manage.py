@@ -4,6 +4,7 @@ from aiogram import (
     types,
 )
 from aiogram.fsm.context import FSMContext
+from aiogram.utils.i18n import gettext as _
 
 from bot.handlers.change_item.term.callbacks import ChangeTermCallback
 from bot.handlers.utils.browse_collection import (
@@ -57,30 +58,33 @@ async def manage_collection(
 ) -> None:
     state_data = await state.get_data()
     await send_message_foo(
-        text=(
-            f'{additional_text}\n\n'
-            f'Manage set <u><b>{state_data["collection_name"]}</b></u>'
+        text=_(
+            '{additional_text}\n\n'
+            'Manage set <u><b>{collection_name}</b></u>'
+        ).format(
+            additional_text=additional_text,
+            collection_name=state_data["collection_name"],
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[
                 [
                     types.InlineKeyboardButton(
-                        text='Change name',
+                        text=_('Change name'),
                         callback_data=ChangeCollectionNameCallback().pack(),
                     ),
                     types.InlineKeyboardButton(
-                        text='Move set',
+                        text=_('Move set'),
                         callback_data=MoveCollectionCallback().pack(),
                     ),
                 ],
                 [
                     types.InlineKeyboardButton(
-                        text='Delete set',
+                        text=_('Delete set'),
                         callback_data=DeleteCollectionCallback().pack(),
                     ),
                     types.InlineKeyboardButton(
-                        text='Change term',
+                        text=_('Change term'),
                         callback_data=ChangeTermCallback(
                             collection_id=state_data.get('collection_id'),
                             collection_name=state_data.get('collection_name'),
