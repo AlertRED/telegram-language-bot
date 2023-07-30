@@ -14,10 +14,10 @@ class ChangeCollectionNameCallback(
 
 
 class DeleteCollectionCallback(CallbackData, prefix='delete_collection'):
-    sure: Optional[bool]
+    sure: Optional[bool] = None
 
 
 class MoveCollectionCallback(CallbackData, prefix='move_collectioin'):
-    sure: Optional[bool]
-    folder_id: Optional[int]
-    folder_name: Optional[str]
+    sure: Optional[bool] = None
+    folder_id: Optional[int] = None
+    folder_name: Optional[str] = None

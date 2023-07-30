@@ -1,11 +1,9 @@
 from typing import Callable
-from aiogram import (
-    Router,
-    types,
-)
+from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
+from bot.instances import dispatcher as dp
 from bot.handlers.change_item.term.callbacks import ChangeTermCallback
 from bot.handlers.utils.browse_collection import (
     start_browse as start_browse_collection,
@@ -20,10 +18,7 @@ from ..callbacks import (
 )
 
 
-router = Router()
-
-
-@router.callback_query(ChangeCollectionCallback.filter())
+@dp.callback_query(ChangeCollectionCallback.filter())
 async def choose_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -32,7 +27,7 @@ async def choose_collection(
     await state.set_state(ChangeCollectionStates.manage_choose_place)
 
 
-@router.callback_query(
+@dp.callback_query(
     CollectionSelectCallback.filter(),
     ChangeCollectionStates.manage_choose_place,
 )

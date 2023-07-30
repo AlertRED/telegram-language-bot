@@ -1,18 +1,13 @@
 import math
-from aiogram import (
-    Router,
-    types,
-)
+from aiogram import types
 from aiogram.utils.i18n import gettext as _
 
+from bot.instances import dispatcher as dp
+import database.dao as dao
 from .calbacks import (
     ChangeCollectionCallback,
     TermSelectedCallback,
 )
-import database.dao as dao
-
-
-router = Router()
 
 
 class CollectionIsEmptyException(Exception):
@@ -40,9 +35,10 @@ async def start_browse(
     text = ''
     for i, term in enumerate(terms):
         text += _(
-            '\n\n{i+1}. <u><b>{name}</b></u> - '
+            '\n\n{index}. <u><b>{name}</b></u> - '
             '{description}'
         ).format(
+            index=i + 1,
             name=term.name,
             description=term.description,
         )
@@ -81,7 +77,7 @@ async def start_browse(
     )
 
 
-@router.callback_query(ChangeCollectionCallback.filter())
+@dp.callback_query(ChangeCollectionCallback.filter())
 async def change_page(
     callback: types.CallbackQuery,
     callback_data: ChangeCollectionCallback,

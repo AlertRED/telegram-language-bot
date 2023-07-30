@@ -1,12 +1,11 @@
-from aiogram import Router
 from aiogram import (
-    Router,
     types,
     F,
 )
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
+from bot.instances import dispatcher as dp
 import database.dao as dao
 from bot.handlers.utils.browse_collection import (
     start_browse as start_browse_collection,
@@ -19,10 +18,7 @@ from ..states import ChangeTermStates
 from ..callbacks import MoveTermCallback
 
 
-router = Router()
-
-
-@router.callback_query(
+@dp.callback_query(
     MoveTermCallback.filter(F.sure == True),
 )
 async def move_collection_true(
@@ -48,7 +44,7 @@ async def move_collection_true(
     )
 
 
-@router.callback_query(
+@dp.callback_query(
     MoveTermCallback.filter(F.sure == False),
 )
 async def move_collection_false(
@@ -61,7 +57,7 @@ async def move_collection_false(
     )
 
 
-@router.callback_query(MoveTermCallback.filter())
+@dp.callback_query(MoveTermCallback.filter())
 async def move_term_browse(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -70,7 +66,7 @@ async def move_term_browse(
     await state.set_state(ChangeTermStates.choose_collection_for_moving)
 
 
-@router.callback_query(
+@dp.callback_query(
     CollectionSelectCallback.filter(),
     ChangeTermStates.choose_collection_for_moving,
 )

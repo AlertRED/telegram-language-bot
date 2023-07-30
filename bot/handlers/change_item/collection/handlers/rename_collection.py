@@ -1,21 +1,15 @@
-from aiogram import Router
-from aiogram import (
-    Router,
-    types,
-)
+from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
+from bot.instances import dispatcher as dp
 from .manage import manage_collection
 from ..states import ChangeCollectionStates
 from ..callbacks import ChangeCollectionNameCallback
 import database.dao as dao
 
 
-router = Router()
-
-
-@router.callback_query(ChangeCollectionNameCallback.filter())
+@dp.callback_query(ChangeCollectionNameCallback.filter())
 async def change_collection_name(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -30,7 +24,7 @@ async def change_collection_name(
     await state.set_state(ChangeCollectionStates.option_change_name)
 
 
-@router.message(
+@dp.message(
     ChangeCollectionStates.option_change_name,
 )
 async def change_collection_name(

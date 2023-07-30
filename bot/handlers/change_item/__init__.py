@@ -1,43 +1,21 @@
-from aiogram import (
-    Router,
-    filters,
-    types,
+from .menu import menu
+from .collection.handlers import (
+    manage,
+    delete_collection,
+    rename_collection,
+    move_collection,
 )
-
-from .folder.callbacks import ChangeFolderCallback
-from .collection.callbacks import ChangeCollectionCallback
-from .term.handlers import router as change_term_router
-from .folder.handlers import router as change_folder_router
-from .collection.handlers import router as change_collection_router
-
-
-router = Router()
-router.include_routers(
-    change_term_router,
-    change_folder_router,
-    change_collection_router,
+from .folder.handlers import (
+    manage,
+    delete_folder,
+    rename_folder,
+    move_folder,
 )
-
-
-@router.message(filters.Command('manage_item'))
-async def change_item(message: types.Message) -> None:
-    rows = [
-        [
-            types.InlineKeyboardButton(
-                text='Manage folder',
-                callback_data=ChangeFolderCallback().pack(),
-            ),
-        ],
-        [
-            types.InlineKeyboardButton(
-                text='Manage set / term',
-                callback_data=ChangeCollectionCallback().pack(),
-            ),
-        ],
-    ]
-    await message.answer(
-        text='Choose item to manage',
-        reply_markup=types.InlineKeyboardMarkup(
-            inline_keyboard=rows,
-        ),
-    )
+from .term.handlers import (
+    manage,
+    delete_term,
+    change_definition,
+    change_name,
+    move_term,
+    move_term,
+)

@@ -1,6 +1,4 @@
-from aiogram import Router
 from aiogram import (
-    Router,
     types,
     F,
 )
@@ -12,15 +10,13 @@ from bot.handlers.utils.browse_folder import (
     start_browse as start_browse_folder,
 )
 from bot.handlers.utils.calbacks import FolderSelectCallback
+from bot.instances import dispatcher as dp
 from .manage import manage_collection
 from ..states import ChangeCollectionStates
 from ..callbacks import MoveCollectionCallback
 
 
-router = Router()
-
-
-@router.callback_query(
+@dp.callback_query(
     MoveCollectionCallback.filter(F.sure == True),
 )
 async def move_collection_true(
@@ -46,7 +42,7 @@ async def move_collection_true(
     )
 
 
-@router.callback_query(
+@dp.callback_query(
     MoveCollectionCallback.filter(F.sure == False),
 )
 async def move_collection_false(
@@ -59,7 +55,7 @@ async def move_collection_false(
     )
 
 
-@router.callback_query(MoveCollectionCallback.filter())
+@dp.callback_query(MoveCollectionCallback.filter())
 async def move_collection_browse(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -68,7 +64,7 @@ async def move_collection_browse(
     await state.set_state(ChangeCollectionStates.choose_folder_for_moving)
 
 
-@router.callback_query(
+@dp.callback_query(
     FolderSelectCallback.filter(),
     ChangeCollectionStates.choose_folder_for_moving,
 )

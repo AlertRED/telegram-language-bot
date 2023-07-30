@@ -1,21 +1,15 @@
-from aiogram import Router
-from aiogram import (
-    Router,
-    types,
-)
+from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
+from bot.instances import dispatcher as dp
 import database.dao as dao
 from .manage import manage_folder
 from ..states import ChangeFolderStates
 from ..callbacks import ChangeFolderNameCallback
 
 
-router = Router()
-
-
-@router.callback_query(ChangeFolderNameCallback.filter())
+@dp.callback_query(ChangeFolderNameCallback.filter())
 async def change_folder_name(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -32,7 +26,7 @@ async def change_folder_name(
     await state.set_state(ChangeFolderStates.option_change_name)
 
 
-@router.message(
+@dp.message(
     ChangeFolderStates.option_change_name,
 )
 async def change_folder_name(

@@ -1,10 +1,9 @@
-from aiogram import (
-    types,
-    Router,
-)
+from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
+from bot.instances import dispatcher as dp
+from bot.instances import dispatcher as dp
 from bot.handlers.change_item.collection.handlers.manage import (
     manage_collection,
 )
@@ -24,10 +23,7 @@ from ..callbacks import (
 import database.dao as dao
 
 
-router = Router()
-
-
-@router.callback_query(ChangeTermCallback.filter())
+@dp.callback_query(ChangeTermCallback.filter())
 async def choose_collection(
     callback: types.CallbackQuery,
     callback_data: ChangeTermCallback,
@@ -52,7 +48,7 @@ async def choose_collection(
         )
 
 
-@router.callback_query(
+@dp.callback_query(
     TermSelectedCallback.filter(),
     ChangeTermStates.manage_choose_term,
 )

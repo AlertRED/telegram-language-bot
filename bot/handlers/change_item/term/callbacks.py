@@ -19,10 +19,10 @@ class ChangeTermCallback(CallbackData, prefix='change_term'):
 
 
 class MoveTermCallback(CallbackData, prefix='move_term'):
-    sure: Optional[bool]
-    collection_id: Optional[int]
-    collection_name: Optional[str]
+    sure: Optional[bool] = None
+    collection_id: Optional[int] = None
+    collection_name: Optional[str] = None
 
 
 class DeleteTermCallback(CallbackData, prefix='delete_term'):
-    sure: Optional[bool]
+    sure: Optional[bool] = None

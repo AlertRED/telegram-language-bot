@@ -1,7 +1,4 @@
-from aiogram import (
-    Router,
-    types,
-)
+from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import (
     StatesGroup,
@@ -13,9 +10,7 @@ import database.dao as dao
 from bot.handlers.utils.browse_folder import start_browse
 from bot.handlers.utils.calbacks import FolderSelectCallback
 from bot.handlers.add_item.callbacks import AddingCollectionCallback
-
-
-router = Router()
+from bot.instances import dispatcher as dp
 
 
 class CreateCollectionStates(StatesGroup):
@@ -23,7 +18,7 @@ class CreateCollectionStates(StatesGroup):
     choose_name = State()
 
 
-@router.callback_query(AddingCollectionCallback.filter())
+@dp.callback_query(AddingCollectionCallback.filter())
 async def choose_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -32,7 +27,7 @@ async def choose_collection(
     await state.set_state(CreateCollectionStates.choose_place)
 
 
-@router.callback_query(
+@dp.callback_query(
     FolderSelectCallback.filter(),
     CreateCollectionStates.choose_place,
 )
@@ -49,7 +44,7 @@ async def collection_choosen(
     await state.set_state(CreateCollectionStates.choose_name)
 
 
-@router.message(CreateCollectionStates.choose_name)
+@dp.message(CreateCollectionStates.choose_name)
 async def create_collection(message: types.Message, state: FSMContext):
     await state.update_data(collection_name=message.text)
     user_data = await state.get_data()

@@ -316,8 +316,10 @@ def get_simple_train_terms(
     collection_id: int,
 ) -> List[Term]:
     with Session() as session:
-        query = select(Term).where(
+        query = select(
+            Term.id, Term.name, Term.description,
+        ).where(
             Term.collection_id == collection_id,
         ).order_by(func.random())
-        terms = session.scalars(query).all()
+        terms = session.execute(query).fetchall()
         return terms

@@ -1,8 +1,4 @@
-import database.dao as dao
-from aiogram import (
-    Router,
-    types,
-)
+from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import (
     StatesGroup,
@@ -10,6 +6,8 @@ from aiogram.fsm.state import (
 )
 from aiogram.utils.i18n import gettext as _
 
+import database.dao as dao
+from bot.instances import dispatcher as dp
 from bot.handlers.utils.browse_collection import start_browse
 from bot.handlers.utils.calbacks import CollectionSelectCallback
 from bot.handlers.train.callbacks import (
@@ -19,16 +17,13 @@ from bot.handlers.train.callbacks import (
 )
 
 
-router = Router()
-
-
 class SimpleTrainStates(StatesGroup):
     choose_collection = State()
     show_term = State()
     remind_term = State()
 
 
-@router.callback_query(SimpleTrainCallback.filter())
+@dp.callback_query(SimpleTrainCallback.filter())
 async def choose_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -37,7 +32,7 @@ async def choose_collection(
     await state.set_state(SimpleTrainStates.choose_collection)
 
 
-@router.callback_query(
+@dp.callback_query(
     CollectionSelectCallback.filter(),
     SimpleTrainStates.choose_collection,
 )
@@ -48,7 +43,7 @@ async def collection_choosen(
 ) -> None:
     terms = dao.get_simple_train_terms(callback_data.collection_id)
     await state.update_data(
-        terms=terms,
+        terms=[list(term) for term in terms],
         term_index=0,
     )
     await show_term(
@@ -58,7 +53,7 @@ async def collection_choosen(
     await state.set_state(SimpleTrainStates.show_term)
 
 
-@router.callback_query(IKnowTermCallback.filter())
+@dp.callback_query(IKnowTermCallback.filter())
 async def know_term(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -78,7 +73,7 @@ async def know_term(
         )
 
 
-@router.callback_query(RemindTermCallback.filter())
+@dp.callback_query(RemindTermCallback.filter())
 async def know_term(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -90,8 +85,8 @@ async def know_term(
         text=_(
             '<u><b>{name}</b></u> - {description}'
         ).format(
-            name=terms[term_index].name,
-            description=terms[term_index].description,
+            name=terms[term_index][1],
+            description=terms[term_index][2],
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(
@@ -116,7 +111,9 @@ async def show_term(
     terms = state_data['terms']
 
     await message.edit_text(
-        text=f'{terms[term_index].name}',
+        text=_('{name}').format(
+            name=terms[term_index][1],
+        ),
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[
                 [

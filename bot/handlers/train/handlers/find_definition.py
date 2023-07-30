@@ -1,10 +1,7 @@
 from datetime import timedelta
 from random import shuffle
 
-from aiogram import (
-    Router,
-    types,
-)
+from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.base import StorageKey
 from aiogram.fsm.state import (
@@ -14,16 +11,15 @@ from aiogram.fsm.state import (
 from aiogram.utils.i18n import gettext as _
 from rq import cancel_job
 
-from bot import bot
-from bot.instances import dispatcher
+from bot.instances import (
+    dispatcher as dp,
+    bot,
+)
 from bot.instances import queue, redis
 from bot.handlers.utils.calbacks import CollectionSelectCallback
 from bot.handlers.utils.browse_collection import start_browse
 from bot.handlers.train.callbacks import FindDefinitionCallback
 import database.dao as dao
-
-
-router = Router()
 
 
 class FindDefinitionStates(StatesGroup):
@@ -32,7 +28,7 @@ class FindDefinitionStates(StatesGroup):
     finished_train = State()
 
 
-@router.callback_query(FindDefinitionCallback.filter())
+@dp.callback_query(FindDefinitionCallback.filter())
 async def choose_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -41,11 +37,11 @@ async def choose_collection(
     await state.set_state(FindDefinitionStates.choose_collection)
 
 
-@router.callback_query(
+@dp.callback_query(
     CollectionSelectCallback.filter(),
     FindDefinitionStates.choose_collection,
 )
-@router.callback_query(
+@dp.callback_query(
     CollectionSelectCallback.filter(),
     FindDefinitionStates.finished_train,
 )
@@ -121,7 +117,7 @@ async def time_was_expired(chat_id: int, user_id: int):
 
     state: FSMContext = FSMContext(
         bot=bot,
-        storage=dispatcher.storage,
+        storage=dp.storage,
         key=StorageKey(
             chat_id=chat_id,
             user_id=user_id,
@@ -152,7 +148,7 @@ async def continue_guessing(
     await guess(state=state)
 
 
-@router.poll_answer()
+@dp.poll_answer()
 async def get_poll_answer(
     poll: types.PollAnswer,
     state: FSMContext,
@@ -180,6 +176,7 @@ async def finish_game(
             'Wins: {wins_count} | Loses: {lose_count}'
             '\nAccuracy: {accuracy:.1%}'
         ).format(
+            wins_count=wins_count,
             lose_count=lose_count,
             accuracy=accuracy,
         ),

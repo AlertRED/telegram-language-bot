@@ -1,11 +1,9 @@
 
-from aiogram import (
-    Router,
-    types,
-)
+from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
+from bot.instances import dispatcher as dp
 import database.dao as dao
 from bot.handlers.change_item.collection.handlers.manage import (
     manage_collection,
@@ -15,10 +13,7 @@ from ..states import ChangeTermStates
 from ..callbacks import ChangeTermDefinitionCallback
 
 
-router = Router()
-
-
-@router.callback_query(ChangeTermDefinitionCallback.filter())
+@dp.callback_query(ChangeTermDefinitionCallback.filter())
 async def ask_new_definition(
     callback: types.CallbackQuery,
     callback_data: TermSelectedCallback,
@@ -37,7 +32,7 @@ async def ask_new_definition(
     await state.set_state(ChangeTermStates.change_definition)
 
 
-@router.message(ChangeTermStates.change_definition)
+@dp.message(ChangeTermStates.change_definition)
 async def change_term_definition(
     message: types.Message,
     state: FSMContext,

@@ -8,17 +8,17 @@ class CollectionSelectCallback(CallbackData, prefix='bc_select_collection'):
 
 
 class FolderChangedCallback(CallbackData, prefix='bc_change_folder'):
-    folder_id: Optional[int]
+    folder_id: Optional[int] = None
     page: Optional[int] = 0
 
 
 class FolderSelectCallback(CallbackData, prefix='bf_select_folder'):
-    folder_id: Optional[int]
-    folder_name: Optional[str]
+    folder_id: Optional[int] = None
+    folder_name: Optional[str] = None
 
 
 class FolderChangeCallback(CallbackData, prefix='bf_change_folder'):
-    folder_id: Optional[int]
+    folder_id: Optional[int] = None
     page: Optional[int] = 0
     is_root_returnable: bool
 

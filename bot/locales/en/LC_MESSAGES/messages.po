@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-07-30 09:50+0300\n"
+"POT-Creation-Date: 2023-07-30 18:55+0300\n"
 "PO-Revision-Date: 2023-07-30 09:10+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.12.1\n"
 
-#: bot/__init__.py:30
+#: bot/__init__.py:16
 msgid ""
 "Hi, {username}!\n"
 "\n"
@@ -27,298 +27,437 @@ msgid ""
 "/start - main menu\n"
 "/train - train words from set\n"
 "/add_item - add new term, set or folder\n"
-"/manage_item - change term, set or folder"
+"/manage_item - change term, set or folder\n"
+"/settings - your settings"
 msgstr ""
 
-#: bot/handlers/add_item/__init__.py:33
-msgid "Add term"
-msgstr ""
-
-#: bot/handlers/add_item/__init__.py:39
-msgid "Add set"
-msgstr ""
-
-#: bot/handlers/add_item/__init__.py:45
-msgid "Add folder"
-msgstr ""
-
-#: bot/handlers/add_item/__init__.py:51
-msgid "Type item to add"
-msgstr ""
-
-#: bot/handlers/add_item/handlers/add_collection.py:48
+#: bot/handlers/add_item/handlers/add_collection.py:43
 msgid "Write set name"
 msgstr ""
 
-#: bot/handlers/add_item/handlers/add_collection.py:62
+#: bot/handlers/add_item/handlers/add_collection.py:57
 msgid ""
 "Set <b><u>{collection_name}</u></b> added into "
 "<b><u>{folder_name}</u></b> folder"
 msgstr ""
 
-#: bot/handlers/add_item/handlers/add_folder.py:48
+#: bot/handlers/add_item/handlers/add_folder.py:43
 msgid "Write folder name"
 msgstr ""
 
-#: bot/handlers/add_item/handlers/add_folder.py:62
+#: bot/handlers/add_item/handlers/add_folder.py:57
 msgid ""
 "Folder <b><u>{new_folder_name}</u></b> added into folder "
 "<b><u>{folder_name}</u></b>"
 msgstr ""
 
-#: bot/handlers/add_item/handlers/add_term.py:73
+#: bot/handlers/add_item/handlers/add_term.py:51
+msgid "Write term"
+msgstr ""
+
+#: bot/handlers/add_item/handlers/add_term.py:67
 msgid ""
 "Or choose one from suggestions\n"
 "{text_suggestions}"
 msgstr ""
 
-#: bot/handlers/add_item/handlers/add_term.py:78
+#: bot/handlers/add_item/handlers/add_term.py:72
 msgid "We coudn't find any suggestion..."
 msgstr ""
 
-#: bot/handlers/add_item/handlers/add_term.py:81
+#: bot/handlers/add_item/handlers/add_term.py:75
 msgid ""
-"Write description for <b><u>{user_data[\"term_name\"]}</u></b>\n"
+"Write description for <b><u>{term_name}</u></b>\n"
 "{text_suggestions}"
 msgstr ""
 
-#: bot/handlers/add_item/handlers/add_term.py:130
+#: bot/handlers/add_item/handlers/add_term.py:127
 msgid ""
 "Term added into {collection_name}\n"
 "Term: <b><u>{term_name}</u></b>\n"
 "Description: {term_description}"
 msgstr ""
 
-#: bot/handlers/change_item/collection/handlers/delete_collection.py:38
+#: bot/handlers/add_item/handlers/menu.py:22
+msgid "Add term"
+msgstr ""
+
+#: bot/handlers/add_item/handlers/menu.py:28
+msgid "Add set"
+msgstr ""
+
+#: bot/handlers/add_item/handlers/menu.py:34
+msgid "Add folder"
+msgstr ""
+
+#: bot/handlers/add_item/handlers/menu.py:40
+msgid "Type item to add"
+msgstr ""
+
+#: bot/handlers/change_item/collection/handlers/delete_collection.py:34
 msgid "Collection <u><b>{collection_name}</b></u> deleted succesfully!"
 msgstr ""
 
-#: bot/handlers/change_item/collection/handlers/delete_collection.py:55
+#: bot/handlers/change_item/collection/handlers/delete_collection.py:51
 msgid ""
 "Are you sure you wanna delete <u><b>{collection_name}</b></u>?\n"
 "All terms inside will be deleted too!"
 msgstr ""
 
-#: bot/handlers/change_item/collection/handlers/delete_collection.py:67
-#: bot/handlers/change_item/collection/handlers/move_collection.py:95
-#: bot/handlers/change_item/folder/handlers/delete_folder.py:67
-#: bot/handlers/change_item/folder/handlers/move_folder.py:93
-#: bot/handlers/change_item/term/handlers/delete_term.py:70
-#: bot/handlers/change_item/term/handlers/move_term.py:97
+#: bot/handlers/change_item/collection/handlers/delete_collection.py:63
+#: bot/handlers/change_item/collection/handlers/move_collection.py:91
+#: bot/handlers/change_item/folder/handlers/delete_folder.py:64
+#: bot/handlers/change_item/folder/handlers/move_folder.py:89
+#: bot/handlers/change_item/term/handlers/delete_term.py:66
+#: bot/handlers/change_item/term/handlers/move_term.py:93
 msgid "Yes"
 msgstr ""
 
-#: bot/handlers/change_item/collection/handlers/delete_collection.py:73
-#: bot/handlers/change_item/collection/handlers/move_collection.py:103
-#: bot/handlers/change_item/folder/handlers/delete_folder.py:71
-#: bot/handlers/change_item/folder/handlers/move_folder.py:101
-#: bot/handlers/change_item/term/handlers/delete_term.py:76
-#: bot/handlers/change_item/term/handlers/move_term.py:105
+#: bot/handlers/change_item/collection/handlers/delete_collection.py:69
+#: bot/handlers/change_item/collection/handlers/move_collection.py:99
+#: bot/handlers/change_item/folder/handlers/delete_folder.py:68
+#: bot/handlers/change_item/folder/handlers/move_folder.py:97
+#: bot/handlers/change_item/term/handlers/delete_term.py:72
+#: bot/handlers/change_item/term/handlers/move_term.py:101
 msgid "No"
 msgstr ""
 
-#: bot/handlers/change_item/collection/handlers/manage.py:61
+#: bot/handlers/change_item/collection/handlers/manage.py:56
 msgid ""
 "{additional_text}\n"
 "\n"
 "Manage set <u><b>{collection_name}</b></u>"
 msgstr ""
 
-#: bot/handlers/change_item/collection/handlers/manage.py:73
-#: bot/handlers/change_item/folder/handlers/manage.py:69
-#: bot/handlers/change_item/term/handlers/manage.py:83
+#: bot/handlers/change_item/collection/handlers/manage.py:68
+#: bot/handlers/change_item/folder/handlers/manage.py:65
+#: bot/handlers/change_item/term/handlers/manage.py:79
 msgid "Change name"
 msgstr ""
 
-#: bot/handlers/change_item/collection/handlers/manage.py:77
+#: bot/handlers/change_item/collection/handlers/manage.py:72
 msgid "Move set"
 msgstr ""
 
-#: bot/handlers/change_item/collection/handlers/manage.py:83
+#: bot/handlers/change_item/collection/handlers/manage.py:78
 msgid "Delete set"
 msgstr ""
 
-#: bot/handlers/change_item/collection/handlers/manage.py:87
+#: bot/handlers/change_item/collection/handlers/manage.py:82
 msgid "Change term"
 msgstr ""
 
-#: bot/handlers/change_item/collection/handlers/move_collection.py:39
+#: bot/handlers/change_item/collection/handlers/move_collection.py:35
 msgid "{collection_name} was moved to {folder_name}"
 msgstr ""
 
-#: bot/handlers/change_item/collection/handlers/move_collection.py:82
+#: bot/handlers/change_item/collection/handlers/move_collection.py:78
 msgid ""
 "Are you sure wanna move <u><b>{collection_name}</b></u> into "
 "<u><b>{folder_name}</b></u>?"
 msgstr ""
 
-#: bot/handlers/change_item/collection/handlers/rename_collection.py:25
+#: bot/handlers/change_item/collection/handlers/rename_collection.py:19
 msgid "Write new name (old name {collection_name}):"
 msgstr ""
 
-#: bot/handlers/change_item/collection/handlers/rename_collection.py:51
+#: bot/handlers/change_item/collection/handlers/rename_collection.py:45
 msgid ""
 "Collection name <u><b>{collection_name}</b></u> changed to "
 "<u><b>{new_name}</b></u>"
 msgstr ""
 
-#: bot/handlers/change_item/folder/handlers/delete_folder.py:38
+#: bot/handlers/change_item/folder/handlers/delete_folder.py:35
 msgid "Folder <u><b>{folder_name}</b></u> deleted succesfully!"
 msgstr ""
 
-#: bot/handlers/change_item/folder/handlers/delete_folder.py:55
+#: bot/handlers/change_item/folder/handlers/delete_folder.py:52
 msgid ""
 "Are you sure you wanna delete <u><b>{folder_name}</b></u>?\n"
 "All sets inside will be deleted too!"
 msgstr ""
 
-#: bot/handlers/change_item/folder/handlers/manage.py:58
+#: bot/handlers/change_item/folder/handlers/manage.py:53
 msgid "{additional_text}Manage folder <u><b>{folder_name}</b></u>"
 msgstr ""
 
-#: bot/handlers/change_item/folder/handlers/manage.py:75
+#: bot/handlers/change_item/folder/handlers/manage.py:71
 msgid "Move folder"
 msgstr ""
 
-#: bot/handlers/change_item/folder/handlers/manage.py:81
+#: bot/handlers/change_item/folder/handlers/manage.py:77
 msgid "Delete folder"
 msgstr ""
 
-#: bot/handlers/change_item/folder/handlers/move_folder.py:37
+#: bot/handlers/change_item/folder/handlers/move_folder.py:33
 msgid ""
 "{folder_name} was moved to {selected_folder_name}\n"
 "\n"
 msgstr ""
 
-#: bot/handlers/change_item/folder/handlers/move_folder.py:80
+#: bot/handlers/change_item/folder/handlers/move_folder.py:76
 msgid ""
 "Are you sure wanna move <u><b>{folder_name}</b></u> into "
 "<u><b>{selected_folder_name}</b></u>?"
 msgstr ""
 
-#: bot/handlers/change_item/folder/handlers/rename_folder.py:25
+#: bot/handlers/change_item/folder/handlers/rename_folder.py:19
 msgid "Write new name (old name {folder_name}):"
 msgstr ""
 
-#: bot/handlers/change_item/folder/handlers/rename_folder.py:53
+#: bot/handlers/change_item/folder/handlers/rename_folder.py:47
 msgid ""
 "Folder name <u><b>{folder_name}</b></u> changed to "
 "<u><b>{new_name}</b></u>\n"
 "\n"
 msgstr ""
 
-#: bot/handlers/change_item/term/handlers/change_definition.py:29
+#: bot/handlers/change_item/menu/menu.py:17
+msgid "Manage folder"
+msgstr ""
+
+#: bot/handlers/change_item/menu/menu.py:23
+msgid "Manage set / term"
+msgstr ""
+
+#: bot/handlers/change_item/menu/menu.py:29
+msgid "Choose item to manage"
+msgstr ""
+
+#: bot/handlers/change_item/term/handlers/change_definition.py:24
 msgid "Write new definition(old definition is {term_description}):"
 msgstr ""
 
-#: bot/handlers/change_item/term/handlers/change_definition.py:51
-#: bot/handlers/change_item/term/handlers/change_name.py:50
+#: bot/handlers/change_item/term/handlers/change_definition.py:46
+#: bot/handlers/change_item/term/handlers/change_name.py:45
 msgid "Term was changed successfully!"
 msgstr ""
 
-#: bot/handlers/change_item/term/handlers/change_name.py:29
+#: bot/handlers/change_item/term/handlers/change_name.py:24
 msgid "Write new name (old name is {term_name}):"
 msgstr ""
 
-#: bot/handlers/change_item/term/handlers/delete_term.py:39
+#: bot/handlers/change_item/term/handlers/delete_term.py:35
 msgid "Term <u><b>{term_name}</b></u> deleted succesfully!"
 msgstr ""
 
-#: bot/handlers/change_item/term/handlers/delete_term.py:59
+#: bot/handlers/change_item/term/handlers/delete_term.py:55
 msgid "Are you sure you wanna delete <u><b>{term_name}</b></u>?\n"
 msgstr ""
 
-#: bot/handlers/change_item/term/handlers/manage.py:46
+#: bot/handlers/change_item/term/handlers/manage.py:42
 msgid "<u><b>{collection_name}</b></u> doesn't have terms yet."
 msgstr ""
 
-#: bot/handlers/change_item/term/handlers/manage.py:72
-#: bot/handlers/train/simple_train.py:90
+#: bot/handlers/change_item/term/handlers/manage.py:68
+#: bot/handlers/train/handlers/simple_train.py:85
 msgid "<u><b>{name}</b></u> - {description}"
 msgstr ""
 
-#: bot/handlers/change_item/term/handlers/manage.py:89
+#: bot/handlers/change_item/term/handlers/manage.py:85
 msgid "Change definition"
 msgstr ""
 
-#: bot/handlers/change_item/term/handlers/manage.py:95
+#: bot/handlers/change_item/term/handlers/manage.py:91
 msgid "Delete term"
 msgstr ""
 
-#: bot/handlers/change_item/term/handlers/manage.py:101
+#: bot/handlers/change_item/term/handlers/manage.py:97
 msgid "Move term"
 msgstr ""
 
-#: bot/handlers/change_item/term/handlers/move_term.py:41
+#: bot/handlers/change_item/term/handlers/move_term.py:37
 msgid "<u><b>{term_name}</b></u> was moved to {collection_name}"
 msgstr ""
 
-#: bot/handlers/change_item/term/handlers/move_term.py:84
+#: bot/handlers/change_item/term/handlers/move_term.py:80
 msgid ""
 "Are you sure wanna move <u><b>{term_name}</b></u> into "
 "<u><b>{collection_name}</b></u>?"
 msgstr ""
 
-#: bot/handlers/train/__init__.py:27
-msgid "Find definition"
+#: bot/handlers/settings/handlers/change_language.py:18
+msgid "English"
 msgstr ""
 
-#: bot/handlers/train/__init__.py:33
-msgid "Simple train"
+#: bot/handlers/settings/handlers/change_language.py:22
+msgid "Русский"
 msgstr ""
 
-#: bot/handlers/train/__init__.py:39
-msgid "Choose train type"
+#: bot/handlers/settings/handlers/change_language.py:28
+msgid "Choose language"
 msgstr ""
 
-#: bot/handlers/train/find_definition.py:119
+#: bot/handlers/settings/handlers/change_language.py:44
+msgid "Language was changed!"
+msgstr ""
+
+#: bot/handlers/settings/handlers/menu.py:21
+msgid "Change language"
+msgstr ""
+
+#: bot/handlers/settings/handlers/menu.py:27
+msgid "Settings"
+msgstr ""
+
+#: bot/handlers/testing/testing.py:75
+msgid "Tools"
+msgstr ""
+
+#: bot/handlers/testing/testing.py:81
+msgid "Load test data"
+msgstr ""
+
+#: bot/handlers/testing/testing.py:87
+msgid "Show structure"
+msgstr ""
+
+#: bot/handlers/testing/testing.py:93
+msgid "Task"
+msgstr ""
+
+#: bot/handlers/testing/testing.py:109 bot/handlers/testing/testing.py:240
+msgid "Choose user"
+msgstr ""
+
+#: bot/handlers/testing/testing.py:114 bot/handlers/testing/testing.py:245
+msgid "My"
+msgstr ""
+
+#: bot/handlers/testing/testing.py:118
+msgid "Other"
+msgstr ""
+
+#: bot/handlers/testing/testing.py:144 bot/handlers/testing/testing.py:193
+#: bot/handlers/testing/testing.py:273
+msgid ""
+"{additional_text}\n"
+"\n"
+"Write user id"
+msgstr ""
+
+#: bot/handlers/testing/testing.py:163 bot/handlers/testing/testing.py:292
+msgid "User id must be digit!"
+msgstr ""
+
+#: bot/handlers/testing/testing.py:249
+msgid "Another"
+msgstr ""
+
+#: bot/handlers/testing/testing.py:346
+msgid "Data added to user #{user_id}"
+msgstr ""
+
+#: bot/handlers/train/handlers/find_definition.py:115
 msgid "Time was expired :("
 msgstr ""
 
-#: bot/handlers/train/find_definition.py:179
+#: bot/handlers/train/handlers/find_definition.py:175
 msgid ""
 "Wins: {wins_count} | Loses: {lose_count}\n"
 "Accuracy: {accuracy:.1%}"
 msgstr ""
 
-#: bot/handlers/train/find_definition.py:191
+#: bot/handlers/train/handlers/find_definition.py:188
 msgid "Try again"
 msgstr ""
 
-#: bot/handlers/train/simple_train.py:75
+#: bot/handlers/train/handlers/menu.py:19
+msgid "Find definition"
+msgstr ""
+
+#: bot/handlers/train/handlers/menu.py:25
+msgid "Simple train"
+msgstr ""
+
+#: bot/handlers/train/handlers/menu.py:31
+msgid "Choose train type"
+msgstr ""
+
+#: bot/handlers/train/handlers/simple_train.py:70
 msgid "Finished!"
 msgstr ""
 
-#: bot/handlers/train/simple_train.py:101
+#: bot/handlers/train/handlers/simple_train.py:96
 msgid "Ok"
 msgstr ""
 
-#: bot/handlers/train/simple_train.py:124
+#: bot/handlers/train/handlers/simple_train.py:114
+msgid "{name}"
+msgstr ""
+
+#: bot/handlers/train/handlers/simple_train.py:121
 msgid "Remind me"
 msgstr ""
 
-#: bot/handlers/train/simple_train.py:128
+#: bot/handlers/train/handlers/simple_train.py:125
 msgid "I know"
 msgstr ""
 
-#: bot/handlers/utils/browse_collection.py:133
+#: bot/handlers/utils/browse_collection.py:128
 msgid "Choose set [{current_page}/{last_page}]"
 msgstr ""
 
-#: bot/handlers/utils/browse_folder.py:110
+#: bot/handlers/utils/browse_folder.py:105
 msgid "Choose current"
 msgstr ""
 
-#: bot/handlers/utils/browse_folder.py:145
+#: bot/handlers/utils/browse_folder.py:140
 msgid ""
 "Choose folder\n"
 "<u><b>{root_name}</b></u> page [{current_page}/{last_page}]"
 msgstr ""
 
-#: bot/handlers/utils/browse_term.py:42
+#: bot/handlers/utils/browse_term.py:37
 msgid ""
 "\n"
 "\n"
-"{i+1}. <u><b>{name}</b></u> - {description}"
+"{index}. <u><b>{name}</b></u> - {description}"
 msgstr ""
+
+#~ msgid ""
+#~ "Hi, {username}!\n"
+#~ "\n"
+#~ "I'll help you to learn any language.\n"
+#~ "Bot commands:\n"
+#~ "/start - main menu\n"
+#~ "/train - train words from set\n"
+#~ "/add_item - add new term, set or folder\n"
+#~ "/manage_item - change term, set or folder"
+#~ msgstr ""
+
+#~ msgid "English"
+#~ msgstr ""
+
+#~ msgid "Русский"
+#~ msgstr ""
+
+#~ msgid "🇺🇸 English"
+#~ msgstr ""
+
+#~ msgid "🇷🇺 Русский"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Write description for <b><u>{user_data[\"term_name\"]}</u></b>\n"
+#~ "{text_suggestions}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "\n"
+#~ "{i+1}. <u><b>{name}</b></u> - {description}"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Hi, {username}!\n"
+#~ "\n"
+#~ "I'll help you to learn any language.\n"
+#~ "Bot commands:\n"
+#~ "/start - main menu\n"
+#~ "/train - train words from set\n"
+#~ "/add_item - add new term, set or folder\n"
+#~ "/manage_item - change term, set or folder\n"
+#~ "/settings - настройки"
+#~ msgstr ""
 

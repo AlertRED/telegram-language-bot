@@ -1,6 +1,6 @@
 import asyncio
 
-import bot
+import bot as bot
 
 
 if __name__ == '__main__':

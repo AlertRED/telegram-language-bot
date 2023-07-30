@@ -3,20 +3,15 @@ from typing import (
     List,
     Tuple,
 )
-from aiogram import (
-    Router,
-    types,
-)
+from aiogram import types
 from aiogram.utils.i18n import gettext as _
 
+from bot.instances import dispatcher as dp
 from bot.handlers.utils.calbacks import (
     CollectionSelectCallback,
     FolderChangedCallback,
 )
 import database.dao as dao
-
-
-router = Router()
 
 
 def __get_keyboard_folders_and_collections(
@@ -58,7 +53,7 @@ def __get_keyboard_folders_and_collections(
             ),
         )
     if len(folders) < MAX_PER_PAGE:
-        offset = page * MAX_PER_PAGE - folders_count
+        offset = max(page * MAX_PER_PAGE - folders_count, 0)
         collections = dao.get_collections(
             telegram_user_id,
             folder_id,
@@ -142,7 +137,7 @@ async def start_browse(
     )
 
 
-@router.callback_query(FolderChangedCallback.filter())
+@dp.callback_query(FolderChangedCallback.filter())
 async def folder_chosen(
     callback: types.CallbackQuery,
     callback_data: FolderChangedCallback,

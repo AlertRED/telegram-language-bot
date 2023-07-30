@@ -1,11 +1,9 @@
 from typing import Callable
-from aiogram import (
-    types,
-    Router,
-)
+from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
+from bot.instances import dispatcher as dp
 from bot.handlers.utils.browse_folder import start_browse
 from bot.handlers.utils.calbacks import FolderSelectCallback
 from bot.handlers.change_item.folder.states import ChangeFolderStates
@@ -17,10 +15,7 @@ from ..callbacks import (
 )
 
 
-router = Router()
-
-
-@router.callback_query(ChangeFolderCallback.filter())
+@dp.callback_query(ChangeFolderCallback.filter())
 async def choose_folder(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -29,7 +24,7 @@ async def choose_folder(
     await state.set_state(ChangeFolderStates.manage_choose_place)
 
 
-@router.callback_query(
+@dp.callback_query(
     FolderSelectCallback.filter(),
     ChangeFolderStates.manage_choose_place,
 )
@@ -59,6 +54,7 @@ async def manage_folder(
             '{additional_text}'
             'Manage folder <u><b>{folder_name}</b></u>'
         ).format(
+            additional_text=additional_text,
             folder_name=state_data["folder_name"],
         ),
         parse_mode='html',

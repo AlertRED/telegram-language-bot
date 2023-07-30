@@ -1,12 +1,11 @@
-from aiogram import Router
 from aiogram import (
-    Router,
     types,
     F,
 )
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
+from bot.instances import dispatcher as dp
 import database.dao as dao
 from bot.handlers.utils.browse_folder import start_browse
 from bot.handlers.utils.calbacks import FolderSelectCallback
@@ -15,10 +14,7 @@ from ..states import ChangeFolderStates
 from ..callbacks import MoveFolderCallback
 
 
-router = Router()
-
-
-@router.callback_query(
+@dp.callback_query(
     MoveFolderCallback.filter(F.sure == True),
 )
 async def move_folder_true(
@@ -44,7 +40,7 @@ async def move_folder_true(
     )
 
 
-@router.callback_query(
+@dp.callback_query(
     MoveFolderCallback.filter(F.sure == False),
 )
 async def move_folder_false(
@@ -57,7 +53,7 @@ async def move_folder_false(
     )
 
 
-@router.callback_query(MoveFolderCallback.filter())
+@dp.callback_query(MoveFolderCallback.filter())
 async def move_folder_browse(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -66,7 +62,7 @@ async def move_folder_browse(
     await state.set_state(ChangeFolderStates.choose_folder_for_moving)
 
 
-@router.callback_query(
+@dp.callback_query(
     FolderSelectCallback.filter(),
     ChangeFolderStates.choose_folder_for_moving,
 )

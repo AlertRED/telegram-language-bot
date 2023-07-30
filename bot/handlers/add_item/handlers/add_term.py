@@ -1,9 +1,5 @@
 from typing import Callable
-
-from aiogram import (
-    Router,
-    types,
-)
+from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import (
     StatesGroup,
@@ -18,11 +14,9 @@ from bot.handlers.add_item.callbacks import (
     AddingTermCallback,
     SuggestionDefinitionChosenCallback,
 )
+from bot.instances import dispatcher as dp
 import bot.utils as utils
 import database.dao as dao
-
-
-router = Router()
 
 
 class CreateTermStates(StatesGroup):
@@ -31,7 +25,7 @@ class CreateTermStates(StatesGroup):
     choose_description = State()
 
 
-@router.callback_query(AddingTermCallback.filter())
+@dp.callback_query(AddingTermCallback.filter())
 async def choose_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -41,7 +35,7 @@ async def choose_collection(
     await state.update_data(user_id=callback.from_user.id)
 
 
-@router.callback_query(
+@dp.callback_query(
     CollectionSelectCallback.filter(),
     CreateTermStates.choose_place,
 )
@@ -54,11 +48,11 @@ async def collection_choosen(
         collection_id=callback_data.collection_id,
         collection_name=callback_data.collection_name,
     )
-    await callback.message.edit_text(text='Write term')
+    await callback.message.edit_text(text=_('Write term'))
     await state.set_state(CreateTermStates.choose_term)
 
 
-@router.message(CreateTermStates.choose_term)
+@dp.message(CreateTermStates.choose_term)
 async def term_name_choosen(message: types.Message, state: FSMContext):
     await state.update_data(term_name=message.text.capitalize())
     user_data = await state.get_data()
@@ -79,9 +73,12 @@ async def term_name_choosen(message: types.Message, state: FSMContext):
 
     await message.answer(
         text=_(
-            'Write description for <b><u>{user_data["term_name"]}</u></b>'
+            'Write description for <b><u>{term_name}</u></b>'
             '\n{text_suggestions}'
-        ).format(text_suggestions=text_suggestions),
+        ).format(
+            term_name=user_data['term_name'],
+            text_suggestions=text_suggestions,
+        ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[
@@ -99,7 +96,7 @@ async def term_name_choosen(message: types.Message, state: FSMContext):
     await state.set_state(CreateTermStates.choose_description)
 
 
-@router.callback_query(SuggestionDefinitionChosenCallback.filter())
+@dp.callback_query(SuggestionDefinitionChosenCallback.filter())
 async def term_definition_chosen(
     callback: types.CallbackQuery,
     callback_data: SuggestionDefinitionChosenCallback,
@@ -112,7 +109,7 @@ async def term_definition_chosen(
     await add_term(callback.message.edit_text, state)
 
 
-@router.message(CreateTermStates.choose_description)
+@dp.message(CreateTermStates.choose_description)
 async def term_description_writen(message: types.Message, state: FSMContext):
     await state.update_data(term_description=message.text.capitalize())
     await add_term(message.answer, state)

@@ -11,10 +11,10 @@ class ChangeFolderNameCallback(CallbackData, prefix='change_folder_name'):
 
 
 class MoveFolderCallback(CallbackData, prefix='move_folder'):
-    sure: Optional[bool]
-    folder_id: Optional[int]
-    folder_name: Optional[str]
+    sure: Optional[bool] = None
+    folder_id: Optional[int] = None
+    folder_name: Optional[str] = None
 
 
 class DeleteFolderCallback(CallbackData, prefix='delete_folder'):
-    sure: Optional[bool]
+    sure: Optional[bool] = None
