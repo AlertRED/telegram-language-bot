@@ -14,14 +14,14 @@ async def start_menu(message: types.Message) -> None:
     dao.register_user(message.from_user.id)
     await message.answer(
         text=_(
-            'Hi, {username}!\n'
+            'Hi, {username}!'
             '\nI\'ll help you to learn any language.'
-            '\nBot commands:'
-            '\n/start - main menu'
-            '\n/train - train words from set'
-            '\n/add_item - add new term, set or folder'
-            '\n/manage_item - change term, set or folder'
-            '\n/settings - your settings'
+            '\n\nMy commands:'
+            '\n/start - 🌱 main menu'
+            '\n/train - 🧠 train words from set'
+            '\n/add_item - 📓 add new term, set or folder'
+            '\n/manage_item - 🗂 change term, set or folder'
+            '\n/settings - ⚙️ your settings'
         ).format(
             username=message.from_user.first_name,
         )
@@ -32,26 +32,22 @@ async def run():
     from bot.instances import bot
 
     await bot.set_my_commands([
-        types.BotCommand(command='start', description='Main menu'),
-        types.BotCommand(
-            command='add_item',
-            description='Add new term, set or folder',
-        ),
+        types.BotCommand(command='start', description='🌱 Main menu'),
         types.BotCommand(
             command='train',
-            description='Train words from set',
+            description='🧠 Train words from set',
+        ),
+        types.BotCommand(
+            command='add_item',
+            description='📓 Add new term, set or folder',
         ),
         types.BotCommand(
             command='manage_item',
-            description='Change term, set or folder',
+            description='🗂 Change term, set or folder',
         ),
         types.BotCommand(
             command='settings',
-            description='settings',
-        ),
-        types.BotCommand(
-            command='testing',
-            description='testing',
+            description='⚙️ Your settings',
         ),
     ])
     await queue.empty()
