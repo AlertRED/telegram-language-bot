@@ -6,7 +6,7 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 
 
 class Base(DeclarativeBase):
@@ -27,11 +27,12 @@ class User(Base, TimeStamp):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     telegram_id: Mapped[int] = mapped_column(Integer(), unique=True)
-    user_info_id: Mapped[int] = mapped_column(ForeignKey('user_info.id', ondelete="CASCADE"))
+    user_info_id: Mapped[int] = mapped_column(ForeignKey('user_info.id', ondelete="CASCADE"),)
 
     user_info: Mapped['UserInfo'] = relationship(
         back_populates='user',
         cascade='all, delete-orphan',
+        single_parent=True,
     )
     terms: Mapped[List['Term']] = relationship(
         back_populates='owner',
@@ -54,9 +55,9 @@ class UserInfo(Base):
     __tablename__ = 'user_info'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    total_requests: Mapped[int] = mapped_column(Integer(),)
-    language: Mapped[str] = mapped_column(String(),)
-    user_id: Mapped[int] = mapped_column(ForeignKey('user.id',))
+    total_requests: Mapped[int] = mapped_column(Integer(), default=0)
+    language: Mapped[str] = mapped_column(String(), nullable=True)
+    user: Mapped['User'] = relationship(back_populates='user_info')
 
 
 class FindDefinitonStatistic(Base, TimeStamp):
@@ -121,17 +122,22 @@ class Folder(Base, TimeStamp):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String())
     owner_id: Mapped[int] = mapped_column(ForeignKey('user.id', ondelete="CASCADE"))
-    parent_folder_id: Mapped[Optional[int]] = mapped_column(ForeignKey('folder.id', ondelete="CASCADE"))
+    parent_folder_id: Mapped[Optional[int]] = mapped_column(ForeignKey('folder.id', ondelete='CASCADE'))
+    parent_folder: Mapped[Optional['Folder']] = relationship('Folder', remote_side=[id], backref=backref('folders'), uselist=False)
 
     owner: Mapped['User'] = relationship(back_populates='folders')
     collections: Mapped[List['Collection']] = relationship(
         back_populates='folder',
         cascade='all, delete-orphan',
     )
-    folders: Mapped[List['Folder']] = relationship(
-        back_populates='parent_folder',
-        cascade='all, delete-orphan',
-    )
+    # folders: Mapped[List['Folder']] = relationship(
+    #     back_populates='parent_folder',
+    #     cascade='all, delete-orphan',
+    # )
+
+    # Employee.manager_id = Column(Integer, ForeignKey(Employee.id))
+    # Employee.manager = relationship(Employee, backref='subordinates',
+    #     remote_side=Employee.id)
 
     def __repr__(self) -> str:
         return f'Folder(id={self.id!r}, name={self.name!r})'

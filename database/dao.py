@@ -18,13 +18,18 @@ class NotEnoughTermsException(Exception):
 
 def register_user(telegram_user_id: int) -> None:
     with Session() as session:
-        query = select(models.User).exists().where(
+        query = select(models.User).where(
             models.User.telegram_id == telegram_user_id,
-        )
+        ).exists()
         is_exist = session.query(query).scalar()
         if not is_exist:
-            user = models.User(telegram_id=telegram_user_id)
-            user_info = models.UserInfo(user_id=user.id)
+            user_info = models.UserInfo(
+                
+            )
+            user = models.User(
+                telegram_id=telegram_user_id,
+                user_info=user_info,
+            )
             session.add(user, user_info)
             session.commit()
 
