@@ -29,7 +29,7 @@ i18n_middleware = i18n.middleware.FSMI18nMiddleware(
         domain='messages',
     ),
 )
-bot = Bot(token=config.API_TOKEN)
+bot = Bot(token=config.API_TOKEN, parse_mode='HTML')
 dispatcher = Dispatcher(storage=RedisStorage(redis),)
 dispatcher.message.outer_middleware(i18n_middleware,)
 dispatcher.callback_query.outer_middleware(i18n_middleware,)
