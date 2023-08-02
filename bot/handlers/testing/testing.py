@@ -321,7 +321,7 @@ async def load_test_data(
     i = 1
     collections: List[Collection] = []
     for folder in folders:
-        for i in range(1, 3):
+        for g in range(1, 3):
             collections.append(
                 dao.create_collection(
                     user_id,
@@ -333,7 +333,7 @@ async def load_test_data(
 
     i = 1
     for collection in collections:
-        for i in range(1, 3):
+        for g in range(1, 3):
             dao.create_term(
                 user_id,
                 collection.id,
