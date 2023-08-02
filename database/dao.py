@@ -1,20 +1,12 @@
 from typing import List
 from sqlalchemy import (
-    asc,
     desc,
     func,
     select,
 )
 
-from database.models import (
-    Term,
-    User,
-    Collection,
-    Folder,
-)
-from database.access import (
-    Session,
-)
+import database.models as models
+from database.access import Session
 
 
 _None = object()
@@ -26,27 +18,49 @@ class NotEnoughTermsException(Exception):
 
 def register_user(telegram_user_id: int) -> None:
     with Session() as session:
-        query = select(User).exists().where(
-            User.telegram_id == telegram_user_id,
+        query = select(models.User).exists().where(
+            models.User.telegram_id == telegram_user_id,
         )
         is_exist = session.query(query).scalar()
         if not is_exist:
-            session.add(User(telegram_id=telegram_user_id))
+            user = models.User(telegram_id=telegram_user_id)
+            user_info = models.UserInfo(user_id=user.id)
+            session.add(user, user_info)
             session.commit()
 
 
-def get_folder(folder_id: int) -> Folder:
+def get_user(telegram_id: int) -> models.Folder:
     with Session() as session:
-        query = select(Folder).where(
-            Folder.id == folder_id,
+        query = select(
+            models.User,
+        ).where(
+            models.User.telegram_id == telegram_id,
         )
         return session.scalars(query).first()
 
 
-def get_collection(collection_id: int) -> Collection:
+def get_folder(folder_id: int) -> models.Folder:
     with Session() as session:
-        query = select(Collection).where(
-            Collection.id == collection_id,
+        query = select(models.Folder).where(
+            models.Folder.id == folder_id,
+        )
+        return session.scalars(query).first()
+
+
+def get_collection(collection_id: int) -> models.Collection:
+    with Session() as session:
+        query = select(models.Collection).where(
+            models.Collection.id == collection_id,
+        )
+        return session.scalars(query).first()
+
+
+def get_term(term_id: int) -> models.Term:
+    with Session() as session:
+        query = select(
+            models.Term
+        ).where(
+            models.Term.id == term_id,
         )
         return session.scalars(query).first()
 
@@ -54,19 +68,30 @@ def get_collection(collection_id: int) -> Collection:
 def get_folders_count(telegram_user_id: int, folder_id: int = None) -> int:
     with Session() as session:
         query = select(func.count()).select_from(
-            select(Folder).where(
-                Folder.owner_id == telegram_user_id,
-                Folder.parent_folder_id == folder_id,
+            select(
+                models.Folder,
+            ).join(
+                models.User,
+                models.User.id == models.Folder.owner_id,
+            ).where(
+                models.User.telegram_id == telegram_user_id,
+                models.Folder.parent_folder_id == folder_id,
             ).subquery(),
         )
         return session.execute(query).scalar_one()
 
 
-def get_terms_count(collection_id: int = None) -> int:
+def get_terms_count(telegram_user_id: int, collection_id: int = None) -> int:
     with Session() as session:
         query = select(func.count()).select_from(
-            select(Term).where(
-                Term.collection_id == collection_id,
+            select(
+                models.Term,
+            ).join(
+                models.User,
+                models.User.id == models.Term.owner_id,
+            ).where(
+                models.User.telegram_id == telegram_user_id,
+                models.Term.collection_id == collection_id,
             ).subquery(),
         )
         return session.execute(query).scalar_one()
@@ -75,9 +100,14 @@ def get_terms_count(collection_id: int = None) -> int:
 def get_collections_count(telegram_user_id: int, folder_id: int = None) -> int:
     with Session() as session:
         query = select(func.count()).select_from(
-            select(Collection).where(
-                Collection.owner_id == telegram_user_id,
-                Collection.folder_id == folder_id,
+            select(
+                models.Collection
+            ).join(
+                models.User,
+                models.User.telegram_id == telegram_user_id,
+            ).where(
+                models.User.telegram_id == telegram_user_id,
+                models.Collection.folder_id == folder_id,
             ).subquery(),
         )
         return session.execute(query).scalar_one()
@@ -88,15 +118,26 @@ def get_folders(
     parent_folder_id: int = _None,
     offset: int = 0,
     limit: int = None,
-) -> List[Folder]:
+) -> List[models.Folder]:
     with Session() as session:
-        query = select(Folder).where(
-            Folder.owner_id == telegram_user_id,
+        query = select(
+            models.Folder,
+        ).join(
+            models.User,
+            models.User.telegram_id == telegram_user_id,
+        ).where(
+            models.Folder.owner_id == models.User.id,
         )
         if parent_folder_id != _None:
-            query = query.where(Folder.parent_folder_id == parent_folder_id)
-        query = query.offset(offset=offset).limit(limit=limit).order_by(
-            desc(Folder.updated_datetime),
+            query = query.where(
+                models.Folder.parent_folder_id == parent_folder_id,
+            )
+        query = query.offset(
+            offset=offset,
+        ).limit(
+            limit=limit,
+        ).order_by(
+            desc(models.Folder.updated_datetime),
         )
         return session.scalars(query).all()
 
@@ -106,12 +147,21 @@ def get_collections(
     folder_id: int = None,
     offset: int = 0,
     limit: int = None,
-) -> List[Collection]:
+) -> List[models.Collection]:
     with Session() as session:
-        query = select(Collection).where(
-            Collection.owner_id == telegram_user_id,
-            Collection.folder_id == folder_id,
-        ).offset(offset=offset).limit(limit=limit)
+        query = select(
+            models.Collection,
+        ).join(
+            models.User,
+            models.User.telegram_id == telegram_user_id,
+        ).where(
+            models.Collection.owner_id == models.User.id,
+            models.Collection.folder_id == folder_id,
+        ).offset(
+            offset=offset,
+        ).limit(
+            limit=limit,
+        )
         collections = session.scalars(query).all()
         return collections
 
@@ -121,39 +171,35 @@ def get_terms(
     collection_id: int = None,
     offset: int = 0,
     limit: int = None,
-) -> List[Term]:
+) -> List[models.Term]:
     with Session() as session:
-        query = select(Term).where(
-            Term.owner_id == telegram_user_id,
-            Term.collection_id == collection_id,
-        ).offset(offset=offset).limit(limit=limit)
-        return session.scalars(query).all()
-
-
-def get_term(term_id: int) -> Term:
-    with Session() as session:
-        query = select(Term).where(
-            Term.id == term_id,
+        query = select(
+            models.Term,
+        ).join(
+            models.User,
+            models.User.telegram_id == telegram_user_id,
+        ).where(
+            models.Term.owner_id == models.User.id,
+            models.Term.collection_id == collection_id,
+        ).offset(
+            offset=offset,
+        ).limit(
+            limit=limit,
         )
-        return session.scalars(query).first()
+        return session.scalars(query).all()
 
 
 def create_collection(
     telegram_user_id: int,
     collection_name: str,
     folder_id: int = None,
-) -> Collection:
+) -> models.Collection:
     with Session() as session:
-        query = select(Collection).exists().where(
-            Collection.owner_id == telegram_user_id,
-            Collection.name == collection_name,
-            Collection.folder_id == folder_id,
-        )
-        is_exist = session.query(query).scalar()
-        if not is_exist:
-            collection = Collection(
+        user = get_user(telegram_id=telegram_user_id)
+        if user:
+            collection = models.Collection(
                 name=collection_name,
-                owner_id=telegram_user_id,
+                owner_id=user.id,
                 folder_id=folder_id,
             )
             session.add(collection)
@@ -222,18 +268,15 @@ def create_term(
     collection_id: int,
     term_name: str,
     term_description: str,
-) -> Term:
+) -> models.Term:
     with Session() as session:
-        query = select(Collection).where(
-            Collection.id == collection_id,
-        )
-        collection = session.scalars(query).first()
-        if collection:
-            term = Term(
+        user = get_user(telegram_id=telegram_user_id)
+        if user:
+            term = models.Term(
                 name=term_name,
                 description=term_description,
-                collection=collection,
-                owner_id=telegram_user_id,
+                collection_id=collection_id,
+                owner_id=user.id,
             )
             session.add(term)
             session.commit()
@@ -245,18 +288,13 @@ def create_folder(
     telegram_user_id: int,
     folder_name: str,
     folder_id: int = None,
-) -> Folder:
+) -> models.Folder:
     with Session() as session:
-        query = select(Folder).exists().where(
-            Folder.owner_id == telegram_user_id,
-            Folder.name == folder_name,
-            Folder.parent_folder_id == folder_id,
-        )
-        is_exist = session.query(query).scalar()
-        if not is_exist:
-            folder = Folder(
+        user = get_user(telegram_id=telegram_user_id)
+        if user:
+            folder = models.Folder(
                 name=folder_name,
-                owner_id=telegram_user_id,
+                owner_id=user.id,
                 parent_folder_id=folder_id,
             )
             session.add(folder)
@@ -295,18 +333,18 @@ def get_find_definition_terms(
     collection_id: int,
     limit: int,
     excluded_ids: list = None,
-) -> List[Term]:
+) -> List[models.Term]:
     with Session() as session:
-        query = select(Term).where(
-            Term.collection_id == collection_id,
-            Term.id.not_in(excluded_ids),
+        query = select(models.Term).where(
+            models.Term.collection_id == collection_id,
+            models.Term.id.not_in(excluded_ids),
         ).order_by(func.random())
         term = session.scalars(query).first()
         if not term:
             raise NotEnoughTermsException
-        query = select(Term).where(
-            Term.collection_id == collection_id,
-            Term.id != term.id,
+        query = select(models.Term).where(
+            models.Term.collection_id == collection_id,
+            models.Term.id != term.id,
         ).order_by(func.random()).limit(limit - 1)
         terms = session.scalars(query).all()
         return [term] + terms
@@ -314,12 +352,12 @@ def get_find_definition_terms(
 
 def get_simple_train_terms(
     collection_id: int,
-) -> List[Term]:
+) -> List[models.Term]:
     with Session() as session:
         query = select(
-            Term.id, Term.name, Term.description,
+            models.Term.id, models.Term.name, models.Term.description,
         ).where(
-            Term.collection_id == collection_id,
+            models.Term.collection_id == collection_id,
         ).order_by(func.random())
         terms = session.execute(query).fetchall()
         return terms
