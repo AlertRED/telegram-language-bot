@@ -58,7 +58,8 @@ async def move_folder_browse(
     callback: types.CallbackQuery,
     state: FSMContext,
 ):
-    await start_browse(callback)
+    state_data = await state.get_data()
+    await start_browse(callback, exclude_folders_ids=[state_data['folder_id']])
     await state.set_state(ChangeFolderStates.choose_folder_for_moving)
 
 

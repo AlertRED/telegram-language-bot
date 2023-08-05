@@ -16,6 +16,7 @@ import database.dao as dao
 
 def __get_keyboard_folders_and_collections(
     telegram_user_id: int,
+    exclude_folders_ids: list,
     folder_id: int = None,
     page: int = 0,
     is_root_returnable: bool = True,
@@ -42,6 +43,7 @@ def __get_keyboard_folders_and_collections(
         folder_id,
         offset=page * MAX_PER_PAGE,
         limit=MAX_PER_PAGE,
+        exclude_folders_ids=exclude_folders_ids,
     )
     for folder in folders:
         names.append(
@@ -129,9 +131,13 @@ async def start_browse(
     folder_id: int = None,
     page: int = 0,
     is_root_returnable: bool = True,
+    exclude_folders_ids: list = None,
 ) -> None:
+    if not exclude_folders_ids:
+        exclude_folders_ids = []
     rows, last_page, root_name = __get_keyboard_folders_and_collections(
         callback.from_user.id,
+        exclude_folders_ids,
         folder_id,
         page,
         is_root_returnable,

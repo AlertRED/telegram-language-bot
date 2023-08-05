@@ -23,9 +23,7 @@ def register_user(telegram_user_id: int) -> None:
         ).exists()
         is_exist = session.query(query).scalar()
         if not is_exist:
-            user_info = models.UserInfo(
-                
-            )
+            user_info = models.UserInfo()
             user = models.User(
                 telegram_id=telegram_user_id,
                 user_info=user_info,
@@ -123,7 +121,10 @@ def get_folders(
     parent_folder_id: int = _None,
     offset: int = 0,
     limit: int = None,
+    exclude_folders_ids: list = None,
 ) -> List[models.Folder]:
+    if exclude_folders_ids is None:
+        exclude_folders_ids = []
     with Session() as session:
         query = select(
             models.Folder,
@@ -132,6 +133,7 @@ def get_folders(
             models.User.telegram_id == telegram_user_id,
         ).where(
             models.Folder.owner_id == models.User.id,
+            models.Folder.id.not_in(exclude_folders_ids),
         )
         if parent_folder_id != _None:
             query = query.where(
