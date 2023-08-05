@@ -4,12 +4,12 @@ from aiogram import (
 )
 from aiogram.utils.i18n import gettext as _
 
+from bot.instances import dispatcher as dp
 from bot.handlers.add_item.callbacks import (
     AddingCollectionCallback,
     AddingFolderCallback,
     AddingTermCallback,
 )
-from bot.instances import dispatcher as dp
 
 
 @dp.message(filters.Command('add_item'))

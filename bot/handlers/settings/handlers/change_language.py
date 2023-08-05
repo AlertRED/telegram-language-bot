@@ -3,11 +3,15 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
 from bot.instances import dispatcher as dp
-from bot.handlers.settings.callbacks import ChangeLanguage, ChooseLanguage
+from bot.handlers.settings.callbacks import (
+    ChangeLanguageCallback,
+    ChooseLanguageCallback,
+    GoBackCallback,
+)
 from bot.handlers.settings.states import SettingsStates
 
 
-@dp.callback_query(ChooseLanguage.filter())
+@dp.callback_query(ChooseLanguageCallback.filter())
 async def change_language(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -16,11 +20,17 @@ async def change_language(
         [
             types.InlineKeyboardButton(
                 text=_('English'),
-                callback_data=ChangeLanguage(lang='en').pack(),
+                callback_data=ChangeLanguageCallback(lang='en').pack(),
             ),
             types.InlineKeyboardButton(
                 text=_('Русский'),
-                callback_data=ChangeLanguage(lang='ru').pack(),
+                callback_data=ChangeLanguageCallback(lang='ru').pack(),
+            ),
+        ],
+        [
+            types.InlineKeyboardButton(
+                text=_('Back'),
+                callback_data=GoBackCallback().pack(),
             ),
         ],
     ]
@@ -33,10 +43,10 @@ async def change_language(
     await state.set_state(SettingsStates.choose_language)
 
 
-@dp.callback_query(ChangeLanguage.filter())
+@dp.callback_query(ChangeLanguageCallback.filter())
 async def change_language(
     callback: types.CallbackQuery,
-    callback_data: ChangeLanguage,
+    callback_data: ChangeLanguageCallback,
     state: FSMContext,
 ) -> None:
     await state.update_data(locale=callback_data.lang)
