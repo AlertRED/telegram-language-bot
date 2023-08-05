@@ -17,7 +17,6 @@ async def start_menu(message: types.Message) -> None:
             'Hi, {username}!'
             '\nI\'ll help you to learn any language.'
             '\n\nMy commands:'
-            '\n/start - 🌱 main menu'
             '\n/train - 🧠 train words from set'
             '\n/add_item - 📓 add new term, set or folder'
             '\n/manage_item - 🗂 change term, set or folder'

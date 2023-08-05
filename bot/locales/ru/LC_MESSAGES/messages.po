@@ -38,7 +38,8 @@ msgstr ""
 "/start - главное меню\n"
 "/train - начать тренировку\n"
 "/add_item - добавить новый термин, папку или коллекцию\n"
-"/manage_item - изменить термин, папку или коллекцию/settings - настройки"
+"/manage_item - изменить термин, папку или коллекцию\n"
+"/settings - настройки"
 
 #: bot/handlers/add_item/handlers/add_collection.py:43
 msgid "Write set name"
