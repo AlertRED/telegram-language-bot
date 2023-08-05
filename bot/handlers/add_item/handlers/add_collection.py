@@ -1,21 +1,13 @@
 from aiogram import types
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import (
-    StatesGroup,
-    State,
-)
 from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
+from bot.instances import dispatcher as dp
 from bot.handlers.utils.browse_folder import start_browse
 from bot.handlers.utils.calbacks import FolderSelectCallback
 from bot.handlers.add_item.callbacks import AddingCollectionCallback
-from bot.instances import dispatcher as dp
-
-
-class CreateCollectionStates(StatesGroup):
-    choose_place = State()
-    choose_name = State()
+from bot.handlers.add_item.states import CreateCollectionStates
 
 
 @dp.callback_query(AddingCollectionCallback.filter())
