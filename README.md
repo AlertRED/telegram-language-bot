@@ -75,6 +75,14 @@ Make migration
 python -m alembic -c ./database/alembic.ini revision --autogenerate -m 'some message'
 ```
 
+### Makefile
+
+Targets for make:
+
++ bot - run bot
++ web - run web admin panel
++ all - run bot and web admin panel
+
 ### Build docker image
 
 ``` shell
