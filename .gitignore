@@ -1,6 +1,5 @@
 __pycache__
 venv
 *.sqlite
-.vscode
 .env
 .env-docker-compose
