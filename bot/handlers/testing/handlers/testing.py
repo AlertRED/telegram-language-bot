@@ -10,6 +10,7 @@ from aiogram.fsm.context import FSMContext
 import config
 import database.dao as dao
 from bot.instances import dispatcher as dp
+from bot.handlers.testing import callbacks, states
 from database.models import Collection, Folder
 
 
@@ -29,28 +30,32 @@ async def load_test_data(
                 [
                     types.InlineKeyboardButton(
                         text=_('Load test data'),
-                        callback_data=ChooseUserLoadDataCallback().pack(),
+                        callback_data=(
+                            callbacks.ChooseUserLoadDataCallback().pack(),
+                        )
                     ),
                 ],
                 [
                     types.InlineKeyboardButton(
                         text=_('Show structure'),
-                        callback_data=ChooseUserShowStructureCallback().pack(),
+                        callback_data=(
+                            callbacks.ChooseUserShowStructureCallback().pack(),
+                        )
                     ),
                 ],
                 [
                     types.InlineKeyboardButton(
                         text=_('Task'),
-                        callback_data=TaskCallback().pack(),
+                        callback_data=callbacks.TaskCallback().pack(),
                     ),
                 ],
             ],
         ),
     )
-    await state.set_state(TestingStates.choose_tool)
+    await state.set_state(states.TestingStates.choose_tool)
 
 
-@dp.callback_query(ChooseUserShowStructureCallback.filter())
+@dp.callback_query(callbacks.ChooseUserShowStructureCallback.filter())
 async def choose_user(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -62,22 +67,23 @@ async def choose_user(
                 [
                     types.InlineKeyboardButton(
                         text=_('My'),
-                        callback_data=ShowStructureCallback().pack(),
+                        callback_data=callbacks.ShowStructureCallback().pack(),
                     ),
                     types.InlineKeyboardButton(
                         text=_('Other'),
                         callback_data=(
-                            ChooseOtherUserShowStructureCallback().pack()
+                            callbacks
+                            .ChooseOtherUserShowStructureCallback().pack()
                         ),
                     ),
                 ],
             ],
         ),
     )
-    await state.set_state(TestingStates.show_structure_choose_user)
+    await state.set_state(states.TestingStates.show_structure_choose_user)
 
 
-@dp.callback_query(ChooseOtherUserShowStructureCallback.filter())
+@dp.callback_query(callbacks.ChooseOtherUserShowStructureCallback.filter())
 async def write_other_user_callback(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -97,10 +103,10 @@ async def write_other_user(
             additional_text=additional_text,
         ),
     )
-    await state.set_state(TestingStates.show_structure_write_user_id)
+    await state.set_state(states.TestingStates.show_structure_write_user_id)
 
 
-@dp.message(TestingStates.show_structure_write_user_id)
+@dp.message(states.TestingStates.show_structure_write_user_id)
 async def show_other_user_structure(
     message: types.Message,
     state: FSMContext,
@@ -114,7 +120,7 @@ async def show_other_user_structure(
         )
 
 
-@dp.callback_query(ShowStructureCallback.filter())
+@dp.callback_query(callbacks.ShowStructureCallback.filter())
 async def show_my_structure(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -126,7 +132,7 @@ async def show_my_structure(
     await state.clear()
 
 
-@dp.callback_query(ChooseOtherUserShowStructureCallback.filter())
+@dp.callback_query(callbacks.ChooseOtherUserShowStructureCallback.filter())
 async def write_other_user_callback(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -146,7 +152,7 @@ async def write_other_user(
             additional_text=additional_text,
         ),
     )
-    await state.set_state(TestingStates.show_structure_write_user_id)
+    await state.set_state(states.TestingStates.show_structure_write_user_id)
 
 
 async def show_structure(
@@ -181,7 +187,7 @@ async def show_structure(
     )
 
 
-@dp.callback_query(ChooseUserLoadDataCallback.filter())
+@dp.callback_query(callbacks.ChooseUserLoadDataCallback.filter())
 async def choose_user(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -193,20 +199,22 @@ async def choose_user(
                 [
                     types.InlineKeyboardButton(
                         text=_('My'),
-                        callback_data=LoadDataCallback().pack(),
+                        callback_data=callbacks.LoadDataCallback().pack(),
                     ),
                     types.InlineKeyboardButton(
                         text=_('Another'),
-                        callback_data=ChooseOtherUserLoadDataCallback().pack(),
+                        callback_data=(
+                            callbacks.ChooseOtherUserLoadDataCallback().pack()
+                        ),
                     ),
                 ],
             ],
         ),
     )
-    await state.set_state(TestingStates.test_data_choose_user)
+    await state.set_state(states.TestingStates.test_data_choose_user)
 
 
-@dp.callback_query(ChooseOtherUserLoadDataCallback.filter())
+@dp.callback_query(callbacks.ChooseOtherUserLoadDataCallback.filter())
 async def write_other_user_callback(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -226,10 +234,10 @@ async def write_other_user_ld(
             additional_text=additional_text,
         ),
     )
-    await state.set_state(TestingStates.test_data_write_user_id)
+    await state.set_state(states.TestingStates.test_data_write_user_id)
 
 
-@dp.message(TestingStates.test_data_write_user_id)
+@dp.message(states.TestingStates.test_data_write_user_id)
 async def show_other_user_structure(
     message: types.Message,
     state: FSMContext,
@@ -243,7 +251,7 @@ async def show_other_user_structure(
         )
 
 
-@dp.callback_query(LoadDataCallback.filter())
+@dp.callback_query(callbacks.LoadDataCallback.filter())
 async def show_my_structure(
     callback: types.CallbackQuery,
     state: FSMContext,
