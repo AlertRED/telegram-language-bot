@@ -11,12 +11,12 @@ from bot.handlers.utils.browse_collection import start_browse
 from bot.handlers.utils.calbacks import CollectionSelectCallback
 from bot.handlers.add_item.states import CreateTermStates
 from bot.handlers.add_item.callbacks import (
-    AddingTermCallback,
+    AddTermCallback,
     SuggestionDefinitionChosenCallback,
 )
 
 
-@dp.callback_query(AddingTermCallback.filter())
+@dp.callback_query(AddTermCallback.filter())
 async def choose_collection(
     callback: types.CallbackQuery,
     state: FSMContext,

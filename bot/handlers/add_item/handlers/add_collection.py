@@ -6,11 +6,11 @@ import database.dao as dao
 from bot.instances import dispatcher as dp
 from bot.handlers.utils.browse_folder import start_browse
 from bot.handlers.utils.calbacks import FolderSelectCallback
-from bot.handlers.add_item.callbacks import AddingCollectionCallback
+from bot.handlers.add_item.callbacks import AddCollectionCallback
 from bot.handlers.add_item.states import CreateCollectionStates
 
 
-@dp.callback_query(AddingCollectionCallback.filter())
+@dp.callback_query(AddCollectionCallback.filter())
 async def choose_collection(
     callback: types.CallbackQuery,
     state: FSMContext,

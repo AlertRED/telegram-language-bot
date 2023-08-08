@@ -6,9 +6,9 @@ from aiogram.utils.i18n import gettext as _
 
 from bot.instances import dispatcher as dp
 from bot.handlers.add_item.callbacks import (
-    AddingCollectionCallback,
+    AddCollectionCallback,
     AddingFolderCallback,
-    AddingTermCallback,
+    AddTermCallback,
 )
 
 
@@ -20,13 +20,13 @@ async def add_new(
         [
             types.InlineKeyboardButton(
                 text=_('Add term'),
-                callback_data=AddingTermCallback().pack(),
+                callback_data=AddTermCallback().pack(),
             ),
         ],
         [
             types.InlineKeyboardButton(
                 text=_('Add set'),
-                callback_data=AddingCollectionCallback().pack(),
+                callback_data=AddCollectionCallback().pack(),
             ),
         ],
         [

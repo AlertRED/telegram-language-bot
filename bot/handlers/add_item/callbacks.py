@@ -1,7 +1,7 @@
 from aiogram.filters.callback_data import CallbackData
 
 
-class AddingTermCallback(CallbackData, prefix='adding_term'):
+class AddTermCallback(CallbackData, prefix='add_term'):
     pass
 
 
@@ -12,9 +12,9 @@ class SuggestionDefinitionChosenCallback(
     suggestion_number: int
 
 
-class AddingCollectionCallback(CallbackData, prefix='adding_collection'):
+class AddCollectionCallback(CallbackData, prefix='add_collection'):
     pass
 
 
-class AddingFolderCallback(CallbackData, prefix='adding_folder'):
+class AddingFolderCallback(CallbackData, prefix='add_folder'):
     pass
