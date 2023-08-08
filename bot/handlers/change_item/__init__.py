@@ -1,4 +1,4 @@
-from .menu import menu
+from .menu.handlers import menu
 from .collection.handlers import (
     manage,
     delete_collection,

@@ -5,8 +5,8 @@ from aiogram import (
 from aiogram.utils.i18n import gettext as _
 
 from bot.instances import dispatcher as dp
-from ..folder.callbacks import ChangeFolderCallback
-from ..collection.callbacks import ChangeCollectionCallback
+from ...folder.callbacks import ChangeFolderCallback
+from ...collection.callbacks import ChangeCollectionCallback
 
 
 @dp.message(filters.Command('manage_item'))
