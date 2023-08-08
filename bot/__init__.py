@@ -1,3 +1,5 @@
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State
 from aiogram import (
     filters,
     types,
@@ -9,22 +11,29 @@ from bot.instances import dispatcher as dp
 from bot.instances import queue
 
 
+main_menu = State()
+
+
 @dp.message(filters.Command('start'))
-async def start_menu(message: types.Message) -> None:
+async def start_menu(
+    message: types.Message,
+    state: FSMContext,
+) -> None:
     dao.register_user(message.from_user.id)
     await message.answer(
         text=_(
             'Hi, {username}!'
             '\nI\'ll help you to learn any language.'
-            '\n\nMy commands:'
-            '\n/train - 🧠 train words from set'
-            '\n/add_item - 📓 add new term, set or folder'
+            '\n\nBot commands:'
+            '\n/train - 🏋️ train words from set'
+            '\n/add_item - ✍️ add new term, set or folder'
             '\n/manage_item - 🗂 change term, set or folder'
             '\n/settings - ⚙️ your settings'
         ).format(
             username=message.from_user.first_name,
         )
     )
+    await state.set_state(main_menu)
 
 
 async def run():
@@ -34,11 +43,11 @@ async def run():
         types.BotCommand(command='start', description='🌱 Main menu'),
         types.BotCommand(
             command='train',
-            description='🧠 Train words from set',
+            description='🏋️ Train words from set',
         ),
         types.BotCommand(
             command='add_item',
-            description='📓 Add new term, set or folder',
+            description='✍️ Add new term, set or folder',
         ),
         types.BotCommand(
             command='manage_item',
