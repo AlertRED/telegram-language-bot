@@ -6,67 +6,17 @@ from aiogram import (
 )
 from aiogram.utils.i18n import gettext as _
 from aiogram.fsm.context import FSMContext
-from aiogram.filters.callback_data import CallbackData
-from aiogram.fsm.state import (
-    StatesGroup,
-    State,
-)
 
-from bot.instances import dispatcher as dp
+import config
 import database.dao as dao
+from bot.instances import dispatcher as dp
 from database.models import Collection, Folder
-from config import MY_TELEGRAM_ID
 
 
-class TestingStates(StatesGroup):
-    choose_tool = State()
-    show_structure_choose_user = State()
-    show_structure_write_user_id = State()
-    test_data_choose_user = State()
-    test_data_write_user_id = State()
-
-
-class TaskCallback(CallbackData, prefix='task'):
-    pass
-
-
-class ShowStructureCallback(CallbackData, prefix='show_structure'):
-    pass
-
-
-class ChooseUserShowStructureCallback(
-    CallbackData,
-    prefix='choose_user_show_structure',
-):
-    pass
-
-
-class ChooseOtherUserShowStructureCallback(
-    CallbackData,
-    prefix='choose_other_user_show_structure',
-):
-    pass
-
-
-class LoadDataCallback(CallbackData, prefix='load_data'):
-    pass
-
-
-class ChooseUserLoadDataCallback(
-    CallbackData,
-    prefix='choose_user_load_data',
-):
-    pass
-
-
-class ChooseOtherUserLoadDataCallback(
-    CallbackData,
-    prefix='choose_other_user_load_data',
-):
-    pass
-
-
-@dp.message(filters.Command('testing'), F.from_user.id == MY_TELEGRAM_ID)
+@dp.message(
+    filters.Command('testing'),
+    F.from_user.id == config.MY_TELEGRAM_ID,
+)
 async def load_test_data(
     message: types.Message,
     state: FSMContext,

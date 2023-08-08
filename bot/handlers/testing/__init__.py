@@ -1,1 +1,1 @@
-from . import testing
+from .handlers import testing
