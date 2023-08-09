@@ -4,7 +4,7 @@ from aiogram.utils.i18n import gettext as _
 
 from bot.instances import dispatcher as dp
 import database.dao as dao
-from .calbacks import (
+from ..calbacks import (
     ChangeCollectionCallback,
     TermSelectedCallback,
 )

@@ -8,7 +8,7 @@ from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
 from bot.instances import dispatcher as dp
-from bot.handlers.utils.browse_collection import start_browse
+from bot.handlers.utils.handlers.browse_collection import start_browse
 from bot.handlers.utils.calbacks import CollectionSelectCallback
 from bot.handlers.train.callbacks import (
     IKnowTermCallback,

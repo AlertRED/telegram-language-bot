@@ -17,7 +17,7 @@ from bot.instances import (
 )
 from bot.instances import queue, redis
 from bot.handlers.utils.calbacks import CollectionSelectCallback
-from bot.handlers.utils.browse_collection import start_browse
+from bot.handlers.utils.handlers.browse_collection import start_browse
 from bot.handlers.train.callbacks import FindDefinitionCallback
 import database.dao as dao
 

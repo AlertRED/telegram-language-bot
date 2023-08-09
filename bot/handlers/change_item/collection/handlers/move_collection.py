@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
-from bot.handlers.utils.browse_folder import (
+from bot.handlers.utils.handlers.browse_folder import (
     start_browse as start_browse_folder,
 )
 from bot.handlers.utils.calbacks import FolderSelectCallback

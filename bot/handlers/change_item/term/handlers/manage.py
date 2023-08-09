@@ -7,7 +7,7 @@ from bot.instances import dispatcher as dp
 from bot.handlers.change_item.collection.handlers.manage import (
     manage_collection,
 )
-from bot.handlers.utils.browse_term import (
+from bot.handlers.utils.handlers.browse_term import (
     CollectionIsEmptyException,
     start_browse as start_browse_term,
 )

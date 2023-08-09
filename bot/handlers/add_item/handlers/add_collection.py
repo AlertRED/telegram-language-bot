@@ -4,8 +4,8 @@ from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
 from bot.instances import dispatcher as dp
-from bot.handlers.utils.browse_folder import start_browse
 from bot.handlers.utils.calbacks import FolderSelectCallback
+from bot.handlers.utils.handlers.browse_folder import start_browse
 from bot.handlers.add_item.callbacks import AddCollectionCallback
 from bot.handlers.add_item.states import CreateCollectionStates
 

@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
 from bot.instances import dispatcher as dp
-from bot.handlers.utils.browse_folder import start_browse
+from bot.handlers.utils.handlers.browse_folder import start_browse
 from bot.handlers.utils.calbacks import FolderSelectCallback
 from bot.handlers.change_item.folder.states import ChangeFolderStates
 from ..callbacks import (

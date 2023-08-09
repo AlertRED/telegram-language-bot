@@ -7,7 +7,7 @@ from aiogram.utils.i18n import gettext as _
 
 from bot.instances import dispatcher as dp
 import database.dao as dao
-from bot.handlers.utils.browse_folder import start_browse
+from bot.handlers.utils.handlers.browse_folder import start_browse
 from bot.handlers.utils.calbacks import FolderSelectCallback
 from .manage import manage_folder
 from ..states import ChangeFolderStates

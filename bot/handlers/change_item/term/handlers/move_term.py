@@ -7,7 +7,7 @@ from aiogram.utils.i18n import gettext as _
 
 from bot.instances import dispatcher as dp
 import database.dao as dao
-from bot.handlers.utils.browse_collection import (
+from bot.handlers.utils.handlers.browse_collection import (
     start_browse as start_browse_collection,
 )
 from bot.handlers.utils.calbacks import CollectionSelectCallback
