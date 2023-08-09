@@ -12,6 +12,10 @@ from bot.handlers.train.callbacks import (
 
 
 @dp.message(filters.Command('train'))
+async def train_message(message: types.Message) -> None:
+    await train(message)
+
+
 async def train(message: types.Message) -> None:
     rows = [
         [

@@ -1,31 +1,23 @@
-from datetime import timedelta
+from rq import cancel_job
 from random import shuffle
+from datetime import timedelta
 
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.base import StorageKey
-from aiogram.fsm.state import (
-    StatesGroup,
-    State,
-)
 from aiogram.utils.i18n import gettext as _
-from rq import cancel_job
 
+import database.dao as dao
+from bot.instances import queue, redis
+from bot.handlers.utils.calbacks import CollectionSelectCallback
+from bot.handlers.train.handlers.menu import train
+from bot.handlers.utils.handlers.browse_collection import start_browse
 from bot.instances import (
     dispatcher as dp,
     bot,
 )
-from bot.instances import queue, redis
-from bot.handlers.utils.calbacks import CollectionSelectCallback
-from bot.handlers.utils.handlers.browse_collection import start_browse
-from bot.handlers.train.callbacks import FindDefinitionCallback
-import database.dao as dao
-
-
-class FindDefinitionStates(StatesGroup):
-    choose_collection = State()
-    try_guess = State()
-    finished_train = State()
+from ..callbacks import FindDefinitionCallback
+from ..states import FindDefinitionStates
 
 
 @dp.callback_query(FindDefinitionCallback.filter())
@@ -50,17 +42,35 @@ async def start_train(
     callback_data: CollectionSelectCallback,
     state: FSMContext,
 ) -> None:
-    await state.update_data(
+    MIN_TERMS_COUNT = 4
+    terms_count = dao.get_terms_count(
+        telegram_user_id=callback.from_user.id,
         collection_id=callback_data.collection_id,
-        collection_name=callback_data.collection_name,
-        wins_count=0,
-        lose_count=0,
-        used_term_ids=[],
-        chat_id=callback.message.chat.id,
     )
-    await callback.message.delete()
-    await guess(state=state)
-    await state.set_state(FindDefinitionStates.try_guess)
+    if terms_count < MIN_TERMS_COUNT:
+        await callback.message.answer(
+            text=_(
+                'Sorry set must contain more than 4 terms, set '
+                '<b><u>{collection_name}</u></b> has '
+                '<b>{term_counts}</b> terms'
+            ).format(
+                collection_name=callback_data.collection_name,
+                term_counts=terms_count,
+            ),
+        )
+        await train(callback.message)
+    else:
+        await state.update_data(
+            collection_id=callback_data.collection_id,
+            collection_name=callback_data.collection_name,
+            wins_count=0,
+            lose_count=0,
+            used_term_ids=[],
+            chat_id=callback.message.chat.id,
+        )
+        await callback.message.delete()
+        await guess(state=state)
+        await state.set_state(FindDefinitionStates.try_guess)
 
 
 async def guess(
