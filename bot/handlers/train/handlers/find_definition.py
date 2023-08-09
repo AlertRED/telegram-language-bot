@@ -50,10 +50,11 @@ async def start_train(
     if terms_count < MIN_TERMS_COUNT:
         await callback.message.answer(
             text=_(
-                'Sorry set must contain more than 4 terms, set '
-                '<b><u>{collection_name}</u></b> has '
+                'Sorry, set must contains more than <b>{min_terms_count}</b>'
+                ' terms, set <b><u>{collection_name}</u></b> has '
                 '<b>{term_counts}</b> terms'
             ).format(
+                min_terms_count=MIN_TERMS_COUNT,
                 collection_name=callback_data.collection_name,
                 term_counts=terms_count,
             ),
