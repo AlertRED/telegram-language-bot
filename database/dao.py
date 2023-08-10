@@ -50,21 +50,49 @@ def get_folder(folder_id: int) -> models.Folder:
         return session.scalars(query).first()
 
 
-def get_collection(collection_id: int) -> models.Collection:
+def get_collection(
+    collection_id: int = _None,
+    collection_name: str = _None,
+    folder_id: int = _None,
+) -> models.Collection:
     with Session() as session:
-        query = select(models.Collection).where(
-            models.Collection.id == collection_id,
-        )
+        query = select(models.Collection)
+        if collection_id != _None:
+            query = query.where(
+                models.Collection.id == collection_id,
+            )
+        if collection_name != _None:
+            query = query.where(
+                models.Collection.name == collection_name,
+            )
+        if folder_id != _None:
+            query = query.where(
+                models.Collection.folder_id == folder_id,
+            )
         return session.scalars(query).first()
 
 
-def get_term(term_id: int) -> models.Term:
+def get_term(
+    term_id: int = _None,
+    term_name: str = _None,
+    collection_id: int = _None,
+) -> models.Term:
     with Session() as session:
         query = select(
             models.Term
-        ).where(
-            models.Term.id == term_id,
         )
+        if term_id != _None:
+            query = query.where(
+                models.Term.id == term_id,
+            )
+        if term_name != _None:
+            query = query.where(
+                models.Term.name == term_name,
+            )
+        if collection_id != _None:
+            query = query.where(
+                models.Term.collection_id == collection_id,
+            )
         return session.scalars(query).first()
 
 
