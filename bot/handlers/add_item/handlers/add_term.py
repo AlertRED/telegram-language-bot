@@ -30,7 +30,7 @@ async def choose_collection(
     CollectionSelectCallback.filter(),
     CreateTermStates.choose_place,
 )
-async def collection_choosen(
+async def write_term_name_callback(
     callback: types.CallbackQuery,
     callback_data: CollectionSelectCallback,
     state: FSMContext,
@@ -39,20 +39,59 @@ async def collection_choosen(
         collection_id=callback_data.collection_id,
         collection_name=callback_data.collection_name,
     )
-    await callback.message.edit_text(text=_('Write term'))
+    await write_term_name(callback.message.edit_text, state)
+
+
+async def write_term_name(
+    foo: types.Message,
+    state: FSMContext,
+) -> None:
+    await foo(text=_('Write term'))
     await state.set_state(CreateTermStates.choose_term)
 
 
 @dp.message(CreateTermStates.choose_term)
 async def term_name_choosen(message: types.Message, state: FSMContext):
+    MAX_TERM_NAME_LENGTH = 128
     await state.update_data(term_name=message.text.capitalize())
     user_data = await state.get_data()
+
+    if len(user_data['term_name']) > MAX_TERM_NAME_LENGTH:
+        await message.answer(
+            text=(
+                'The term length should not be more than {max_length}!'
+            ).format(
+                max_length=MAX_TERM_NAME_LENGTH,
+            )
+        )
+        await write_term_name(message.answer, state)
+        return
+
+    term = dao.get_term(
+        term_name=user_data['term_name'],
+        collection_id=user_data['collection_id'],
+    )
+    if term:
+        await message.answer(
+            text=(
+                'The term <b><u>{term_name}</u></b> is already exists'
+                ' in the collection {collection_name}!'
+            ).format(
+                term_name=user_data['term_name'],
+                collection_name=user_data['collection_name'],
+            ),
+        )
+        await write_term_name(message.answer, state)
+        return
 
     suggestions = await utils.get_definitions(user_data['term_name'])
     await state.update_data(suggestions=suggestions)
 
     text_suggestions = '\n'.join(
-        [f'{i + 1}. {suggestion}' for i, suggestion in enumerate(suggestions)],
+        [
+            f'{i + 1}. {suggestion}'
+            for i, suggestion in enumerate(suggestions)
+        ],
     )
     if text_suggestions:
         text_suggestions = _(
@@ -102,6 +141,14 @@ async def term_definition_chosen(
 
 @dp.message(CreateTermStates.choose_description)
 async def term_description_writen(message: types.Message, state: FSMContext):
+    MAX_TERM_DEFINITION_LENGTH = 256
+    if len(message.text) > MAX_TERM_DEFINITION_LENGTH:
+        await message.answer(
+            text='The definition length should not be more than {max_length}!'
+            .format(max_length=MAX_TERM_DEFINITION_LENGTH)
+        )
+        await write_term_name(message.answer, state)
+        return
     await state.update_data(term_description=message.text.capitalize())
     await add_term(message.answer, state)
 
