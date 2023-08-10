@@ -31,7 +31,7 @@ async def load_test_data(
                     types.InlineKeyboardButton(
                         text=_('Load test data'),
                         callback_data=(
-                            callbacks.ChooseUserLoadDataCallback().pack(),
+                            callbacks.ChooseUserLoadDataCallback().pack()
                         )
                     ),
                 ],
@@ -39,14 +39,14 @@ async def load_test_data(
                     types.InlineKeyboardButton(
                         text=_('Show structure'),
                         callback_data=(
-                            callbacks.ChooseUserShowStructureCallback().pack(),
+                            callbacks.ChooseUserShowStructureCallback().pack()
                         )
                     ),
                 ],
                 [
                     types.InlineKeyboardButton(
                         text=_('Task'),
-                        callback_data=callbacks.TaskCallback().pack(),
+                        callback_data=callbacks.TaskCallback().pack()
                     ),
                 ],
             ],
