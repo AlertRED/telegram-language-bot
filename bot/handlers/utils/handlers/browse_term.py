@@ -16,11 +16,15 @@ class CollectionIsEmptyException(Exception):
 
 async def start_browse(
     callback: types.CallbackQuery,
+    telegram_user_id: int,
     collection_id: int,
     page: int = 0,
 ) -> None:
-    TERMS_PER_PAGE = 10
-    terms_count = dao.get_terms_count(collection_id)
+    TERMS_PER_PAGE = 8
+    terms_count = dao.get_terms_count(
+        telegram_user_id,
+        collection_id,
+    )
     if terms_count == 0:
         raise CollectionIsEmptyException
 
