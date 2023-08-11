@@ -32,7 +32,8 @@ async def choose_collection(
     try:
         await start_browse_term(
             callback,
-            callback_data.collection_id,
+            telegram_user_id=callback.from_user.id,
+            collection_id=callback_data.collection_id,
         )
         await state.set_state(ChangeTermStates.manage_choose_term)
     except CollectionIsEmptyException:
