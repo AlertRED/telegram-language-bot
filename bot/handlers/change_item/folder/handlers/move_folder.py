@@ -54,12 +54,30 @@ async def move_folder_false(
 
 
 @dp.callback_query(MoveFolderCallback.filter())
+async def move_folder_browse_callback(
+    callback: types.CallbackQuery,
+    state: FSMContext,
+):
+    await move_folder_browse(callback, state)
+
+
 async def move_folder_browse(
     callback: types.CallbackQuery,
     state: FSMContext,
 ):
     state_data = await state.get_data()
-    await start_browse(callback, exclude_folders_ids=[state_data['folder_id']])
+
+    parent_folder_id = dao.get_folder(
+        folder_id=state_data['folder_id'],
+    ).parent_folder_id
+    await state.update_data(
+        exclude_folders_ids=(
+            [parent_folder_id]
+            if parent_folder_id
+            else parent_folder_id
+        )
+    )
+    await start_browse(callback, state)
     await state.set_state(ChangeFolderStates.choose_folder_for_moving)
 
 
@@ -73,6 +91,27 @@ async def move_folder_sure(
     state: FSMContext,
 ):
     state_data = await state.get_data()
+    folder = dao.get_folder(
+        telegram_user_id=callback.from_user.id,
+        folder_name=state_data['folder_name'],
+    )
+    folder = dao.get_folder(
+        telegram_user_id=callback.from_user.id,
+        folder_id=folder.parent_folder_id,
+        folder_name=state_data['folder_new_name'],
+    )
+    if folder:
+        await callback.message.answer(
+            text=(
+                'The folder <b><u>{folder_name}</u></b> is already'
+                ' exists in this folder!'
+            ).format(
+                folder_name=state_data['folder_new_name'],
+            ),
+        )
+        await move_folder_browse(callback, state)
+        return
+
     await callback.message.edit_text(
         text=_(
             'Are you sure wanna move '

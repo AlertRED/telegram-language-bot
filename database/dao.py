@@ -45,6 +45,8 @@ def get_user(telegram_id: int) -> models.Folder:
 def get_folder(
     folder_id: int = _None,
     folder_name: str = _None,
+    parent_folder_id: int = _None,
+    telegram_user_id: int = _None,
 ) -> models.Folder:
     with Session() as session:
         query = select(models.Folder)
@@ -52,9 +54,20 @@ def get_folder(
             query = query.where(
                 models.Folder.id == folder_id,
             )
+        if parent_folder_id is not _None:
+            query = query.where(
+                models.Folder.parent_folder_id == parent_folder_id,
+            )
         if folder_name is not _None:
             query = query.where(
                 models.Folder.name == folder_name,
+            )
+        if telegram_user_id != _None:
+            query = query.join(
+                models.User,
+                models.User.id == models.Folder.owner_id,
+            ).where(
+                models.User.telegram_id == telegram_user_id,
             )
         return session.scalars(query).first()
 

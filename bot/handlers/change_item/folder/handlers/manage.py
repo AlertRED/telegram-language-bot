@@ -20,7 +20,7 @@ async def choose_folder(
     callback: types.CallbackQuery,
     state: FSMContext,
 ) -> None:
-    await start_browse(callback, is_root_returnable=False)
+    await start_browse(callback, state, is_root_returnable=False)
     await state.set_state(ChangeFolderStates.manage_choose_place)
 
 
