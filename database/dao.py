@@ -42,11 +42,20 @@ def get_user(telegram_id: int) -> models.Folder:
         return session.scalars(query).first()
 
 
-def get_folder(folder_id: int) -> models.Folder:
+def get_folder(
+    folder_id: int = _None,
+    folder_name: str = _None,
+) -> models.Folder:
     with Session() as session:
-        query = select(models.Folder).where(
-            models.Folder.id == folder_id,
-        )
+        query = select(models.Folder)
+        if folder_id is not _None:
+            query = query.where(
+                models.Folder.id == folder_id,
+            )
+        if folder_name is not _None:
+            query = query.where(
+                models.Folder.name == folder_name,
+            )
         return session.scalars(query).first()
 
 
@@ -54,6 +63,7 @@ def get_collection(
     collection_id: int = _None,
     collection_name: str = _None,
     folder_id: int = _None,
+    telegram_user_id: int = _None,
 ) -> models.Collection:
     with Session() as session:
         query = select(models.Collection)
@@ -68,6 +78,13 @@ def get_collection(
         if folder_id != _None:
             query = query.where(
                 models.Collection.folder_id == folder_id,
+            )
+        if telegram_user_id != _None:
+            query = query.join(
+                models.User,
+                models.User.id == models.Collection.owner_id,
+            ).where(
+                models.User.telegram_id == telegram_user_id,
             )
         return session.scalars(query).first()
 
@@ -197,6 +214,8 @@ def get_collections(
     limit: int = None,
     exclude_collection_ids: list = None,
 ) -> List[models.Collection]:
+    if exclude_collection_ids is None:
+        exclude_collection_ids = []
     with Session() as session:
         query = select(
             models.Collection,

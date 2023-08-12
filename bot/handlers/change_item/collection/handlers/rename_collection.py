@@ -10,12 +10,19 @@ import database.dao as dao
 
 
 @dp.callback_query(ChangeCollectionNameCallback.filter())
-async def change_collection_name(
+async def write_collection_name_callback(
     callback: types.CallbackQuery,
     state: FSMContext,
 ):
+    await write_collection_name(callback.message.edit_text, state)
+
+
+async def write_collection_name(
+    foo: callable,
+    state: FSMContext,
+):
     state_data = await state.get_data()
-    await callback.message.edit_text(
+    await foo(
         text=_(
             'Write new name (old name {collection_name}):'
         ).format(collection_name=state_data["collection_name"]),
@@ -31,14 +38,42 @@ async def change_collection_name(
     message: types.Message,
     state: FSMContext,
 ):
+    await state.update_data(collection_new_name=message.text)
     state_data = await state.get_data()
+    collection = dao.get_collection(
+        telegram_user_id=message.from_user.id,
+        collection_name=state_data['collection_name'],
+    )
+    collection = dao.get_collection(
+        telegram_user_id=message.from_user.id,
+        folder_id=collection.folder_id,
+        collection_name=state_data['collection_new_name'],
+    )
+    if collection:
+        await message.answer(
+            text=(
+                'The collection <b><u>{collection_name}</u></b> is already'
+                ' exists in this folder!'
+            ).format(
+                collection_name=state_data['collection_new_name'],
+            ),
+        )
+        await write_collection_name(message.answer, state)
+        return
+
     dao.update_collection(
         collection_id=state_data['collection_id'],
-        collection_name=message.text,
+        collection_name=state_data['collection_new_name'],
     )
+
+    old_name = state_data['collection_name']
+    new_name = state_data['collection_new_name']
+
     await state.update_data(
-        collection_name=message.text,
+        collection_name=new_name,
+        collection_new_name=None,
     )
+
     await manage_collection(
         message.answer,
         state,
@@ -46,7 +81,7 @@ async def change_collection_name(
             'Collection name <u><b>{collection_name}</b></u> '
             'changed to <u><b>{new_name}</b></u>'
         ).format(
-            collection_name=state_data["collection_name"],
-            new_name=message.text,
+            collection_name=old_name,
+            new_name=new_name,
         ),
     )

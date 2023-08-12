@@ -5,6 +5,7 @@ from typing import (
 )
 from aiogram import types
 from aiogram.utils.i18n import gettext as _
+from aiogram.fsm.context import FSMContext
 
 from bot.instances import dispatcher as dp
 from bot.handlers.utils.calbacks import (
@@ -128,11 +129,13 @@ def __get_keyboard_folders_and_collections(
 
 async def start_browse(
     callback: types.CallbackQuery,
+    state: FSMContext,
     folder_id: int = None,
     page: int = 0,
     is_root_returnable: bool = True,
-    exclude_folders_ids: list = None,
 ) -> None:
+    state_data = await state.get_data()
+    exclude_folders_ids = state_data.get('exclude_folders_ids')
     if not exclude_folders_ids:
         exclude_folders_ids = []
     rows, last_page, root_name = __get_keyboard_folders_and_collections(
@@ -161,10 +164,12 @@ async def start_browse(
 @dp.callback_query(FolderChangeCallback.filter())
 async def folder_change(
     callback: types.CallbackQuery,
+    state: FSMContext,
     callback_data: FolderChangeCallback,
 ) -> None:
     await start_browse(
         callback,
+        state,
         callback_data.folder_id,
         callback_data.page,
         callback_data.is_root_returnable,

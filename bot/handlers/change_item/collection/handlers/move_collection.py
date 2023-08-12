@@ -16,6 +16,14 @@ from ..states import ChangeCollectionStates
 from ..callbacks import MoveCollectionCallback
 
 
+async def brows_folder(
+    callback: types.CallbackQuery,
+    state: FSMContext,
+):
+    await start_browse_folder(callback, state)
+    await state.set_state(ChangeCollectionStates.choose_folder_for_moving)
+
+
 @dp.callback_query(
     MoveCollectionCallback.filter(F.sure == True),
 )
@@ -56,12 +64,16 @@ async def move_collection_false(
 
 
 @dp.callback_query(MoveCollectionCallback.filter())
-async def move_collection_browse(
+async def browse_folder_callback(
     callback: types.CallbackQuery,
     state: FSMContext,
 ):
-    await start_browse_folder(callback)
-    await state.set_state(ChangeCollectionStates.choose_folder_for_moving)
+    state_data = await state.get_data()
+    parent_folder_id = dao.get_collection(
+        collection_id=state_data['collection_id'],
+    ).folder_id
+    await state.update_data(exclude_folders_ids=[parent_folder_id])
+    await brows_folder(callback, state)
 
 
 @dp.callback_query(
@@ -74,6 +86,27 @@ async def move_collection_sure(
     state: FSMContext,
 ):
     state_data = await state.get_data()
+    collection = dao.get_collection(
+        telegram_user_id=callback.from_user.id,
+        collection_name=state_data['collection_name'],
+    )
+    collection = dao.get_collection(
+        telegram_user_id=callback.from_user.id,
+        folder_id=collection.folder_id,
+        collection_name=state_data['collection_new_name'],
+    )
+    if collection:
+        await callback.message.answer(
+            text=(
+                'The collection <b><u>{collection_name}</u></b> is already'
+                ' exists in this folder!'
+            ).format(
+                collection_name=state_data['folder_new_name'],
+            ),
+        )
+        await brows_folder(callback, state)
+        return
+
     await callback.message.edit_text(
         text=_(
             'Are you sure wanna move '
