@@ -5,6 +5,7 @@ from typing import (
 )
 from aiogram import types
 from aiogram.utils.i18n import gettext as _
+from aiogram.fsm.context import FSMContext
 
 from bot.instances import dispatcher as dp
 from bot.handlers.utils.calbacks import (
@@ -16,6 +17,7 @@ import database.dao as dao
 
 def __get_keyboard_folders_and_collections(
     telegram_user_id: int,
+    exclude_collection_ids: list,
     folder_id: int = None,
     page: int = 0,
 ) -> Tuple[List[types.InlineKeyboardButton], int]:
@@ -32,6 +34,7 @@ def __get_keyboard_folders_and_collections(
     collections_count = dao.get_collections_count(
         telegram_user_id,
         folder_id=folder_id,
+        exclude_collection_ids=exclude_collection_ids,
     )
 
     last_page = math.ceil((folders_count + collections_count) / MAX_PER_PAGE)
@@ -59,6 +62,7 @@ def __get_keyboard_folders_and_collections(
             folder_id,
             offset=offset,
             limit=MAX_PER_PAGE - len(folders),
+            exclude_collection_ids=exclude_collection_ids,
         )
         for collection in collections:
             names.append(
@@ -118,11 +122,19 @@ def __get_keyboard_folders_and_collections(
 
 async def start_browse(
     callback: types.CallbackQuery,
+    state: FSMContext,
     folder_id: int = None,
     page: int = 0,
 ) -> None:
+    state_data = await state.get_data()
+    exclude_collection_ids = state_data.get('exclude_collection_ids')
+    if exclude_collection_ids is None:
+        exclude_collection_ids = []
     rows, last_page = __get_keyboard_folders_and_collections(
-        callback.from_user.id, folder_id, page,
+        callback.from_user.id,
+        exclude_collection_ids,
+        folder_id,
+        page,
     )
     await callback.message.edit_text(
         text=_(
@@ -141,5 +153,11 @@ async def start_browse(
 async def folder_chosen(
     callback: types.CallbackQuery,
     callback_data: FolderChangedCallback,
+    state: FSMContext,
 ) -> None:
-    await start_browse(callback, callback_data.folder_id, callback_data.page)
+    await start_browse(
+        callback,
+        state,
+        callback_data.folder_id,
+        callback_data.page,
+    )

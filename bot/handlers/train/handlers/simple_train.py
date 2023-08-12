@@ -20,7 +20,7 @@ async def choose_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
 ) -> None:
-    await start_browse(callback, folder_id=None, page=0)
+    await start_browse(callback, state=state, folder_id=None, page=0)
     await state.set_state(SimpleTrainStates.choose_collection)
 
 

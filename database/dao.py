@@ -96,7 +96,13 @@ def get_term(
         return session.scalars(query).first()
 
 
-def get_folders_count(telegram_user_id: int, folder_id: int = None) -> int:
+def get_folders_count(
+    telegram_user_id: int,
+    folder_id: int = None,
+    exclude_folder_ids: list = None,
+) -> int:
+    if exclude_folder_ids is None:
+        exclude_folder_ids = []
     with Session() as session:
         query = select(func.count()).select_from(
             select(
@@ -107,6 +113,7 @@ def get_folders_count(telegram_user_id: int, folder_id: int = None) -> int:
             ).where(
                 models.User.telegram_id == telegram_user_id,
                 models.Folder.parent_folder_id == folder_id,
+                models.Folder.id.not_in(exclude_folder_ids),
             ).subquery(),
         )
         return session.execute(query).scalar_one()
@@ -128,7 +135,13 @@ def get_terms_count(telegram_user_id: int, collection_id: int = None) -> int:
         return session.execute(query).scalar_one()
 
 
-def get_collections_count(telegram_user_id: int, folder_id: int = None) -> int:
+def get_collections_count(
+    telegram_user_id: int,
+    folder_id: int = None,
+    exclude_collection_ids: list = None,
+) -> int:
+    if exclude_collection_ids is None:
+        exclude_collection_ids = []
     with Session() as session:
         query = select(func.count()).select_from(
             select(
@@ -137,8 +150,8 @@ def get_collections_count(telegram_user_id: int, folder_id: int = None) -> int:
                 models.User,
                 models.User.telegram_id == telegram_user_id,
             ).where(
-                models.User.telegram_id == telegram_user_id,
                 models.Collection.folder_id == folder_id,
+                models.Collection.id.not_in(exclude_collection_ids),
             ).subquery(),
         )
         return session.execute(query).scalar_one()
@@ -182,6 +195,7 @@ def get_collections(
     folder_id: int = None,
     offset: int = 0,
     limit: int = None,
+    exclude_collection_ids: list = None,
 ) -> List[models.Collection]:
     with Session() as session:
         query = select(
@@ -192,6 +206,7 @@ def get_collections(
         ).where(
             models.Collection.owner_id == models.User.id,
             models.Collection.folder_id == folder_id,
+            models.Collection.id.not_in(exclude_collection_ids),
         ).offset(
             offset=offset,
         ).limit(

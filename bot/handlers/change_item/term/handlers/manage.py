@@ -29,11 +29,16 @@ async def choose_collection(
     callback_data: ChangeTermCallback,
     state: FSMContext,
 ) -> None:
+    await state.update_data(
+        collection_id=callback_data.collection_id,
+        collection_name=callback_data.collection_name,
+    )
+    state_data = await state.get_data()
     try:
         await start_browse_term(
             callback,
             telegram_user_id=callback.from_user.id,
-            collection_id=callback_data.collection_id,
+            collection_id=state_data['collection_id'],
         )
         await state.set_state(ChangeTermStates.manage_choose_term)
     except CollectionIsEmptyException:
@@ -44,7 +49,7 @@ async def choose_collection(
                 '<u><b>{collection_name}</b></u> '
                 'doesn\'t have terms yet.'
             ).format(
-                collection_name=callback_data.collection_name,
+                collection_name=state_data['collection_name'],
             ),
         )
 

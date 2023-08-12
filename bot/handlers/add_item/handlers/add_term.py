@@ -21,7 +21,7 @@ async def choose_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
 ) -> None:
-    await start_browse(callback, folder_id=None, page=0)
+    await start_browse(callback, state=state, folder_id=None, page=0)
     await state.set_state(CreateTermStates.choose_place)
     await state.update_data(user_id=callback.from_user.id)
 

@@ -9,6 +9,7 @@ class CollectionSelectCallback(CallbackData, prefix='bc_select_collection'):
 
 class FolderChangedCallback(CallbackData, prefix='bc_change_folder'):
     folder_id: Optional[int] = None
+    exclude_collection_ids: Optional[list] = None
     page: Optional[int] = 0
 
 

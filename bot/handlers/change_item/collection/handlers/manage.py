@@ -6,7 +6,7 @@ from aiogram.utils.i18n import gettext as _
 from bot.instances import dispatcher as dp
 from bot.handlers.change_item.term.callbacks import ChangeTermCallback
 from bot.handlers.utils.handlers.browse_collection import (
-    start_browse as start_browse_collection,
+    start_browse as browse_collection,
 )
 from bot.handlers.utils.calbacks import CollectionSelectCallback
 from ..states import ChangeCollectionStates
@@ -23,7 +23,7 @@ async def choose_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
 ) -> None:
-    await start_browse_collection(callback)
+    await browse_collection(callback, state)
     await state.set_state(ChangeCollectionStates.manage_choose_place)
 
 
