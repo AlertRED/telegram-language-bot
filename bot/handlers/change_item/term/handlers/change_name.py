@@ -1,4 +1,3 @@
-
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
@@ -17,15 +16,15 @@ async def write_term_name_callback(
     callback: types.CallbackQuery,
     state: FSMContext,
 ) -> None:
-    await write_term_name(callback, state)
+    await write_term_name(callback.message.edit_text, state)
 
 
 async def write_term_name(
-    message: types.Message,
+    foo: callable,
     state: FSMContext,
 ) -> None:
     state_data = await state.get_data()
-    await message.edit_text(
+    await foo(
         text=_(
             'Write new name (old name is {term_name}):'
         ).format(
