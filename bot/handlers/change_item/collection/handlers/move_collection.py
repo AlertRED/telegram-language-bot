@@ -16,14 +16,6 @@ from ..states import ChangeCollectionStates
 from ..callbacks import MoveCollectionCallback
 
 
-async def brows_folder(
-    callback: types.CallbackQuery,
-    state: FSMContext,
-):
-    await start_browse_folder(callback, state)
-    await state.set_state(ChangeCollectionStates.choose_folder_for_moving)
-
-
 @dp.callback_query(
     MoveCollectionCallback.filter(F.sure == True),
 )
@@ -72,8 +64,22 @@ async def browse_folder_callback(
     parent_folder_id = dao.get_collection(
         collection_id=state_data['collection_id'],
     ).folder_id
-    await state.update_data(exclude_folders_ids=[parent_folder_id])
+    await state.update_data(
+        exclude_folders_ids=(
+            [parent_folder_id]
+            if parent_folder_id
+            else parent_folder_id
+        )
+    )
     await brows_folder(callback, state)
+
+
+async def brows_folder(
+    callback: types.CallbackQuery,
+    state: FSMContext,
+):
+    await start_browse_folder(callback, state)
+    await state.set_state(ChangeCollectionStates.choose_folder_for_moving)
 
 
 @dp.callback_query(
