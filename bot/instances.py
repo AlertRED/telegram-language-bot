@@ -21,7 +21,6 @@ redis = Redis(
     password=config.REDIS_PASSWORD,
 )
 
-
 i18n_middleware = i18n.middleware.FSMI18nMiddleware(
     i18n=i18n.I18n(
         path='./bot/locales',
@@ -29,6 +28,7 @@ i18n_middleware = i18n.middleware.FSMI18nMiddleware(
         domain='messages',
     ),
 )
+
 bot = Bot(token=config.API_TOKEN, parse_mode='HTML')
 dispatcher = Dispatcher(storage=RedisStorage(redis),)
 dispatcher.message.outer_middleware(i18n_middleware,)

@@ -4,3 +4,4 @@ from . import add_item
 from . import train
 from . import testing
 from . import change_item
+from . import main_menu
