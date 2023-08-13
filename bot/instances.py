@@ -13,6 +13,8 @@ from aiogram.utils import i18n
 import config
 
 
+DEFAULT_LOCALE = 'en'
+
 logging.basicConfig(level=logging.NOTSET)
 redis = Redis(
     host=config.REDIS_HOST,
@@ -24,7 +26,7 @@ redis = Redis(
 i18n_middleware = i18n.middleware.FSMI18nMiddleware(
     i18n=i18n.I18n(
         path='./bot/locales',
-        default_locale='en',
+        default_locale=DEFAULT_LOCALE,
         domain='messages',
     ),
 )

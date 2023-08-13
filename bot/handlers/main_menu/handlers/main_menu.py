@@ -6,7 +6,10 @@ from aiogram import (
 )
 
 import database.dao as dao
-from bot.instances import dispatcher as dp
+from bot.instances import (
+    DEFAULT_LOCALE,
+    dispatcher as dp,
+)
 from ..states import MainMenuStates
 
 
@@ -16,6 +19,7 @@ async def start_menu(
     state: FSMContext,
 ) -> None:
     dao.register_user(message.from_user.id)
+    await state.update_data(locale=DEFAULT_LOCALE)
     await message.answer(
         text=_(
             'Hi, {username}!'
