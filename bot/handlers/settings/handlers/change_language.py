@@ -1,8 +1,12 @@
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
+from bot.commands import get_commands
 
-from bot.instances import dispatcher as dp
+from bot.instances import (
+    bot,
+    dispatcher as dp,
+)
 from bot.handlers.support import state_safe_clear
 from bot.handlers.settings.callbacks import (
     ChangeLanguageCallback,
@@ -52,7 +56,14 @@ async def change_language(
     state: FSMContext,
 ) -> None:
     await state.update_data(locale=callback_data.lang)
+    await bot.set_my_commands(
+        commands=get_commands(callback_data.lang),
+        language_code=callback.from_user.language_code,
+        scope=types.bot_command_scope_chat.BotCommandScopeChat(
+            chat_id=callback.message.chat.id,
+        ),
+    )
     await callback.message.edit_text(
-        text=_('Language was changed!'),
+        text=_('Language was changed!', locale=callback_data.lang),
     )
     await state_safe_clear(state)
