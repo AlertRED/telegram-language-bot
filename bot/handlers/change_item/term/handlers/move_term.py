@@ -5,10 +5,11 @@ from aiogram import (
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
-from bot.instances import dispatcher as dp
 import database.dao as dao
+from bot.instances import dispatcher as dp
+from bot.handlers.support import state_safe_clear
 from bot.handlers.utils.handlers.browse_collection import (
-    start_browse as browse_collection,
+    browse as browse_collection,
 )
 from bot.handlers.utils.calbacks import CollectionSelectCallback
 from bot.handlers.change_item.collection.handlers.manage import (
@@ -25,7 +26,7 @@ async def choose_collection_callback(
 ):
     state_data = await state.get_data()
     await state.update_data(
-        exclude_collection_ids=[state_data['collection_id']],
+        exclude_collection_ids=[state_data.get('collection_id')],
     )
     await choose_collection(callback, state)
 
@@ -48,8 +49,8 @@ async def move_collection_true(
 ):
     state_data = await state.get_data()
     dao.update_term(
-        term_id=state_data['term_id'],
-        collection_id=state_data['collection_id'],
+        term_id=state_data.get('term_id'),
+        collection_id=state_data.get('collection_id'),
     )
     await manage_collection(
         callback.message.edit_text,
@@ -58,10 +59,11 @@ async def move_collection_true(
             '<u><b>{term_name}</b></u> was moved to '
             '{collection_name}'
         ).format(
-            term_name=state_data["term_name"],
+            term_name=state_data.get('term_name'),
             collection_name=callback_data.collection_name,
         ),
     )
+    await state_safe_clear(state)
 
 
 @dp.callback_query(MoveTermCallback.filter(F.sure == False))
@@ -91,8 +93,8 @@ async def move_collection_sure(
     state_data = await state.get_data()
 
     term = dao.get_term(
-        term_name=state_data['term_name'],
-        collection_id=state_data['collection_id'],
+        term_name=state_data.get('term_name'),
+        collection_id=state_data.get('collection_id'),
     )
     if term:
         await callback.message.answer(
@@ -100,8 +102,8 @@ async def move_collection_sure(
                 'The term <b><u>{term_name}</u></b> is already exists'
                 ' in the collection {collection_name}!'
             ).format(
-                term_name=state_data['term_name'],
-                collection_name=state_data['collection_name'],
+                term_name=state_data.get('term_name'),
+                collection_name=state_data.get('collection_name'),
             ),
         )
         await choose_collection(callback, state)
@@ -113,7 +115,7 @@ async def move_collection_sure(
             '<u><b>{term_name}</b></u>'
             ' into <u><b>{collection_name}</b></u>?'
         ).format(
-            term_name=state_data["term_name"],
+            term_name=state_data.get('term_name'),
             collection_name=callback_data.collection_name,
         ),
         parse_mode='html',

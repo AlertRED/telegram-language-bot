@@ -1,4 +1,3 @@
-from aiogram import Router
 from aiogram import (
     types,
     F,
@@ -6,8 +5,9 @@ from aiogram import (
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
-from bot.instances import dispatcher as dp
 import database.dao as dao
+from bot.instances import dispatcher as dp
+from bot.handlers.support import state_safe_clear
 from .manage import manage_folder
 from ..states import ChangeFolderStates
 from ..callbacks import DeleteFolderCallback
@@ -30,16 +30,17 @@ async def delete_folder_false(
     state: FSMContext,
 ):
     state_data = await state.get_data()
-    dao.delete_folder(state_data['folder_id'])
+    dao.delete_folder(state_data.get('folder_id'))
     await callback.message.edit_text(
         text=_(
             'Folder <u><b>{folder_name}</b></u>'
             ' deleted succesfully!'
         ).format(
-            folder_name=state_data["folder_name"],
+            folder_name=state_data.get('folder_name'),
         ),
         parse_mode='html',
     )
+    await state_safe_clear(state)
 
 
 @dp.callback_query(DeleteFolderCallback.filter())
@@ -54,7 +55,7 @@ async def delete_folder_true(
             '<u><b>{folder_name}</b></u>?\n'
             'All sets inside will be deleted too!'
         ).format(
-            folder_name=state_data["folder_name"],
+            folder_name=state_data.get('folder_name'),
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(

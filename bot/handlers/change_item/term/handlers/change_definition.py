@@ -4,6 +4,8 @@ from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
 from bot.instances import dispatcher as dp
+from bot.constants import MAX_TERM_DEFINITION_LENGTH
+from bot.handlers.support import state_safe_clear
 from bot.handlers.change_item.collection.handlers.manage import (
     manage_collection,
 )
@@ -29,7 +31,7 @@ async def write_new_definition(
             'Write new definition'
             '(old definition is {term_description}):'
         ).format(
-            term_description=state_data["term_description"],
+            term_description=state_data.get('term_description'),
         ),
         parse_mode='html',
     )
@@ -41,8 +43,6 @@ async def change_term_definition(
     message: types.Message,
     state: FSMContext,
 ) -> None:
-    MAX_TERM_DEFINITION_LENGTH = 256
-
     state_data = await state.get_data()
     if len(message.text) > MAX_TERM_DEFINITION_LENGTH:
         await message.answer(
@@ -61,3 +61,4 @@ async def change_term_definition(
         send_message_foo=message.answer,
         state=state,
     )
+    await state_safe_clear(state)

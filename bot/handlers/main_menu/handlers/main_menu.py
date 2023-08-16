@@ -1,11 +1,12 @@
+from aiogram import (
+    filters,
+    types,
+)
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
-from aiogram import (
-    types,
-    filters,
-)
 
 import database.dao as dao
+from bot.handlers.support import state_safe_clear
 from bot.instances import (
     DEFAULT_LOCALE,
     dispatcher as dp,
@@ -18,6 +19,7 @@ async def start_menu(
     message: types.Message,
     state: FSMContext,
 ) -> None:
+    await state_safe_clear(state)
     dao.register_user(message.from_user.id)
     await state.update_data(locale=DEFAULT_LOCALE)
     await message.answer(

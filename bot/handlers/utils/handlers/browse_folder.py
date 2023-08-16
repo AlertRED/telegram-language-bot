@@ -8,6 +8,7 @@ from aiogram.utils.i18n import gettext as _
 from aiogram.fsm.context import FSMContext
 
 from bot.instances import dispatcher as dp
+from bot.constants import MAX_ITEMS_PAGE_BROWSE_FOLDERS
 from bot.handlers.utils.calbacks import (
     FolderChangeCallback,
     FolderSelectCallback,
@@ -22,8 +23,6 @@ def __get_keyboard_folders_and_collections(
     page: int = 0,
     is_root_returnable: bool = True,
 ) -> Tuple[List[types.InlineKeyboardButton], int]:
-
-    MAX_PER_PAGE = 8
     names = []
     rows = []
 
@@ -36,14 +35,14 @@ def __get_keyboard_folders_and_collections(
         folder_id=folder_id,
     )
 
-    last_page = math.ceil(folders_count / MAX_PER_PAGE)
+    last_page = math.ceil(folders_count / MAX_ITEMS_PAGE_BROWSE_FOLDERS)
     is_last_page = last_page <= page + 1
 
     folders = dao.get_folders(
         telegram_user_id,
         folder_id,
-        offset=page * MAX_PER_PAGE,
-        limit=MAX_PER_PAGE,
+        offset=page * MAX_ITEMS_PAGE_BROWSE_FOLDERS,
+        limit=MAX_ITEMS_PAGE_BROWSE_FOLDERS,
         exclude_folders_ids=exclude_folders_ids,
     )
     for folder in folders:
@@ -127,7 +126,7 @@ def __get_keyboard_folders_and_collections(
     )
 
 
-async def start_browse(
+async def browse(
     callback: types.CallbackQuery,
     state: FSMContext,
     folder_id: int = None,
@@ -167,7 +166,7 @@ async def folder_change(
     state: FSMContext,
     callback_data: FolderChangeCallback,
 ) -> None:
-    await start_browse(
+    await browse(
         callback,
         state,
         callback_data.folder_id,

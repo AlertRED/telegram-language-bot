@@ -10,6 +10,7 @@ from aiogram.fsm.context import FSMContext
 import config
 import database.dao as dao
 from bot.instances import dispatcher as dp
+from bot.handlers.support import state_safe_clear
 from bot.handlers.testing import callbacks, states
 from database.models import Collection, Folder
 
@@ -22,6 +23,7 @@ async def load_test_data(
     message: types.Message,
     state: FSMContext,
 ) -> None:
+    await state_safe_clear(state)
     await message.answer(
         text=_('Tools'),
         parse_mode='html',
@@ -113,11 +115,11 @@ async def show_other_user_structure(
 ) -> None:
     if message.text.isdigit():
         await show_structure(message.answer, int(message.text))
-        await state.clear()
     else:
         await write_other_user(
             message.answer, state, _('User id must be digit!'),
         )
+    await state_safe_clear(state)
 
 
 @dp.callback_query(callbacks.ShowStructureCallback.filter())
@@ -129,7 +131,7 @@ async def show_my_structure(
         callback.message.edit_text,
         callback.from_user.id,
     )
-    await state.clear()
+    await state_safe_clear(state)
 
 
 @dp.callback_query(callbacks.ChooseOtherUserShowStructureCallback.filter())
@@ -156,13 +158,14 @@ async def write_other_user(
 
 
 async def show_structure(
-    answer_foo: Callable,
-    user_id: int,
+    foo: Callable,
+    telegram_user_id: int,
 ) -> None:
+    OFFSET = ' '
     output = ''
     folders = [
         (1, folder)
-        for folder in dao.get_folders(user_id, parent_folder_id=None)
+        for folder in dao.get_folders(telegram_user_id, parent_folder_id=None)
     ] + [(0, None)]
     while folders:
         deep_index, folder = folders.pop()
@@ -171,17 +174,19 @@ async def show_structure(
 
         folders += [
             (deep_index + 1, folder)
-            for folder in dao.get_folders(user_id, parent_folder_id=folder_id)
+            for folder in dao.get_folders(
+                telegram_user_id,
+                parent_folder_id=folder_id,
+            )
         ]
-
         space = deep_index * 2
-        output += f'{" " * space}+-{folder_name}\n'
-        for collection in dao.get_collections(user_id, folder_id):
-            output += f'{" " * (space + 2)}::{collection.name}\n'
-            for term in dao.get_terms(user_id, collection.id):
-                output += f'{" " * (space + 2)}| {term.name}\n'
+        output += f'{OFFSET * space}+-{folder_name}\n'
+        for collection in dao.get_collections(telegram_user_id, folder_id):
+            output += f'{OFFSET * (space + 2)}::{collection.name}\n'
+            for term in dao.get_terms(telegram_user_id, collection.id):
+                output += f'{OFFSET * (space + 2)}| {term.name}\n'
 
-    await answer_foo(
+    await foo(
         text=f'<code>{output}</code>',
         parse_mode='html',
     )
@@ -243,12 +248,12 @@ async def show_other_user_structure(
     state: FSMContext,
 ) -> None:
     if message.text.isdigit():
-        await load_test_data(message.answer, int(message.text))
-        await state.clear()
+        await load_test_data(message.answer, int(message.text))  
     else:
         await write_other_user_ld(
             message.answer, state, _('User id must be digit!'),
         )
+    await state_safe_clear(state)
 
 
 @dp.callback_query(callbacks.LoadDataCallback.filter())
@@ -260,18 +265,18 @@ async def show_my_structure(
         callback.message.edit_text,
         callback.from_user.id,
     )
-    await state.clear()
+    await state_safe_clear(state)
 
 
 async def load_test_data(
-    answer_foo: Callable,
-    user_id: int,
+    foo: Callable,
+    telegram_user_id: int,
 ) -> None:
     folders: List[Folder] = []
     for folder_num in range(1, 6):
         folders.append(
             dao.create_folder(
-                user_id,
+                telegram_user_id,
                 f'Folder#{folder_num}',
             ),
         )
@@ -282,7 +287,7 @@ async def load_test_data(
         for g in range(1, 3):
             collections.append(
                 dao.create_collection(
-                    user_id,
+                    telegram_user_id,
                     f'Set#{i}',
                     folder.id,
                 ),
@@ -293,13 +298,17 @@ async def load_test_data(
     for collection in collections:
         for g in range(1, 3):
             dao.create_term(
-                user_id,
+                telegram_user_id,
                 collection.id,
                 f'Term {i}',
                 f'Definition {i}',
             )
             i += 1
 
-    await answer_foo(
-        text=_('Data added to user #{user_id}').format(user_id=user_id),
+    await foo(
+        text=_(
+            'Data added to user #{user_id}'
+        ).format(
+            user_id=telegram_user_id,
+        ),
     )

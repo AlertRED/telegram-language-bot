@@ -8,6 +8,7 @@ from aiogram.utils.i18n import gettext as _
 from aiogram.fsm.context import FSMContext
 
 from bot.instances import dispatcher as dp
+from bot.constants import MAX_ITEMS_PAGE_BROWSE_COLLECTIONS
 from bot.handlers.utils.calbacks import (
     CollectionSelectCallback,
     FolderChangedCallback,
@@ -22,7 +23,6 @@ def __get_keyboard_folders_and_collections(
     page: int = 0,
 ) -> Tuple[List[types.InlineKeyboardButton], int]:
 
-    MAX_PER_PAGE = 8
     names = []
     rows = []
 
@@ -37,14 +37,17 @@ def __get_keyboard_folders_and_collections(
         exclude_collection_ids=exclude_collection_ids,
     )
 
-    last_page = math.ceil((folders_count + collections_count) / MAX_PER_PAGE)
+    last_page = math.ceil(
+        (folders_count + collections_count)
+        / MAX_ITEMS_PAGE_BROWSE_COLLECTIONS
+    )
     is_last_page = last_page <= page + 1
 
     folders = dao.get_folders(
         telegram_user_id,
         folder_id,
-        offset=page * MAX_PER_PAGE,
-        limit=MAX_PER_PAGE,
+        offset=page * MAX_ITEMS_PAGE_BROWSE_COLLECTIONS,
+        limit=MAX_ITEMS_PAGE_BROWSE_COLLECTIONS,
     )
     for folder in folders:
         names.append(
@@ -55,13 +58,13 @@ def __get_keyboard_folders_and_collections(
                 ).pack(),
             ),
         )
-    if len(folders) < MAX_PER_PAGE:
-        offset = max(page * MAX_PER_PAGE - folders_count, 0)
+    if len(folders) < MAX_ITEMS_PAGE_BROWSE_COLLECTIONS:
+        offset = max(page * MAX_ITEMS_PAGE_BROWSE_COLLECTIONS - folders_count, 0)
         collections = dao.get_collections(
             telegram_user_id,
             folder_id,
             offset=offset,
-            limit=MAX_PER_PAGE - len(folders),
+            limit=MAX_ITEMS_PAGE_BROWSE_COLLECTIONS - len(folders),
             exclude_collection_ids=exclude_collection_ids,
         )
         for collection in collections:
@@ -120,7 +123,7 @@ def __get_keyboard_folders_and_collections(
     return rows, last_page or 1
 
 
-async def start_browse(
+async def browse(
     callback: types.CallbackQuery,
     state: FSMContext,
     folder_id: int = None,
@@ -155,7 +158,7 @@ async def folder_chosen(
     callback_data: FolderChangedCallback,
     state: FSMContext,
 ) -> None:
-    await start_browse(
+    await browse(
         callback,
         state,
         callback_data.folder_id,

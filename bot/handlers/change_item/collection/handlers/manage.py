@@ -6,7 +6,7 @@ from aiogram.utils.i18n import gettext as _
 from bot.instances import dispatcher as dp
 from bot.handlers.change_item.term.callbacks import ChangeTermCallback
 from bot.handlers.utils.handlers.browse_collection import (
-    start_browse as browse_collection,
+    browse as browse_collection,
 )
 from bot.handlers.utils.calbacks import CollectionSelectCallback
 from ..states import ChangeCollectionStates
@@ -58,7 +58,7 @@ async def manage_collection(
             'Manage set <u><b>{collection_name}</b></u>'
         ).format(
             additional_text=additional_text,
-            collection_name=state_data["collection_name"],
+            collection_name=state_data.get('collection_name'),
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(

@@ -3,6 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
 from bot.instances import dispatcher as dp
+from bot.handlers.support import state_safe_clear
 from bot.handlers.settings.callbacks import (
     ChangeLanguageCallback,
     ChooseLanguageCallback,
@@ -16,6 +17,7 @@ async def change_language(
     callback: types.CallbackQuery,
     state: FSMContext,
 ) -> None:
+    await state_safe_clear(state)
     rows = [
         [
             types.InlineKeyboardButton(
@@ -53,3 +55,4 @@ async def change_language(
     await callback.message.edit_text(
         text=_('Language was changed!'),
     )
+    await state_safe_clear(state)

@@ -13,12 +13,12 @@ async def get_definitions(term: str, maximum=4) -> List[str]:
                 definitions = []
                 words = await resp.json()
                 for word in words:
-                    for definition in word['meanings']:
+                    for definition in word.get('meanings'):
                         count += 1
                         if maximum <= count:
                             return definitions
                         definitions.append(
-                            definition['definitions'][0]['definition'],
+                            definition.get('definitions')[0].get('definition'),
                         )
 
                 return definitions

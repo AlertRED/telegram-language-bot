@@ -2,9 +2,11 @@ from aiogram import (
     filters,
     types,
 )
+from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
 from bot.instances import dispatcher as dp
+from bot.handlers.support import state_safe_clear
 from bot.handlers.add_item.callbacks import (
     AddCollectionCallback,
     AddingFolderCallback,
@@ -15,7 +17,9 @@ from bot.handlers.add_item.callbacks import (
 @dp.message(filters.Command('add_item'))
 async def add_new(
     message: types.Message,
+    state: FSMContext,
 ) -> None:
+    await state_safe_clear(state)
     rows = [
         [
             types.InlineKeyboardButton(

@@ -1,9 +1,7 @@
+from bot.constants import LOCALES_LIST
 from bot.instances import dispatcher as dp
 from bot.instances import queue
 from bot.commands import get_commands
-
-
-LOCALES_LIST: list = ['en', 'ru']
 
 
 async def run():

@@ -11,9 +11,8 @@ from aiogram.fsm.storage.redis import (
 from aiogram.utils import i18n
 
 import config
+from bot.constants import DEFAULT_LOCALE
 
-
-DEFAULT_LOCALE = 'en'
 
 logging.basicConfig(level=logging.NOTSET)
 redis = Redis(

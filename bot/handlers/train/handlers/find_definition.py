@@ -9,9 +9,10 @@ from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
 from bot.instances import queue, redis
+from bot.constants import MIN_TERMS_COUNT_FIND_DEFINITION
 from bot.handlers.utils.calbacks import CollectionSelectCallback
 from bot.handlers.train.handlers.menu import train
-from bot.handlers.utils.handlers.browse_collection import start_browse
+from bot.handlers.utils.handlers.browse_collection import browse
 from bot.instances import (
     dispatcher as dp,
     bot,
@@ -25,7 +26,7 @@ async def choose_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
 ) -> None:
-    await start_browse(callback, state=state, folder_id=None, page=0)
+    await browse(callback, state=state, folder_id=None, page=0)
     await state.set_state(FindDefinitionStates.choose_collection)
 
 
@@ -42,19 +43,18 @@ async def start_train(
     callback_data: CollectionSelectCallback,
     state: FSMContext,
 ) -> None:
-    MIN_TERMS_COUNT = 4
     terms_count = dao.get_terms_count(
         telegram_user_id=callback.from_user.id,
         collection_id=callback_data.collection_id,
     )
-    if terms_count < MIN_TERMS_COUNT:
+    if terms_count < MIN_TERMS_COUNT_FIND_DEFINITION:
         await callback.message.answer(
             text=_(
                 'Sorry, set must contains more than <b>{min_terms_count}</b>'
                 ' terms, set <b><u>{collection_name}</u></b> has '
                 '<b>{term_counts}</b> terms'
             ).format(
-                min_terms_count=MIN_TERMS_COUNT,
+                min_terms_count=MIN_TERMS_COUNT_FIND_DEFINITION,
                 collection_name=callback_data.collection_name,
                 term_counts=terms_count,
             ),

@@ -6,8 +6,8 @@ from aiogram.fsm.state import (
 
 class CreateTermStates(StatesGroup):
     choose_place = State()
-    choose_term = State()
-    choose_description = State()
+    write_term = State()
+    write_description = State()
 
 
 class CreateFolderStates(StatesGroup):

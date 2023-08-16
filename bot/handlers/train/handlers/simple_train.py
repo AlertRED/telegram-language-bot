@@ -4,7 +4,8 @@ from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
 from bot.instances import dispatcher as dp
-from bot.handlers.utils.handlers.browse_collection import start_browse
+from bot.constants import MIN_TERMS_COUNT_SIMPLE_TRAIN
+from bot.handlers.utils.handlers.browse_collection import browse
 from bot.handlers.train.handlers.menu import train
 from bot.handlers.utils.calbacks import CollectionSelectCallback
 from bot.handlers.train.callbacks import (
@@ -20,7 +21,7 @@ async def choose_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
 ) -> None:
-    await start_browse(callback, state=state, folder_id=None, page=0)
+    await browse(callback, state=state, folder_id=None, page=0)
     await state.set_state(SimpleTrainStates.choose_collection)
 
 
@@ -33,19 +34,18 @@ async def collection_choosen(
     callback_data: CollectionSelectCallback,
     state: FSMContext,
 ) -> None:
-    MIN_TERMS_COUNT = 1
     terms_count = dao.get_terms_count(
         telegram_user_id=callback.from_user.id,
         collection_id=callback_data.collection_id,
     )
-    if terms_count < MIN_TERMS_COUNT:
+    if terms_count < MIN_TERMS_COUNT_SIMPLE_TRAIN:
         await callback.message.answer(
             text=_(
                 'Sorry, set must contains more than <b>{min_terms_count}</b>'
                 ' terms, set <b><u>{collection_name}</u></b> has '
                 '<b>{term_counts}</b> terms'
             ).format(
-                min_terms_count=MIN_TERMS_COUNT,
+                min_terms_count=MIN_TERMS_COUNT_SIMPLE_TRAIN,
                 collection_name=callback_data.collection_name,
                 term_counts=terms_count,
             ),
@@ -70,8 +70,8 @@ async def know_term(
     state: FSMContext,
 ):
     state_data = await state.get_data()
-    if state_data['term_index'] + 1 < len(state_data['terms']):
-        await state.update_data(term_index=state_data['term_index'] + 1)
+    if state_data.get('term_index') + 1 < len(state_data.get('terms')):
+        await state.update_data(term_index=state_data.get('term_index') + 1)
         await show_term(
             callback.message,
             state,
@@ -90,8 +90,8 @@ async def know_term(
     state: FSMContext,
 ):
     state_data = await state.get_data()
-    term_index = state_data['term_index']
-    terms = state_data['terms']
+    term_index = state_data.get('term_index')
+    terms = state_data.get('terms')
     await callback.message.edit_text(
         text=_(
             '<u><b>{name}</b></u> - {description}'
@@ -118,8 +118,8 @@ async def show_term(
     state: FSMContext,
 ):
     state_data = await state.get_data()
-    term_index = state_data['term_index']
-    terms = state_data['terms']
+    term_index = state_data.get('term_index')
+    terms = state_data.get('terms')
 
     await message.edit_text(
         text=_('{name}').format(

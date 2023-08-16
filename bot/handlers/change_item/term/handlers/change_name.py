@@ -2,8 +2,10 @@ from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
-from bot.instances import dispatcher as dp
 import database.dao as dao
+from bot.instances import dispatcher as dp
+from bot.constants import MAX_TERM_NAME_LENGTH
+from bot.handlers.support import state_safe_clear
 from bot.handlers.change_item.collection.handlers.manage import (
     manage_collection,
 )
@@ -28,7 +30,7 @@ async def write_term_name(
         text=_(
             'Write new name (old name is {term_name}):'
         ).format(
-            term_name=state_data["term_name"],
+            term_name=state_data.get('term_name'),
         ),
         parse_mode='html',
     )
@@ -40,12 +42,10 @@ async def change_term_name(
     message: types.Message,
     state: FSMContext,
 ) -> None:
-    MAX_TERM_NAME_LENGTH = 128
-
     await state.update_data(new_term_name=message.text.capitalize())
     state_data = await state.get_data()
 
-    if len(state_data['new_term_name']) > MAX_TERM_NAME_LENGTH:
+    if len(state_data.get('new_term_name')) > MAX_TERM_NAME_LENGTH:
         await message.answer(
             text=(
                 'The term length should not be more than {max_length}!'
@@ -57,8 +57,8 @@ async def change_term_name(
         return
 
     term = dao.get_term(
-        term_name=state_data['new_term_name'],
-        collection_id=state_data['collection_id'],
+        term_name=state_data.get('new_term_name'),
+        collection_id=state_data.get('collection_id'),
     )
     if term:
         await message.answer(
@@ -66,8 +66,8 @@ async def change_term_name(
                 'The term <b><u>{term_name}</u></b> is already exists'
                 ' in the collection {collection_name}!'
             ).format(
-                term_name=state_data['new_term_name'],
-                collection_name=state_data['collection_name'],
+                term_name=state_data.get('new_term_name'),
+                collection_name=state_data.get('collection_name'),
             ),
         )
         await write_term_name(message.answer, state)
@@ -82,3 +82,4 @@ async def change_term_name(
         send_message_foo=message.answer,
         state=state,
     )
+    await state_safe_clear(state)

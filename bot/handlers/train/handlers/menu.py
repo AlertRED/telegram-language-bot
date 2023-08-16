@@ -2,9 +2,11 @@ from aiogram import (
     filters,
     types,
 )
+from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
 from bot.instances import dispatcher as dp
+from bot.handlers.support import state_safe_clear
 from bot.handlers.train.callbacks import (
     FindDefinitionCallback,
     SimpleTrainCallback,
@@ -12,7 +14,11 @@ from bot.handlers.train.callbacks import (
 
 
 @dp.message(filters.Command('train'))
-async def train_message(message: types.Message) -> None:
+async def train_message(
+    message: types.Message,
+    state: FSMContext,
+) -> None:
+    await state_safe_clear(state)
     await train(message)
 
 

@@ -5,9 +5,10 @@ from aiogram import (
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
-from bot.instances import dispatcher as dp
 import database.dao as dao
-from bot.handlers.utils.handlers.browse_folder import start_browse
+from bot.instances import dispatcher as dp
+from bot.handlers.support import state_safe_clear
+from bot.handlers.utils.handlers.browse_folder import browse
 from bot.handlers.utils.calbacks import FolderSelectCallback
 from .manage import manage_folder
 from ..states import ChangeFolderStates
@@ -24,7 +25,7 @@ async def move_folder_true(
 ):
     state_data = await state.get_data()
     dao.update_folder(
-        folder_id=state_data['folder_id'],
+        folder_id=state_data.get('folder_id'),
         parent_folder_id=callback_data.folder_id,
     )
     await manage_folder(
@@ -34,10 +35,11 @@ async def move_folder_true(
             '{folder_name} was moved to '
             '{selected_folder_name}\n\n'
         ).format(
-            folder_name=state_data["folder_name"],
+            folder_name=state_data.get('folder_name'),
             selected_folder_name=callback_data.folder_name,
         ),
     )
+    await state_safe_clear(state)
 
 
 @dp.callback_query(
@@ -68,7 +70,7 @@ async def move_folder_browse(
     state_data = await state.get_data()
 
     parent_folder_id = dao.get_folder(
-        folder_id=state_data['folder_id'],
+        folder_id=state_data.get('folder_id'),
     ).parent_folder_id
     await state.update_data(
         exclude_folders_ids=(
@@ -77,7 +79,7 @@ async def move_folder_browse(
             else parent_folder_id
         )
     )
-    await start_browse(callback, state)
+    await browse(callback, state)
     await state.set_state(ChangeFolderStates.choose_folder_for_moving)
 
 
@@ -93,12 +95,12 @@ async def move_folder_sure(
     state_data = await state.get_data()
     folder = dao.get_folder(
         telegram_user_id=callback.from_user.id,
-        folder_name=state_data['folder_name'],
+        folder_name=state_data.get('folder_name'),
     )
     folder = dao.get_folder(
         telegram_user_id=callback.from_user.id,
         folder_id=folder.parent_folder_id,
-        folder_name=state_data['folder_new_name'],
+        folder_name=state_data.get('folder_new_name'),
     )
     if folder:
         await callback.message.answer(
@@ -106,7 +108,7 @@ async def move_folder_sure(
                 'The folder <b><u>{folder_name}</u></b> is already'
                 ' exists in this folder!'
             ).format(
-                folder_name=state_data['folder_new_name'],
+                folder_name=state_data.get('folder_new_name'),
             ),
         )
         await move_folder_browse(callback, state)
@@ -118,8 +120,8 @@ async def move_folder_sure(
             '<u><b>{folder_name}</b></u>'
             ' into <u><b>{selected_folder_name}</b></u>?'
         ).format(
-            folder_name=state_data["folder_name"],
-            selected_folder_name=callback_data.folder_name or "Root",
+            folder_name=state_data.get('folder_name'),
+            selected_folder_name=callback_data.folder_name or 'Root',
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(

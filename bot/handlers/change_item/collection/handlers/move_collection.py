@@ -6,8 +6,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
+from bot.handlers.support import state_safe_clear
 from bot.handlers.utils.handlers.browse_folder import (
-    start_browse as start_browse_folder,
+    browse as start_browse_folder,
 )
 from bot.handlers.utils.calbacks import FolderSelectCallback
 from bot.instances import dispatcher as dp
@@ -26,7 +27,7 @@ async def move_collection_true(
 ):
     state_data = await state.get_data()
     dao.update_collection(
-        collection_id=state_data['collection_id'],
+        collection_id=state_data.get('collection_id'),
         folder_id=callback_data.folder_id,
     )
     await manage_collection(
@@ -36,10 +37,11 @@ async def move_collection_true(
             '{collection_name} was moved to '
             '{folder_name}'
         ).format(
-            collection_name=state_data["collection_name"],
+            collection_name=state_data.get('collection_name'),
             folder_name=callback_data.folder_name,
         ),
     )
+    await state_safe_clear(state)
 
 
 @dp.callback_query(
@@ -62,7 +64,7 @@ async def browse_folder_callback(
 ):
     state_data = await state.get_data()
     parent_folder_id = dao.get_collection(
-        collection_id=state_data['collection_id'],
+        collection_id=state_data.get('collection_id'),
     ).folder_id
     await state.update_data(
         exclude_folders_ids=(
@@ -94,12 +96,12 @@ async def move_collection_sure(
     state_data = await state.get_data()
     collection = dao.get_collection(
         telegram_user_id=callback.from_user.id,
-        collection_name=state_data['collection_name'],
+        collection_name=state_data.get('collection_name'),
     )
     collection = dao.get_collection(
         telegram_user_id=callback.from_user.id,
         folder_id=collection.folder_id,
-        collection_name=state_data['collection_new_name'],
+        collection_name=state_data.get('collection_new_name'),
     )
     if collection:
         await callback.message.answer(
@@ -107,7 +109,7 @@ async def move_collection_sure(
                 'The collection <b><u>{collection_name}</u></b> is already'
                 ' exists in this folder!'
             ).format(
-                collection_name=state_data['folder_new_name'],
+                collection_name=state_data.get('folder_new_name'),
             ),
         )
         await brows_folder(callback, state)
@@ -119,8 +121,8 @@ async def move_collection_sure(
             '<u><b>{collection_name}</b></u>'
             ' into <u><b>{folder_name}</b></u>?'
         ).format(
-            collection_name=state_data["collection_name"],
-            folder_name=callback_data.folder_name or "Root",
+            collection_name=state_data.get('collection_name'),
+            folder_name=callback_data.folder_name or 'Root',
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(

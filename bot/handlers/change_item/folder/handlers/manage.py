@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
 from bot.instances import dispatcher as dp
-from bot.handlers.utils.handlers.browse_folder import start_browse
+from bot.handlers.utils.handlers.browse_folder import browse
 from bot.handlers.utils.calbacks import FolderSelectCallback
 from bot.handlers.change_item.folder.states import ChangeFolderStates
 from ..callbacks import (
@@ -20,7 +20,7 @@ async def choose_folder(
     callback: types.CallbackQuery,
     state: FSMContext,
 ) -> None:
-    await start_browse(callback, state, is_root_returnable=False)
+    await browse(callback, state, is_root_returnable=False)
     await state.set_state(ChangeFolderStates.manage_choose_place)
 
 
@@ -55,7 +55,7 @@ async def manage_folder(
             'Manage folder <u><b>{folder_name}</b></u>'
         ).format(
             additional_text=additional_text,
-            folder_name=state_data["folder_name"],
+            folder_name=state_data.get('folder_name'),
         ),
         parse_mode='html',
         reply_markup=types.InlineKeyboardMarkup(

@@ -3,6 +3,7 @@ from aiogram import types
 from aiogram.utils.i18n import gettext as _
 
 from bot.instances import dispatcher as dp
+from bot.constants import MAX_ITEMS_PAGE_BROWSE_TERMS
 import database.dao as dao
 from ..calbacks import (
     ChangeCollectionCallback,
@@ -20,7 +21,6 @@ async def start_browse(
     collection_id: int,
     page: int = 0,
 ) -> None:
-    TERMS_PER_PAGE = 8
     terms_count = dao.get_terms_count(
         telegram_user_id,
         collection_id,
@@ -31,10 +31,10 @@ async def start_browse(
     terms = dao.get_terms(
         callback.from_user.id,
         collection_id=collection_id,
-        limit=TERMS_PER_PAGE,
-        offset=page * TERMS_PER_PAGE,
+        limit=MAX_ITEMS_PAGE_BROWSE_TERMS,
+        offset=page * MAX_ITEMS_PAGE_BROWSE_TERMS,
     )
-    total_pages = math.ceil(terms_count / TERMS_PER_PAGE)
+    total_pages = math.ceil(terms_count / MAX_ITEMS_PAGE_BROWSE_TERMS)
 
     text = ''
     for i, term in enumerate(terms):
