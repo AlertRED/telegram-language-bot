@@ -39,4 +39,4 @@ class LoggerMiddleware(BaseMiddleware):
                     )
                 )
             )
-        return result
+            return result

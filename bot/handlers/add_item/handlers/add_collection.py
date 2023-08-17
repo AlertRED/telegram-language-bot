@@ -25,7 +25,7 @@ async def choose_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
 ) -> None:
-    await browse_folder.browse(callback)
+    await browse_folder.browse(callback, state)
     await state.set_state(CreateCollectionStates.choose_place)
 
 
