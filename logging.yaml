@@ -1,0 +1,75 @@
+version: 1
+disable_existing_loggers: no
+
+formatters:
+  standart:
+    format: '%(asctime)s - %(levelname)s - %(message)s'
+  verbose:
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s"
+  error:
+    format: "%(levelname)s <PID %(process)d:%(processName)s> %(name)s.%(funcName)s(): %(message)s"
+
+filters:
+  show_only_info:
+    (): logger_filters.ExcludeLevelsFilter
+    skip_levels: ["ERROR", "WARNING", "CRITICAL"]
+
+handlers:
+  console_handler:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: standart
+    stream: ext://sys.stdout
+  bot_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: INFO
+    formatter: standart
+    when: D
+    backupCount: 0
+    filename: ./logs/bot_access.log
+    encoding: utf8
+  aiogram_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: INFO
+    formatter: standart
+    when: D
+    backupCount: 0
+    filename: ./logs/aiogram_access.log
+    encoding: utf8
+  db_error_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: WARN
+    formatter: standart
+    when: D
+    backupCount: 0
+    filename: ./logs/db_errors.log
+    encoding: utf8
+  db_info_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: INFO
+    formatter: standart
+    when: D
+    backupCount: 0
+    filename: ./logs/db_access.log
+    encoding: utf8
+    filters: [show_only_info]
+
+loggers:
+    root:
+        level: INFO
+        handlers: [console_handler]
+    bot:
+        level: INFO
+        handlers: [bot_handler]
+        propagate: no
+        qualname: bot
+    aiogram:
+        level: INFO
+        handlers: [aiogram_handler]
+        propagate: no
+        qualname: aiogram
+    sqlalchemy.engine:
+        level: INFO
+        handlers: [db_error_handler, db_info_handler]
+        propagate: no
+        qualname: sqlalchemy.engine

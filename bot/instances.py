@@ -1,4 +1,3 @@
-import logging
 from rq import Queue
 from aiogram import (
     Bot,
@@ -8,13 +7,12 @@ from aiogram.fsm.storage.redis import (
     Redis,
     RedisStorage,
 )
-from aiogram.utils import i18n
+from aiogram.utils.i18n import I18n
 
 import config
 from bot.constants import DEFAULT_LOCALE
 
 
-logging.basicConfig(level=logging.NOTSET)
 redis = Redis(
     host=config.REDIS_HOST,
     port=config.REDIS_PORT,
@@ -22,17 +20,15 @@ redis = Redis(
     password=config.REDIS_PASSWORD,
 )
 
-i18n_middleware = i18n.middleware.FSMI18nMiddleware(
-    i18n=i18n.I18n(
-        path='./bot/locales',
-        default_locale=DEFAULT_LOCALE,
-        domain='messages',
-    ),
+i18n = I18n(
+    path='./bot/locales',
+    default_locale=DEFAULT_LOCALE,
+    domain='messages',
 )
 
-bot = Bot(token=config.API_TOKEN, parse_mode='HTML')
-dispatcher = Dispatcher(storage=RedisStorage(redis),)
-dispatcher.message.outer_middleware(i18n_middleware,)
-dispatcher.callback_query.outer_middleware(i18n_middleware,)
-dispatcher.poll_answer.outer_middleware(i18n_middleware,)
+bot = Bot(
+    token=config.API_TOKEN,
+    parse_mode='HTML',
+)
+dispatcher = Dispatcher(storage=RedisStorage(redis))
 queue = Queue(connection=redis)

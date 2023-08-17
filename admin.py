@@ -1,3 +1,7 @@
+import yaml
+import logging
+import logging.config
+
 from flask import Flask
 from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
@@ -44,6 +48,10 @@ def create_app() -> Flask:
 
 
 app = create_app()
+
+with open('logging.yaml', 'r') as f:
+    config_d = yaml.safe_load(f.read())
+    logging.config.dictConfig(config_d)
 
 if __name__ == '__main__':
     app.run()

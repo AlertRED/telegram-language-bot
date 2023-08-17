@@ -29,6 +29,8 @@ You should create `.env` file based on `.env.example` and set next variables in 
 + POSTGRES_PORT - postgres port
 + POSTGRES_USER - postgres username
 + POSTGRES_PASSWORD - postgres password
++ LOGGING_CONFIG_PATH - path to config of logging (by default ./logging.yaml)
++ IS_DEVELOP - run in development mode (true/false)
 
 ### Python environment & requirements
 

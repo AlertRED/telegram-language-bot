@@ -21,3 +21,6 @@ DATABASE_URL: str = (
     f'postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}'
     f'@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}'
 )
+
+LOGGING_CONFIG_PATH: str = os.getenv('LOGGING_CONFIG_PATH', 'logging.yaml')
+IS_DEVELOP: bool = os.getenv('IS_DEVELOP', False)

@@ -1,9 +1,9 @@
 from aiogram import types
 
-from bot.instances import i18n_middleware
+from bot.instances import i18n
 
 
-_ = i18n_middleware.i18n.gettext
+_ = i18n.gettext
 
 
 def get_commands(locale: str):
