@@ -1,19 +1,22 @@
 from aiogram import (
+    Router,
     types,
     F,
 )
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
-from bot.instances import dispatcher as dp
-from bot.handlers.support import state_safe_clear
+from bot.misc.support import state_safe_clear
 from .manage import manage_collection
 from ..states import ChangeCollectionStates
 from ..callbacks import DeleteCollectionCallback
 import database.dao as dao
 
 
-@dp.callback_query(DeleteCollectionCallback.filter(F.sure == False))
+router = Router()
+
+
+@router.callback_query(DeleteCollectionCallback.filter(F.sure == False))
 async def delete_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -24,7 +27,7 @@ async def delete_collection(
     )
 
 
-@dp.callback_query(DeleteCollectionCallback.filter(F.sure == True))
+@router.callback_query(DeleteCollectionCallback.filter(F.sure == True))
 async def delete_collection_false(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -43,7 +46,7 @@ async def delete_collection_false(
     await state_safe_clear(state)
 
 
-@dp.callback_query(DeleteCollectionCallback.filter())
+@router.callback_query(DeleteCollectionCallback.filter())
 async def delete_collection_true(
     callback: types.CallbackQuery,
     state: FSMContext,

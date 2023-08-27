@@ -1,5 +1,6 @@
 from typing import Callable, List
 from aiogram import (
+    Router,
     filters,
     types,
     F,
@@ -9,13 +10,15 @@ from aiogram.fsm.context import FSMContext
 
 import config
 import database.dao as dao
-from bot.instances import dispatcher as dp
-from bot.handlers.support import state_safe_clear
-from bot.handlers.testing import callbacks, states
 from database.models import Collection, Folder
+from bot.misc.support import state_safe_clear
+from bot.handlers.testing import callbacks, states
 
 
-@dp.message(
+router = Router()
+
+
+@router.message(
     filters.Command('testing'),
     F.from_user.id == config.MY_TELEGRAM_ID,
 )
@@ -57,7 +60,7 @@ async def load_test_data(
     await state.set_state(states.TestingStates.choose_tool)
 
 
-@dp.callback_query(callbacks.ChooseUserShowStructureCallback.filter())
+@router.callback_query(callbacks.ChooseUserShowStructureCallback.filter())
 async def choose_user(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -85,7 +88,7 @@ async def choose_user(
     await state.set_state(states.TestingStates.show_structure_choose_user)
 
 
-@dp.callback_query(callbacks.ChooseOtherUserShowStructureCallback.filter())
+@router.callback_query(callbacks.ChooseOtherUserShowStructureCallback.filter())
 async def write_other_user_callback(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -108,7 +111,7 @@ async def write_other_user(
     await state.set_state(states.TestingStates.show_structure_write_user_id)
 
 
-@dp.message(states.TestingStates.show_structure_write_user_id)
+@router.message(states.TestingStates.show_structure_write_user_id)
 async def show_other_user_structure(
     message: types.Message,
     state: FSMContext,
@@ -122,7 +125,7 @@ async def show_other_user_structure(
     await state_safe_clear(state)
 
 
-@dp.callback_query(callbacks.ShowStructureCallback.filter())
+@router.callback_query(callbacks.ShowStructureCallback.filter())
 async def show_my_structure(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -134,7 +137,7 @@ async def show_my_structure(
     await state_safe_clear(state)
 
 
-@dp.callback_query(callbacks.ChooseOtherUserShowStructureCallback.filter())
+@router.callback_query(callbacks.ChooseOtherUserShowStructureCallback.filter())
 async def write_other_user_callback(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -192,7 +195,7 @@ async def show_structure(
     )
 
 
-@dp.callback_query(callbacks.ChooseUserLoadDataCallback.filter())
+@router.callback_query(callbacks.ChooseUserLoadDataCallback.filter())
 async def choose_user(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -219,7 +222,7 @@ async def choose_user(
     await state.set_state(states.TestingStates.test_data_choose_user)
 
 
-@dp.callback_query(callbacks.ChooseOtherUserLoadDataCallback.filter())
+@router.callback_query(callbacks.ChooseOtherUserLoadDataCallback.filter())
 async def write_other_user_callback(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -242,7 +245,7 @@ async def write_other_user_ld(
     await state.set_state(states.TestingStates.test_data_write_user_id)
 
 
-@dp.message(states.TestingStates.test_data_write_user_id)
+@router.message(states.TestingStates.test_data_write_user_id)
 async def show_other_user_structure(
     message: types.Message,
     state: FSMContext,
@@ -256,7 +259,7 @@ async def show_other_user_structure(
     await state_safe_clear(state)
 
 
-@dp.callback_query(callbacks.LoadDataCallback.filter())
+@router.callback_query(callbacks.LoadDataCallback.filter())
 async def show_my_structure(
     callback: types.CallbackQuery,
     state: FSMContext,

@@ -1,13 +1,10 @@
-from aiogram import types
+from aiogram import Router, types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
-from bot.commands import get_commands
+from bot.misc.support import get_commands
 
-from bot.instances import (
-    bot,
-    dispatcher as dp,
-)
-from bot.handlers.support import state_safe_clear
+from bot.misc.instances import bot
+from bot.misc.support import state_safe_clear
 from bot.handlers.settings.callbacks import (
     ChangeLanguageCallback,
     ChooseLanguageCallback,
@@ -16,7 +13,10 @@ from bot.handlers.settings.callbacks import (
 from bot.handlers.settings.states import SettingsStates
 
 
-@dp.callback_query(ChooseLanguageCallback.filter())
+router = Router()
+
+
+@router.callback_query(ChooseLanguageCallback.filter())
 async def change_language(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -49,7 +49,7 @@ async def change_language(
     await state.set_state(SettingsStates.choose_language)
 
 
-@dp.callback_query(ChangeLanguageCallback.filter())
+@router.callback_query(ChangeLanguageCallback.filter())
 async def change_language(
     callback: types.CallbackQuery,
     callback_data: ChangeLanguageCallback,

@@ -1,4 +1,5 @@
 from aiogram import (
+    Router,
     types,
     F,
 )
@@ -6,20 +7,20 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
-from bot.instances import dispatcher as dp
-from bot.handlers.support import state_safe_clear
-from bot.handlers.utils.handlers.browse_collection import (
-    browse as browse_collection,
-)
+from bot.misc.support import state_safe_clear
 from bot.handlers.utils.calbacks import CollectionSelectCallback
 from bot.handlers.change_item.collection.handlers.manage import (
     manage_collection,
 )
 from ..states import ChangeTermStates
 from ..callbacks import MoveTermCallback
+from ..controller import choose_collection
 
 
-@dp.callback_query(MoveTermCallback.filter())
+router = Router()
+
+
+@router.callback_query(MoveTermCallback.filter())
 async def choose_collection_callback(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -31,15 +32,7 @@ async def choose_collection_callback(
     await choose_collection(callback, state)
 
 
-async def choose_collection(
-    callback: types.CallbackQuery,
-    state: FSMContext,
-):
-    await browse_collection(callback, state)
-    await state.set_state(ChangeTermStates.choose_collection_for_moving)
-
-
-@dp.callback_query(
+@router.callback_query(
     MoveTermCallback.filter(F.sure == True),
 )
 async def move_collection_true(
@@ -66,7 +59,7 @@ async def move_collection_true(
     await state_safe_clear(state)
 
 
-@dp.callback_query(MoveTermCallback.filter(F.sure == False))
+@router.callback_query(MoveTermCallback.filter(F.sure == False))
 async def move_collection_false(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -77,7 +70,7 @@ async def move_collection_false(
     )
 
 
-@dp.callback_query(
+@router.callback_query(
     CollectionSelectCallback.filter(),
     ChangeTermStates.choose_collection_for_moving,
 )

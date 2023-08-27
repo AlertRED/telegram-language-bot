@@ -47,11 +47,9 @@ def create_app() -> Flask:
     return admin.app
 
 
-app = create_app()
-
 with open('logging.yaml', 'r') as f:
     config_d = yaml.safe_load(f.read())
     logging.config.dictConfig(config_d)
 
-if __name__ == '__main__':
-    app.run()
+
+app = create_app()

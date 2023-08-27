@@ -1,4 +1,5 @@
 from aiogram import (
+    Router,
     types,
     F,
 )
@@ -6,18 +7,18 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
-from bot.handlers.support import state_safe_clear
-from bot.handlers.utils.handlers.browse_folder import (
-    browse as start_browse_folder,
-)
+from bot.misc.support import state_safe_clear
+from bot.handlers.add_item.handlers.add_folder import choose_folder
 from bot.handlers.utils.calbacks import FolderSelectCallback
-from bot.instances import dispatcher as dp
 from .manage import manage_collection
 from ..states import ChangeCollectionStates
 from ..callbacks import MoveCollectionCallback
 
 
-@dp.callback_query(
+router = Router()
+
+
+@router.callback_query(
     MoveCollectionCallback.filter(F.sure == True),
 )
 async def move_collection_true(
@@ -44,7 +45,7 @@ async def move_collection_true(
     await state_safe_clear(state)
 
 
-@dp.callback_query(
+@router.callback_query(
     MoveCollectionCallback.filter(F.sure == False),
 )
 async def move_collection_false(
@@ -57,7 +58,7 @@ async def move_collection_false(
     )
 
 
-@dp.callback_query(MoveCollectionCallback.filter())
+@router.callback_query(MoveCollectionCallback.filter())
 async def browse_folder_callback(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -73,18 +74,10 @@ async def browse_folder_callback(
             else parent_folder_id
         )
     )
-    await brows_folder(callback, state)
+    await choose_folder(callback, state)
 
 
-async def brows_folder(
-    callback: types.CallbackQuery,
-    state: FSMContext,
-):
-    await start_browse_folder(callback, state)
-    await state.set_state(ChangeCollectionStates.choose_folder_for_moving)
-
-
-@dp.callback_query(
+@router.callback_query(
     FolderSelectCallback.filter(),
     ChangeCollectionStates.choose_folder_for_moving,
 )
@@ -112,7 +105,7 @@ async def move_collection_sure(
                 collection_name=state_data.get('folder_new_name'),
             ),
         )
-        await brows_folder(callback, state)
+        await choose_folder(callback, state)
         return
 
     await callback.message.edit_text(

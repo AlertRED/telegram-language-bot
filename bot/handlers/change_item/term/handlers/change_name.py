@@ -1,19 +1,22 @@
-from aiogram import types
+from aiogram import Router, types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
-from bot.instances import dispatcher as dp
-from bot.constants import MAX_TERM_NAME_LENGTH
-from bot.handlers.support import state_safe_clear
+from bot.misc.constants import MAX_TERM_NAME_LENGTH
+from bot.misc.support import state_safe_clear
 from bot.handlers.change_item.collection.handlers.manage import (
     manage_collection,
 )
+from ..controller import write_term_name
 from ..states import ChangeTermStates
 from ..callbacks import ChangeTermNameCallback
 
 
-@dp.callback_query(ChangeTermNameCallback.filter())
+router = Router()
+
+
+@router.callback_query(ChangeTermNameCallback.filter())
 async def write_term_name_callback(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -21,23 +24,7 @@ async def write_term_name_callback(
     await write_term_name(callback.message.edit_text, state)
 
 
-async def write_term_name(
-    foo: callable,
-    state: FSMContext,
-) -> None:
-    state_data = await state.get_data()
-    await foo(
-        text=_(
-            'Write new name (old name is {term_name}):'
-        ).format(
-            term_name=state_data.get('term_name'),
-        ),
-        parse_mode='html',
-    )
-    await state.set_state(ChangeTermStates.change_name)
-
-
-@dp.message(ChangeTermStates.change_name)
+@router.message(ChangeTermStates.change_name)
 async def change_term_name(
     message: types.Message,
     state: FSMContext,

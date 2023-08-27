@@ -5,5 +5,5 @@ WORKDIR /code
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 COPY bot ./bot
-COPY database ./bot
-COPY admin.py run.py config.py ./
+COPY database ./database
+COPY config.py config.py

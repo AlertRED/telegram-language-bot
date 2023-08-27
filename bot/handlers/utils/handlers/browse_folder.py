@@ -3,17 +3,19 @@ from typing import (
     List,
     Tuple,
 )
-from aiogram import types
+from aiogram import Router, types
 from aiogram.utils.i18n import gettext as _
 from aiogram.fsm.context import FSMContext
 
-from bot.instances import dispatcher as dp
-from bot.constants import MAX_ITEMS_PAGE_BROWSE_FOLDERS
+from bot.misc.constants import MAX_ITEMS_PAGE_BROWSE_FOLDERS
 from bot.handlers.utils.calbacks import (
     FolderChangeCallback,
     FolderSelectCallback,
 )
 import database.dao as dao
+
+
+router = Router()
 
 
 def __get_keyboard_folders_and_collections(
@@ -160,7 +162,7 @@ async def browse(
     )
 
 
-@dp.callback_query(FolderChangeCallback.filter())
+@router.callback_query(FolderChangeCallback.filter())
 async def folder_change(
     callback: types.CallbackQuery,
     state: FSMContext,

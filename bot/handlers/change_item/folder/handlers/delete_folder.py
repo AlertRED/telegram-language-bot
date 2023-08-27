@@ -1,4 +1,5 @@
 from aiogram import (
+    Router,
     types,
     F,
 )
@@ -6,14 +7,16 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
-from bot.instances import dispatcher as dp
-from bot.handlers.support import state_safe_clear
+from bot.misc.support import state_safe_clear
 from .manage import manage_folder
 from ..states import ChangeFolderStates
 from ..callbacks import DeleteFolderCallback
 
 
-@dp.callback_query(DeleteFolderCallback.filter(F.sure == False))
+router = Router()
+
+
+@router.callback_query(DeleteFolderCallback.filter(F.sure == False))
 async def delete_folder(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -24,7 +27,7 @@ async def delete_folder(
     )
 
 
-@dp.callback_query(DeleteFolderCallback.filter(F.sure == True))
+@router.callback_query(DeleteFolderCallback.filter(F.sure == True))
 async def delete_folder_false(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -43,7 +46,7 @@ async def delete_folder_false(
     await state_safe_clear(state)
 
 
-@dp.callback_query(DeleteFolderCallback.filter())
+@router.callback_query(DeleteFolderCallback.filter())
 async def delete_folder_true(
     callback: types.CallbackQuery,
     state: FSMContext,

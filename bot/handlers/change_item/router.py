@@ -1,9 +1,9 @@
 from aiogram import Router
 
-from .menu import route as menu_router
-from .term import route as term_router
-from .folder import route as folder_router
-from .collection import route as collection_router
+from .menu import router as menu_router
+from .term import router as term_router
+from .folder import router as folder_router
+from .collection import router as collection_router
 
 
 router = Router()

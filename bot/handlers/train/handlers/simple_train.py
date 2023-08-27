@@ -1,12 +1,11 @@
-from aiogram import types
+from aiogram import Router, types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
-from bot.instances import dispatcher as dp
-from bot.constants import MIN_TERMS_COUNT_SIMPLE_TRAIN
+from bot.misc.constants import MIN_TERMS_COUNT_SIMPLE_TRAIN
 from bot.handlers.utils.handlers.browse_collection import browse
-from bot.handlers.train.handlers.menu import train
+from bot.handlers.train.handlers.menu import train_menu
 from bot.handlers.utils.calbacks import CollectionSelectCallback
 from bot.handlers.train.callbacks import (
     IKnowTermCallback,
@@ -16,7 +15,10 @@ from bot.handlers.train.callbacks import (
 from bot.handlers.train.states import SimpleTrainStates
 
 
-@dp.callback_query(SimpleTrainCallback.filter())
+router = Router()
+
+
+@router.callback_query(SimpleTrainCallback.filter())
 async def choose_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -25,7 +27,7 @@ async def choose_collection(
     await state.set_state(SimpleTrainStates.choose_collection)
 
 
-@dp.callback_query(
+@router.callback_query(
     CollectionSelectCallback.filter(),
     SimpleTrainStates.choose_collection,
 )
@@ -50,7 +52,7 @@ async def collection_choosen(
                 term_counts=terms_count,
             ),
         )
-        await train(callback.message)
+        await train_menu(callback.message)
     else:
         terms = dao.get_simple_train_terms(callback_data.collection_id)
         await state.update_data(
@@ -64,7 +66,7 @@ async def collection_choosen(
         await state.set_state(SimpleTrainStates.show_term)
 
 
-@dp.callback_query(IKnowTermCallback.filter())
+@router.callback_query(IKnowTermCallback.filter())
 async def know_term(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -84,7 +86,7 @@ async def know_term(
         )
 
 
-@dp.callback_query(RemindTermCallback.filter())
+@router.callback_query(RemindTermCallback.filter())
 async def know_term(
     callback: types.CallbackQuery,
     state: FSMContext,

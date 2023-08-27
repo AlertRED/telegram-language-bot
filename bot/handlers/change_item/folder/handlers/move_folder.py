@@ -1,4 +1,5 @@
 from aiogram import (
+    Router,
     types,
     F,
 )
@@ -6,16 +7,17 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
-from bot.instances import dispatcher as dp
-from bot.handlers.support import state_safe_clear
-from bot.handlers.utils.handlers.browse_folder import browse
+from bot.misc.support import state_safe_clear
 from bot.handlers.utils.calbacks import FolderSelectCallback
-from .manage import manage_folder
+from .manage import manage_folder, move_folder_browse
 from ..states import ChangeFolderStates
 from ..callbacks import MoveFolderCallback
 
 
-@dp.callback_query(
+router = Router()
+
+
+@router.callback_query(
     MoveFolderCallback.filter(F.sure == True),
 )
 async def move_folder_true(
@@ -42,7 +44,7 @@ async def move_folder_true(
     await state_safe_clear(state)
 
 
-@dp.callback_query(
+@router.callback_query(
     MoveFolderCallback.filter(F.sure == False),
 )
 async def move_folder_false(
@@ -55,7 +57,7 @@ async def move_folder_false(
     )
 
 
-@dp.callback_query(MoveFolderCallback.filter())
+@router.callback_query(MoveFolderCallback.filter())
 async def move_folder_browse_callback(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -63,27 +65,7 @@ async def move_folder_browse_callback(
     await move_folder_browse(callback, state)
 
 
-async def move_folder_browse(
-    callback: types.CallbackQuery,
-    state: FSMContext,
-):
-    state_data = await state.get_data()
-
-    parent_folder_id = dao.get_folder(
-        folder_id=state_data.get('folder_id'),
-    ).parent_folder_id
-    await state.update_data(
-        exclude_folders_ids=(
-            [parent_folder_id]
-            if parent_folder_id
-            else parent_folder_id
-        )
-    )
-    await browse(callback, state)
-    await state.set_state(ChangeFolderStates.choose_folder_for_moving)
-
-
-@dp.callback_query(
+@router.callback_query(
     FolderSelectCallback.filter(),
     ChangeFolderStates.choose_folder_for_moving,
 )

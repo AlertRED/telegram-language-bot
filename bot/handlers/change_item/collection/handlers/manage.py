@@ -1,24 +1,21 @@
-from typing import Callable
-from aiogram import types
+from aiogram import Router, types
 from aiogram.fsm.context import FSMContext
-from aiogram.utils.i18n import gettext as _
 
-from bot.instances import dispatcher as dp
-from bot.handlers.change_item.term.callbacks import ChangeTermCallback
 from bot.handlers.utils.handlers.browse_collection import (
     browse as browse_collection,
 )
 from bot.handlers.utils.calbacks import CollectionSelectCallback
 from ..states import ChangeCollectionStates
+from ..controller import manage_collection
 from ..callbacks import (
     ChangeCollectionCallback,
-    ChangeCollectionNameCallback,
-    DeleteCollectionCallback,
-    MoveCollectionCallback,
 )
 
 
-@dp.callback_query(ChangeCollectionCallback.filter())
+router = Router()
+
+
+@router.callback_query(ChangeCollectionCallback.filter())
 async def choose_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -27,7 +24,7 @@ async def choose_collection(
     await state.set_state(ChangeCollectionStates.manage_choose_place)
 
 
-@dp.callback_query(
+@router.callback_query(
     CollectionSelectCallback.filter(),
     ChangeCollectionStates.manage_choose_place,
 )
@@ -45,48 +42,3 @@ async def collection_choosen(
         state,
     )
 
-
-async def manage_collection(
-    send_message_foo: Callable,
-    state: FSMContext,
-    additional_text: str = '',
-) -> None:
-    state_data = await state.get_data()
-    await send_message_foo(
-        text=_(
-            '{additional_text}\n\n'
-            'Manage set <u><b>{collection_name}</b></u>'
-        ).format(
-            additional_text=additional_text,
-            collection_name=state_data.get('collection_name'),
-        ),
-        parse_mode='html',
-        reply_markup=types.InlineKeyboardMarkup(
-            inline_keyboard=[
-                [
-                    types.InlineKeyboardButton(
-                        text=_('Change name'),
-                        callback_data=ChangeCollectionNameCallback().pack(),
-                    ),
-                    types.InlineKeyboardButton(
-                        text=_('Move set'),
-                        callback_data=MoveCollectionCallback().pack(),
-                    ),
-                ],
-                [
-                    types.InlineKeyboardButton(
-                        text=_('Delete set'),
-                        callback_data=DeleteCollectionCallback().pack(),
-                    ),
-                    types.InlineKeyboardButton(
-                        text=_('Change term'),
-                        callback_data=ChangeTermCallback(
-                            collection_id=state_data.get('collection_id'),
-                            collection_name=state_data.get('collection_name'),
-                        ).pack(),
-                    ),
-                ],
-            ],
-        ),
-    )
-    await state.set_state(ChangeCollectionStates.manage_choose_option)

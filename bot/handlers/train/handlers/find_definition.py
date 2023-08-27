@@ -1,27 +1,26 @@
-from rq import cancel_job
-from random import shuffle
-from datetime import timedelta
-
-from aiogram import types
+from aiogram import Router, types
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.storage.base import StorageKey
 from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
-from bot.instances import queue, redis
-from bot.constants import MIN_TERMS_COUNT_FIND_DEFINITION
+from bot.misc.constants import MIN_TERMS_COUNT_FIND_DEFINITION
 from bot.handlers.utils.calbacks import CollectionSelectCallback
-from bot.handlers.train.handlers.menu import train
 from bot.handlers.utils.handlers.browse_collection import browse
-from bot.instances import (
-    dispatcher as dp,
-    bot,
+from bot.handlers.train.handlers.menu import train_menu
+from bot.handlers.train.controller import (
+    cancel_expired_time_job, finish_train, guess, update_score
 )
-from ..callbacks import FindDefinitionCallback
+
+from ..callbacks import (
+    FindDefinitionCallback, FinishTrainCallback, NextTryCallback,
+)
 from ..states import FindDefinitionStates
 
 
-@dp.callback_query(FindDefinitionCallback.filter())
+router = Router()
+
+
+@router.callback_query(FindDefinitionCallback.filter())
 async def choose_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -30,11 +29,11 @@ async def choose_collection(
     await state.set_state(FindDefinitionStates.choose_collection)
 
 
-@dp.callback_query(
+@router.callback_query(
     CollectionSelectCallback.filter(),
     FindDefinitionStates.choose_collection,
 )
-@dp.callback_query(
+@router.callback_query(
     CollectionSelectCallback.filter(),
     FindDefinitionStates.finished_train,
 )
@@ -59,7 +58,7 @@ async def start_train(
                 term_counts=terms_count,
             ),
         )
-        await train(callback.message)
+        await train_menu(callback.message)
     else:
         await state.update_data(
             collection_id=callback_data.collection_id,
@@ -69,142 +68,46 @@ async def start_train(
             used_term_ids=[],
             chat_id=callback.message.chat.id,
         )
-        await callback.message.delete()
+        if (await state.get_state()) == FindDefinitionStates.choose_collection:
+            await callback.message.delete()
         await guess(state=state)
         await state.set_state(FindDefinitionStates.try_guess)
 
 
-async def guess(
+@router.callback_query(NextTryCallback.filter())
+async def next_try(
+    callback: types.CallbackQuery,
     state: FSMContext,
 ) -> None:
-    LIMIT_OF_OPTIONS: int = 4
-    state_data = await state.get_data()
-    try:
-        terms = dao.get_find_definition_terms(
-            collection_id=state_data.get('collection_id'),
-            excluded_ids=state_data.get('used_term_ids', []),
-            limit=LIMIT_OF_OPTIONS,
-        )
-    except dao.NotEnoughTermsException:
-        await finish_game(state)
-        return
-
-    correct_term = terms[0]
-
-    used_term_ids = state_data.get('used_term_ids')
-    used_term_ids.append(correct_term.id)
-    await state.update_data(used_term_ids=used_term_ids)
-
-    text = (f'{correct_term.name}')
-    shuffle(terms)
-
-    correct_option_id = terms.index(correct_term)
-    await state.update_data(correct_option_id=correct_option_id)
-    await bot.send_poll(
-        chat_id=state.key.chat_id,
-        question=text,
-        is_anonymous=False,
-        type='quiz',
-        correct_option_id=correct_option_id,
-        options=(
-            [term.description for term in terms]
-        ),
-        open_period=10,
-    )
-    job = queue.enqueue_in(
-        timedelta(seconds=10),
-        time_was_expired,
-        state.key.chat_id,
-        state.key.user_id,
-    )
-    await state.update_data(job_expired_time_id=job.id)
-
-
-async def time_was_expired(chat_id: int, user_id: int):
-    await bot.send_message(
-        chat_id=chat_id,
-        text=_('Time was expired :('),
-    )
-
-    state: FSMContext = FSMContext(
-        bot=bot,
-        storage=dp.storage,
-        key=StorageKey(
-            chat_id=chat_id,
-            user_id=user_id,
-            bot_id=bot.id,
-        ),
-    )
-    await state.update_data(job_expired_time_id=None)
-    await continue_guessing(state, False)
-
-
-async def continue_guessing(
-    state: FSMContext,
-    is_prev_won: bool,
-):
-    state_data = await state.get_data()
-    job_expired_time_id = state_data.get('job_expired_time_id')
-    if job_expired_time_id:
-        cancel_job(job_id=job_expired_time_id, connection=redis)
-    if is_prev_won:
-        await state.update_data(
-            wins_count=state_data.get('wins_count') + 1,
-        )
-    else:
-        await state.update_data(
-            lose_count=state_data.get('lose_count') + 1,
-        )
-
     await guess(state=state)
 
 
-@dp.poll_answer()
+@router.poll_answer()
 async def get_poll_answer(
     poll: types.PollAnswer,
     state: FSMContext,
 ):
     state_data = await state.get_data()
-    await continue_guessing(
-        state,
+    await update_score(
         state_data.get('correct_option_id') == poll.option_ids[0],
+        state,
     )
+    await cancel_expired_time_job(state)
+    await guess(state=state)
 
 
-async def finish_game(
+@router.callback_query(FinishTrainCallback.filter())
+async def finish_train_callback(
+    callback: types.CallbackQuery,
     state: FSMContext,
 ):
-    state_data = await state.get_data()
-    wins_count = state_data.get('wins_count')
-    lose_count = state_data.get('lose_count')
-    chat_id = state_data.get('chat_id')
-
-    accuracy = wins_count / ((wins_count + lose_count) or 1)
-
-    await bot.send_message(
-        chat_id=chat_id,
-        text=_(
-            'Wins: {wins_count} | Loses: {lose_count}'
-            '\nAccuracy: {accuracy:.1%}'
-        ).format(
-            wins_count=wins_count,
-            lose_count=lose_count,
-            accuracy=accuracy,
-        ),
-        parse_mode='html',
-        reply_markup=types.InlineKeyboardMarkup(
-            inline_keyboard=[
-                [
-                    types.InlineKeyboardButton(
-                        text=_('Try again'),
-                        callback_data=CollectionSelectCallback(
-                            collection_id=state_data.get('collection_id'),
-                            collection_name=state_data.get('collection_name'),
-                        ).pack(),
-                    ),
-                ],
-            ],
-        ),
+    await cancel_expired_time_job(state)
+    message_id = (
+        None
+        if callback.message.content_type is not types.ContentType.TEXT
+        else callback.message.message_id
     )
-    await state.clear()
-    await state.set_state(FindDefinitionStates.finished_train)
+    await finish_train(
+        state,
+        message_id=message_id,
+    )

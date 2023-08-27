@@ -1,14 +1,16 @@
 import math
-from aiogram import types
+from aiogram import Router, types
 from aiogram.utils.i18n import gettext as _
 
-from bot.instances import dispatcher as dp
-from bot.constants import MAX_ITEMS_PAGE_BROWSE_TERMS
+from bot.misc.constants import MAX_ITEMS_PAGE_BROWSE_TERMS
 import database.dao as dao
 from ..calbacks import (
     ChangeCollectionCallback,
     TermSelectedCallback,
 )
+
+
+router = Router()
 
 
 class CollectionIsEmptyException(Exception):
@@ -81,7 +83,7 @@ async def start_browse(
     )
 
 
-@dp.callback_query(ChangeCollectionCallback.filter())
+@router.callback_query(ChangeCollectionCallback.filter())
 async def change_page(
     callback: types.CallbackQuery,
     callback_data: ChangeCollectionCallback,

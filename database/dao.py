@@ -16,7 +16,7 @@ class NotEnoughTermsException(Exception):
     pass
 
 
-def register_user(telegram_user_id: int) -> None:
+def register_user(telegram_user_id: int) -> bool:
     with Session() as session:
         query = select(models.User).where(
             models.User.telegram_id == telegram_user_id,
@@ -30,6 +30,8 @@ def register_user(telegram_user_id: int) -> None:
             )
             session.add(user, user_info)
             session.commit()
+            return True
+        return False
 
 
 def get_user(telegram_id: int) -> models.Folder:
@@ -383,6 +385,35 @@ def create_folder(
             session.commit()
             session.refresh(folder)
             return folder
+
+
+def add_dict(
+    telegram_user_id: int,
+    dictionary: dict,
+    folder_name: str,
+):
+    with Session() as session:
+        user = get_user(telegram_id=telegram_user_id)
+        folder = models.Folder(
+            name=folder_name,
+            owner_id=user.id,
+            parent_folder_id=None,
+        )
+        for collection_name, terms in dictionary.items():
+            collection = models.Collection(
+                name=collection_name,
+                owner_id=user.id,
+                folder=folder,
+            )
+            for word, _def in terms.items():
+                models.Term(
+                    name=word,
+                    description=_def,
+                    collection=collection,
+                    owner_id=user.id,
+                )
+        session.add(folder)
+        session.commit()
 
 
 def update_folder(

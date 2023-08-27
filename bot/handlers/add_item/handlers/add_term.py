@@ -1,13 +1,12 @@
 from typing import Callable
-from aiogram import types
+from aiogram import Router, types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
-import bot.utils as utils
+import bot.misc.dictionaryapi as dictionaryapi
 import database.dao as dao
-from bot import constants
-from bot.instances import dispatcher as dp
-from bot.handlers.support import state_safe_clear
+from bot.misc import constants
+from bot.misc.support import state_safe_clear
 from bot.handlers.utils.handlers import browse_collection
 from bot.handlers.utils.calbacks import CollectionSelectCallback
 from ..states import CreateTermStates
@@ -17,41 +16,10 @@ from ..callbacks import (
 )
 
 
-async def write_term_name(
-    foo: Callable,
-    state: FSMContext,
-) -> None:
-    await foo(text=_('Write term'))
-    await state.set_state(CreateTermStates.write_term)
+router = Router()
 
 
-async def add_term(
-    foo: Callable,
-    state: FSMContext,
-    telegram_user_id: int,
-) -> None:
-    state_data = await state.get_data()
-    dao.create_term(
-        telegram_user_id,
-        state_data.get('collection_id'),
-        state_data.get('term_name'),
-        state_data.get('term_description'),
-    )
-    await foo(
-        text=_(
-            'Term added into {collection_name}\n'
-            'Term: <b><u>{term_name}</u></b>\n'
-            'Description: {term_description}'
-        ).format(
-            collection_name=state_data.get('collection_name'),
-            term_name=state_data.get('term_name'),
-            term_description=state_data.get('term_description'),
-        ),
-    )
-    await state_safe_clear(state,)
-
-
-@dp.callback_query(AddTermCallback.filter())
+@router.callback_query(AddTermCallback.filter())
 async def choose_collection(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -60,7 +28,7 @@ async def choose_collection(
     await state.set_state(CreateTermStates.choose_place)
 
 
-@dp.callback_query(
+@router.callback_query(
     CollectionSelectCallback.filter(),
     CreateTermStates.choose_place,
 )
@@ -76,7 +44,7 @@ async def write_term_name_callback(
     await write_term_name(callback.message.edit_text, state)
 
 
-@dp.message(CreateTermStates.write_term)
+@router.message(CreateTermStates.write_term)
 async def write_definition(
     message: types.Message,
     state: FSMContext,
@@ -112,7 +80,7 @@ async def write_definition(
         await write_term_name(message.answer, state)
         return
 
-    suggestions = await utils.get_definitions(state_data.get('term_name'))
+    suggestions = await dictionaryapi.get_definitions(state_data.get('term_name'))
     await state.update_data(suggestions=suggestions)
     text_suggestions = '\n'.join(
         [
@@ -152,7 +120,7 @@ async def write_definition(
     await state.set_state(CreateTermStates.write_description)
 
 
-@dp.callback_query(SuggestionDefinitionChosenCallback.filter())
+@router.callback_query(SuggestionDefinitionChosenCallback.filter())
 async def add_suggestion_definition(
     callback: types.CallbackQuery,
     callback_data: SuggestionDefinitionChosenCallback,
@@ -165,7 +133,7 @@ async def add_suggestion_definition(
     await add_term(callback.message.edit_text, state, callback.from_user.id)
 
 
-@dp.message(CreateTermStates.write_description)
+@router.message(CreateTermStates.write_description)
 async def add_written_definition(message: types.Message, state: FSMContext):
     if len(message.text) > constants.MAX_TERM_DEFINITION_LENGTH:
         await message.answer(

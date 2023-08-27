@@ -17,12 +17,12 @@ services:
       - .env-docker-compose
     networks:
       - deploy_network
-
-  app:
+  
+  base-bot:
     container_name: base-app
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: ./docker/Dockerfile.bot
     depends_on:
       - cache
       - db
@@ -60,18 +60,20 @@ services:
     depends_on:
       - migrations
       - rq
-
+  
   web:
     container_name: web
-    extends:
-      service: app
-    command: gunicorn admin:app -b 0.0.0.0:5000
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.web
+    command: gunicorn web.app:app -b localhost:5000
     depends_on:
       - migrations
     expose:
       - 5000
     ports:
       - 5000:5000
+
 
 networks:
     deploy_network:

@@ -1,12 +1,12 @@
 from aiogram import (
+    Router,
     types,
     F,
 )
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
-from bot.instances import dispatcher as dp
-from bot.handlers.support import state_safe_clear
+from bot.misc.support import state_safe_clear
 from bot.handlers.change_item.collection.handlers.manage import (
     manage_collection,
 )
@@ -15,7 +15,10 @@ from ..callbacks import DeleteTermCallback
 import database.dao as dao
 
 
-@dp.callback_query(DeleteTermCallback.filter(F.sure == False))
+router = Router()
+
+
+@router.callback_query(DeleteTermCallback.filter(F.sure == False))
 async def delete_term(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -26,7 +29,7 @@ async def delete_term(
     )
 
 
-@dp.callback_query(DeleteTermCallback.filter(F.sure == True))
+@router.callback_query(DeleteTermCallback.filter(F.sure == True))
 async def delete_term_false(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -47,7 +50,7 @@ async def delete_term_false(
     await state_safe_clear(state)
 
 
-@dp.callback_query(DeleteTermCallback.filter())
+@router.callback_query(DeleteTermCallback.filter())
 async def delete_term_true(
     callback: types.CallbackQuery,
     state: FSMContext,

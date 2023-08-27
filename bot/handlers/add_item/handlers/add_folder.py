@@ -1,18 +1,20 @@
 from typing import Callable
-from aiogram import types
+from aiogram import Router, types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
-from bot.instances import dispatcher as dp
-from bot.handlers.support import state_safe_clear
+from bot.misc.support import state_safe_clear
 from bot.handlers.utils.handlers import browse_folder
 from bot.handlers.utils.calbacks import FolderSelectCallback
 from .menu import AddingFolderCallback
 from ..states import CreateFolderStates
 
 
-@dp.callback_query(AddingFolderCallback.filter())
+router = Router()
+
+
+@router.callback_query(AddingFolderCallback.filter())
 async def choose_folder(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -21,15 +23,7 @@ async def choose_folder(
     await state.set_state(CreateFolderStates.choose_place)
 
 
-async def write_folder_name(
-    foo: Callable,
-    state: FSMContext,
-) -> None:
-    await foo(text=_('Write folder name'))
-    await state.set_state(CreateFolderStates.choose_name)
-
-
-@dp.callback_query(
+@router.callback_query(
     FolderSelectCallback.filter(),
     CreateFolderStates.choose_place,
 )
@@ -45,7 +39,7 @@ async def write_folder_name_callback(
     await write_folder_name(callback.message.edit_text, state)
 
 
-@dp.message(CreateFolderStates.choose_name)
+@router.message(CreateFolderStates.choose_name)
 async def create_collection(
     message: types.Message,
     state: FSMContext,

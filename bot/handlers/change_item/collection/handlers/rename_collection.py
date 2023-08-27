@@ -1,18 +1,21 @@
 from typing import Callable
 
-from aiogram import types
+from aiogram import Router, types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
-from bot.instances import dispatcher as dp
-from bot.handlers.support import state_safe_clear
+from bot.misc.support import state_safe_clear
+from bot.handlers.add_item.controller import write_collection_name
 from .manage import manage_collection
 from ..states import ChangeCollectionStates
 from ..callbacks import ChangeCollectionNameCallback
 
 
-@dp.callback_query(ChangeCollectionNameCallback.filter())
+router = Router()
+
+
+@router.callback_query(ChangeCollectionNameCallback.filter())
 async def write_collection_name_callback(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -20,21 +23,7 @@ async def write_collection_name_callback(
     await write_collection_name(callback.message.edit_text, state)
 
 
-async def write_collection_name(
-    foo: Callable,
-    state: FSMContext,
-):
-    state_data = await state.get_data()
-    await foo(
-        text=_(
-            'Write new name (old name {collection_name}):'
-        ).format(collection_name=state_data.get('collection_name')),
-        parse_mode='html',
-    )
-    await state.set_state(ChangeCollectionStates.option_change_name)
-
-
-@dp.message(
+@router.message(
     ChangeCollectionStates.option_change_name,
 )
 async def change_collection_name(

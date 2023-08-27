@@ -10,7 +10,6 @@
             "args": [
                 "postgres",
                 "redis",
-                "rq",
             ],
             "isBackground": true,
             "problemMatcher": [

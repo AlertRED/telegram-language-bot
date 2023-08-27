@@ -1,19 +1,22 @@
-from aiogram import types
+from aiogram import Router, types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
-from bot.instances import dispatcher as dp
-from bot.constants import MAX_TERM_DEFINITION_LENGTH
-from bot.handlers.support import state_safe_clear
+from bot.misc.constants import MAX_TERM_DEFINITION_LENGTH
+from bot.misc.support import state_safe_clear
 from bot.handlers.change_item.collection.handlers.manage import (
     manage_collection,
 )
 from ..states import ChangeTermStates
+from ..controller import write_new_definition
 from ..callbacks import ChangeTermDefinitionCallback
 
 
-@dp.callback_query(ChangeTermDefinitionCallback.filter())
+router = Router()
+
+
+@router.callback_query(ChangeTermDefinitionCallback.filter())
 async def write_new_definition_callback(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -21,24 +24,7 @@ async def write_new_definition_callback(
     await write_new_definition(callback.message, state)
 
 
-async def write_new_definition(
-    message: types.Message,
-    state: FSMContext,
-) -> None:
-    state_data = await state.get_data()
-    await message.edit_text(
-        text=_(
-            'Write new definition'
-            '(old definition is {term_description}):'
-        ).format(
-            term_description=state_data.get('term_description'),
-        ),
-        parse_mode='html',
-    )
-    await state.set_state(ChangeTermStates.change_definition)
-
-
-@dp.message(ChangeTermStates.change_definition)
+@router.message(ChangeTermStates.change_definition)
 async def change_term_definition(
     message: types.Message,
     state: FSMContext,

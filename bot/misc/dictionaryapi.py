@@ -1,16 +1,28 @@
+"""File for working with dictionaryapi
+"""
+
+import aiohttp
 from typing import List
 from http import HTTPStatus
-import aiohttp
 
 
 async def get_definitions(term: str, maximum=4) -> List[str]:
+    """Get list of definitions
+
+    :param term: word for searching definitions
+    :type term: str
+    :param maximum: limit of returning definitions, defaults to 4
+    :type maximum: int, optional
+    :return: List of definitions
+    :rtype: List[str]
+    """
+    definitions = []
     async with aiohttp.ClientSession() as session:
         async with session.get(
             f'https://api.dictionaryapi.dev/api/v2/entries/en/{term}',
         ) as resp:
             if resp.status == HTTPStatus.OK:
                 count = 0
-                definitions = []
                 words = await resp.json()
                 for word in words:
                     for definition in word.get('meanings'):
@@ -20,6 +32,4 @@ async def get_definitions(term: str, maximum=4) -> List[str]:
                         definitions.append(
                             definition.get('definitions')[0].get('definition'),
                         )
-
-                return definitions
-            return []
+    return definitions

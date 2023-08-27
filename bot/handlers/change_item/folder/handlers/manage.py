@@ -1,21 +1,18 @@
-from typing import Callable
-from aiogram import types
+from aiogram import Router, types
 from aiogram.fsm.context import FSMContext
-from aiogram.utils.i18n import gettext as _
 
-from bot.instances import dispatcher as dp
+from database import dao
 from bot.handlers.utils.handlers.browse_folder import browse
 from bot.handlers.utils.calbacks import FolderSelectCallback
-from bot.handlers.change_item.folder.states import ChangeFolderStates
-from ..callbacks import (
-    ChangeFolderCallback,
-    ChangeFolderNameCallback,
-    DeleteFolderCallback,
-    MoveFolderCallback,
-)
+from ..callbacks import ChangeFolderCallback
+from ..controller import manage_folder
+from ..states import ChangeFolderStates
 
 
-@dp.callback_query(ChangeFolderCallback.filter())
+router = Router()
+
+
+@router.callback_query(ChangeFolderCallback.filter())
 async def choose_folder(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -24,7 +21,7 @@ async def choose_folder(
     await state.set_state(ChangeFolderStates.manage_choose_place)
 
 
-@dp.callback_query(
+@router.callback_query(
     FolderSelectCallback.filter(),
     ChangeFolderStates.manage_choose_place,
 )
@@ -43,42 +40,21 @@ async def folder_choosen(
     )
 
 
-async def manage_folder(
-    send_message_foo: Callable,
+async def move_folder_browse(
+    callback: types.CallbackQuery,
     state: FSMContext,
-    additional_text: str = '',
-) -> None:
+):
     state_data = await state.get_data()
-    await send_message_foo(
-        text=_(
-            '{additional_text}'
-            'Manage folder <u><b>{folder_name}</b></u>'
-        ).format(
-            additional_text=additional_text,
-            folder_name=state_data.get('folder_name'),
-        ),
-        parse_mode='html',
-        reply_markup=types.InlineKeyboardMarkup(
-            inline_keyboard=[
-                [
-                    types.InlineKeyboardButton(
-                        text=_('Change name'),
-                        callback_data=ChangeFolderNameCallback().pack(),
-                    ),
-                ],
-                [
-                    types.InlineKeyboardButton(
-                        text=_('Move folder'),
-                        callback_data=MoveFolderCallback().pack(),
-                    ),
-                ],
-                [
-                    types.InlineKeyboardButton(
-                        text=_('Delete folder'),
-                        callback_data=DeleteFolderCallback().pack(),
-                    ),
-                ],
-            ],
-        ),
+
+    parent_folder_id = dao.get_folder(
+        folder_id=state_data.get('folder_id'),
+    ).parent_folder_id
+    await state.update_data(
+        exclude_folders_ids=(
+            [parent_folder_id]
+            if parent_folder_id
+            else parent_folder_id
+        )
     )
-    await state.set_state(ChangeFolderStates.manage_choose_option)
+    await browse(callback, state)
+    await state.set_state(ChangeFolderStates.choose_folder_for_moving)

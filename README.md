@@ -4,7 +4,7 @@ This is telegram bot for collecting terms for any languages you want. You can sa
 
 Structure of menues in bot is showed bellow:
 
-![menues-diagram](assets/bot-routing-map.drawio.svg)
+![menues-diagram](assets/project_scheme/bot-routing-map.drawio.svg)
 
 ## Deploy
 
@@ -52,13 +52,13 @@ python -m alembic -c ./database/alembic.ini upgrade head
 #### Web
 
 ``` shell
-gunicorn admin:app -b localhost:5000
+gunicorn web.app:app -b localhost:5000
 ```
 
 #### Redis Queue
 
 ``` shell
-rq worker --with-scheduler
+./venv/bin/python3 -m arq scheduler.worker.WorkerSettings
 ```
 
 #### Bot
@@ -88,7 +88,7 @@ Targets for make:
 ### Build docker image
 
 ``` shell
-docker buildx build . -t telegram-language-bot -f ./docker/Dockerfile
+docker buildx build . -t telegram-language-bot -f ./docker/Dockerfile.bot
 ```
 
 ### Docker-compose

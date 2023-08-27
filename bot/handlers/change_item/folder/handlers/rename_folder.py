@@ -1,16 +1,19 @@
-from aiogram import types
+from aiogram import Router, types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
 import database.dao as dao
-from bot.instances import dispatcher as dp
-from bot.handlers.support import state_safe_clear
+from bot.misc.support import state_safe_clear
 from .manage import manage_folder
 from ..states import ChangeFolderStates
 from ..callbacks import ChangeFolderNameCallback
+from ..controller import write_folder_name
 
 
-@dp.callback_query(ChangeFolderNameCallback.filter())
+router = Router()
+
+
+@router.callback_query(ChangeFolderNameCallback.filter())
 async def write_folder_name_callback(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -18,23 +21,7 @@ async def write_folder_name_callback(
     await write_folder_name(callback.message, state)
 
 
-async def write_folder_name(
-    message: types.Message,
-    state: FSMContext,
-):
-    state_data = await state.get_data()
-    await message.edit_text(
-        text=_(
-            'Write new name (old name {folder_name}):'
-        ).format(
-            folder_name=state_data.get('folder_name'),
-        ),
-        parse_mode='html',
-    )
-    await state.set_state(ChangeFolderStates.option_change_name)
-
-
-@dp.message(
+@router.message(
     ChangeFolderStates.option_change_name,
 )
 async def change_folder_name(
