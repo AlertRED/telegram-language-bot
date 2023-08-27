@@ -49,23 +49,23 @@ python -m alembic -c ./database/alembic.ini upgrade head
 
 ### Run
 
-#### Web
+1. Web
 
-``` shell
-gunicorn web.app:app -b localhost:5000
-```
+    ``` shell
+    gunicorn web.app:app -b localhost:5000
+    ```
 
-#### Redis Queue
+2. Redis Queue
 
-``` shell
-./venv/bin/python3 -m arq scheduler.worker.WorkerSettings
-```
+    ``` shell
+    ./venv/bin/python3 -m arq scheduler.worker.WorkerSettings
+    ```
 
-#### Bot
+3. Bot
 
-``` shell
-python run.py
-```
+    ``` shell
+    python run.py
+    ```
 
 ## Development notices
 
