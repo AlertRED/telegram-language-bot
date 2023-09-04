@@ -1,4 +1,3 @@
-from typing import Callable
 from aiogram import Router, types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
@@ -9,6 +8,7 @@ from bot.handlers.utils.handlers import browse_folder
 from bot.handlers.utils.calbacks import FolderSelectCallback
 from .menu import AddingFolderCallback
 from ..states import CreateFolderStates
+from ..controller import write_folder_name
 
 
 router = Router()

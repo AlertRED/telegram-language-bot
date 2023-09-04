@@ -1,4 +1,3 @@
-from typing import Callable
 from aiogram import Router, types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
@@ -6,7 +5,6 @@ from aiogram.utils.i18n import gettext as _
 import bot.misc.dictionaryapi as dictionaryapi
 import database.dao as dao
 from bot.misc import constants
-from bot.misc.support import state_safe_clear
 from bot.handlers.utils.handlers import browse_collection
 from bot.handlers.utils.calbacks import CollectionSelectCallback
 from ..states import CreateTermStates
@@ -14,6 +12,7 @@ from ..callbacks import (
     AddTermCallback,
     SuggestionDefinitionChosenCallback,
 )
+from ..controller import write_term_name
 
 
 router = Router()
