@@ -12,7 +12,7 @@ from ..callbacks import (
     AddTermCallback,
     SuggestionDefinitionChosenCallback,
 )
-from ..controller import write_term_name
+from ..controller import add_term, write_term_name
 
 
 router = Router()
